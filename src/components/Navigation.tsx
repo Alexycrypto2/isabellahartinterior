@@ -1,33 +1,38 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="text-minimal text-foreground">
-          ARCH STUDIO
-        </div>
+        <Link to="/" className="flex items-center gap-2">
+          <span className="text-2xl">🏡</span>
+          <span className="font-display text-xl font-semibold text-foreground">
+            Cozy Nest
+          </span>
+        </Link>
         
-        <div className="hidden md:flex items-center space-x-12">
-          <a href="/work" className="text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-            WORK
-          </a>
-          <a href="/services" className="text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-            SERVICES
-          </a>
-          <a href="/about" className="text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-            ABOUT
-          </a>
-          <a href="/blog" className="text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-            BLOG
-          </a>
-          <a href="/contact" className="text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-            CONTACT
-          </a>
+        <div className="hidden md:flex items-center space-x-10">
+          <Link to="/shop" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">
+            Shop
+          </Link>
+          <Link to="/categories" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">
+            Categories
+          </Link>
+          <Link to="/blog" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">
+            Inspiration
+          </Link>
+          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">
+            About
+          </Link>
+          <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">
+            Contact
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
@@ -36,35 +41,54 @@ const Navigation = () => {
 
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           className="md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          {isMenuOpen ? '✕' : '☰'}
+          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-background border-b border-border">
+        <div className="md:hidden bg-background border-b border-border animate-fade-in-up">
           <div className="container mx-auto px-6 py-6 space-y-4">
-            <a href="/work" className="block text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-              WORK
-            </a>
-            <a href="/services" className="block text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-              SERVICES
-            </a>
-            <a href="/about" className="block text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-              ABOUT
-            </a>
-            <a href="/blog" className="block text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-              BLOG
-            </a>
-            <a href="/contact" className="block text-minimal text-muted-foreground hover:text-foreground transition-colors duration-300">
-              CONTACT
-            </a>
+            <Link 
+              to="/shop" 
+              className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Shop
+            </Link>
+            <Link 
+              to="/categories" 
+              className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Categories
+            </Link>
+            <Link 
+              to="/blog" 
+              className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Inspiration
+            </Link>
+            <Link 
+              to="/about" 
+              className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link 
+              to="/contact" 
+              className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
+            </Link>
             
-            {/* Mobile Theme Toggle */}
             <div className="pt-4 border-t border-border">
               <ThemeToggle />
             </div>
