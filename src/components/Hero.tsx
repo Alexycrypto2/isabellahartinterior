@@ -37,16 +37,19 @@ const Hero = () => {
           
           <div className="flex flex-wrap gap-4 reveal-delayed">
             <Link to="/shop">
-              <Button size="lg" className="rounded-full px-8 bg-primary-foreground text-foreground hover:bg-primary-foreground/90">
+              <Button 
+                size="lg" 
+                className="rounded-none px-10 py-6 bg-white text-neutral-900 hover:bg-white/95 font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
                 Shop Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link to="/blog">
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="rounded-full px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                className="rounded-none px-10 py-6 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:border-white/60 font-medium tracking-wide backdrop-blur-sm transition-all duration-300"
               >
                 Get Inspired
               </Button>
