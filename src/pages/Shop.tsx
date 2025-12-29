@@ -1,12 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
-import { products, categories } from "@/data/products";
-import { ExternalLink, Star, SlidersHorizontal, X } from "lucide-react";
+import ProductSearch from "@/components/ProductSearch";
+import { ProductGridSkeleton } from "@/components/ProductSkeleton";
+import ProductQuickView from "@/components/ProductQuickView";
+import { products, categories, Product } from "@/data/products";
+import { ExternalLink, Star, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWishlist } from "@/hooks/useWishlist";
 import {
   Select,
   SelectContent,
@@ -19,11 +23,33 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  
+  const { isInWishlist, toggleWishlist } = useWishlist();
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = activeCategory === "all" 
       ? [...products] 
       : products.filter(p => p.category === activeCategory);
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query)
+      );
+    }
     
     switch (sortBy) {
       case "price-low":
@@ -43,7 +69,12 @@ const Shop = () => {
     }
     
     return result;
-  }, [activeCategory, sortBy]);
+  }, [activeCategory, sortBy, searchQuery]);
+
+  const handleQuickView = (product: Product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
 
   return (
     <PageTransition>
@@ -60,10 +91,18 @@ const Shop = () => {
               <br />
               <span className="italic">Decor Finds</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Every piece is handpicked for quality, style, and value. Click any product 
               to shop directly on Amazon.
             </p>
+            
+            {/* Search Bar */}
+            <div className="flex justify-center">
+              <ProductSearch 
+                searchQuery={searchQuery} 
+                onSearchChange={setSearchQuery} 
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -154,107 +193,134 @@ const Shop = () => {
             )}
 
             {/* Products Grid */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredAndSortedProducts.map((product, index) => (
-                <article 
-                  key={product.id} 
-                  className="group product-card bg-card rounded-2xl overflow-hidden border border-border"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  {/* Image Container */}
-                  <div className="relative aspect-square overflow-hidden">
-                    <img 
-                      src={product.image} 
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    
-                    {/* Badge */}
-                    {product.badge && (
-                      <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ${
-                        product.badge === 'Sale' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-secondary text-secondary-foreground'
-                      }`}>
-                        {product.badge}
-                      </span>
-                    )}
-                    
-                    {/* Pinterest Save Button */}
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <PinterestSaveButton
-                        imageUrl={product.image}
-                        description={`${product.name} - ${product.price} | Found on Cozy Nest Decor`}
-                        url={window.location.origin + `/shop?product=${product.id}`}
+            {isLoading ? (
+              <ProductGridSkeleton count={8} />
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredAndSortedProducts.map((product, index) => (
+                  <article 
+                    key={product.id} 
+                    className="group product-card bg-card rounded-2xl overflow-hidden border border-border"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {/* Image Container */}
+                    <div className="relative aspect-square overflow-hidden">
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
                       />
-                    </div>
-                    
-                    {/* Quick View Overlay */}
-                    <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <Button 
-                        size="sm" 
-                        className="rounded-full"
-                        asChild
-                      >
-                        <a 
-                          href={product.affiliateUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer nofollow"
-                        >
-                          View on Amazon
-                          <ExternalLink className="ml-2 w-3 h-3" />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="p-5">
-                    <span className="text-label text-muted-foreground mb-1 block text-[10px]">
-                      {product.category}
-                    </span>
-                    
-                    <h3 className="font-display text-lg font-medium mb-1 line-clamp-1">
-                      {product.name}
-                    </h3>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center gap-1.5 mb-3">
-                      <div className="flex items-center gap-0.5">
-                        <Star className="w-3.5 h-3.5 fill-primary text-primary" />
-                        <span className="text-sm font-medium">{product.rating}</span>
-                      </div>
-                      <span className="text-muted-foreground text-xs">
-                        ({product.reviews.toLocaleString()})
-                      </span>
-                    </div>
-                    
-                    {/* Price */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold text-foreground">
-                        {product.price}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          {product.originalPrice}
+                      
+                      {/* Badge */}
+                      {product.badge && (
+                        <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ${
+                          product.badge === 'Sale' 
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-secondary text-secondary-foreground'
+                        }`}>
+                          {product.badge}
                         </span>
                       )}
+                      
+                      {/* Action Buttons */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <PinterestSaveButton
+                          imageUrl={product.image}
+                          description={`${product.name} - ${product.price} | Found on Room Refine`}
+                          url={window.location.origin + `/shop?product=${product.id}`}
+                        />
+                        <button
+                          onClick={() => toggleWishlist(product.id, product.name)}
+                          className="w-9 h-9 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-all shadow-md"
+                          aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        >
+                          <Heart 
+                            className={`w-4 h-4 ${
+                              isInWishlist(product.id) 
+                                ? "fill-primary text-primary" 
+                                : "text-neutral-700"
+                            }`} 
+                          />
+                        </button>
+                      </div>
+                      
+                      {/* Quick View Overlay */}
+                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <Button 
+                          size="sm" 
+                          className="rounded-full"
+                          onClick={() => handleQuickView(product)}
+                        >
+                          <Eye className="mr-2 w-4 h-4" />
+                          Quick View
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    
+                    {/* Content */}
+                    <div className="p-5">
+                      <span className="text-label text-muted-foreground mb-1 block text-[10px]">
+                        {product.category}
+                      </span>
+                      
+                      <h3 className="font-display text-lg font-medium mb-1 line-clamp-1">
+                        {product.name}
+                      </h3>
+                      
+                      {/* Rating */}
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <div className="flex items-center gap-0.5">
+                          <Star className="w-3.5 h-3.5 fill-primary text-primary" />
+                          <span className="text-sm font-medium">{product.rating}</span>
+                        </div>
+                        <span className="text-muted-foreground text-xs">
+                          ({product.reviews.toLocaleString()})
+                        </span>
+                      </div>
+                      
+                      {/* Price */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-semibold text-foreground">
+                            {product.price}
+                          </span>
+                          {product.originalPrice && (
+                            <span className="text-sm text-muted-foreground line-through">
+                              {product.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                        <a 
+                          href={product.affiliateUrl}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          className="text-primary hover:text-primary/80 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
 
             {/* Empty State */}
-            {filteredAndSortedProducts.length === 0 && (
+            {!isLoading && filteredAndSortedProducts.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-xl text-muted-foreground mb-4">
-                  No products found in this category yet.
+                  {searchQuery 
+                    ? `No products found for "${searchQuery}"`
+                    : "No products found in this category yet."
+                  }
                 </p>
                 <Button 
                   variant="outline" 
-                  onClick={() => setActiveCategory("all")}
+                  onClick={() => {
+                    setActiveCategory("all");
+                    setSearchQuery("");
+                  }}
                   className="rounded-full"
                 >
                   View All Products
@@ -277,6 +343,13 @@ const Shop = () => {
 
       <Newsletter />
       <Footer />
+      
+      {/* Quick View Modal */}
+      <ProductQuickView 
+        product={selectedProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+      />
       </div>
     </PageTransition>
   );
