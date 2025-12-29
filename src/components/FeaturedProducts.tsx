@@ -2,6 +2,7 @@ import { products } from "@/data/products";
 import { ExternalLink, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import PinterestSaveButton from "@/components/PinterestSaveButton";
 
 const FeaturedProducts = () => {
   const featuredProducts = products.slice(0, 6);
@@ -48,6 +49,15 @@ const FeaturedProducts = () => {
                       {product.badge}
                     </span>
                   )}
+                  
+                  {/* Pinterest Save Button */}
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <PinterestSaveButton
+                      imageUrl={product.image}
+                      description={`${product.name} - ${product.price} | Found on Cozy Nest Decor`}
+                      url={window.location.origin + `/shop?product=${product.id}`}
+                    />
+                  </div>
                 </div>
                 
                 {/* Content */}
