@@ -10,9 +10,9 @@ const Footer = () => {
             {/* Brand */}
             <div className="md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">🏡</span>
+                <span className="text-2xl">✨</span>
                 <span className="font-display text-xl font-semibold text-foreground">
-                  Cozy Nest
+                  Room Refine
                 </span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
@@ -40,7 +40,7 @@ const Footer = () => {
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a 
-                  href="mailto:hello@cozynestdecor.com"
+                  href="mailto:hello@roomrefine.com"
                   className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                   aria-label="Email"
                 >
@@ -120,7 +120,7 @@ const Footer = () => {
           <div className="border-t border-border mt-12 pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-muted-foreground text-sm">
-                © {new Date().getFullYear()} Cozy Nest Decor. All rights reserved.
+                © {new Date().getFullYear()} Room Refine. All rights reserved.
               </p>
               <p className="text-muted-foreground text-sm text-center md:text-right">
                 As an Amazon Associate, I earn from qualifying purchases.
