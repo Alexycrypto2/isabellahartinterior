@@ -35,6 +35,9 @@ const FeaturedProducts = () => {
                   <img 
                     src={product.image} 
                     alt={product.name}
+                    width={400}
+                    height={400}
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                   />

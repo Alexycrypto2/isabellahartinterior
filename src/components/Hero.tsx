@@ -10,7 +10,10 @@ const Hero = () => {
       <img 
         src={heroImage}
         alt="Beautiful home decor interior"
+        width={1920}
+        height={1080}
         fetchPriority="high"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-cover object-center"
       />
       
