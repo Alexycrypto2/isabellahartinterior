@@ -8,6 +8,7 @@ import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import { Chatbot } from "@/components/Chatbot";
+import { ProductRecommendations } from "@/components/ProductRecommendations";
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
         <main>
           <Hero />
           <FeaturedProducts />
+          <ProductRecommendations />
           <Categories />
           <SocialProof />
           <BlogPreview />
