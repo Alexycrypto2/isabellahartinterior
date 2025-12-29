@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
+import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { products, categories } from "@/data/products";
 import { ExternalLink, Star, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,6 @@ const Shop = () => {
         result.sort((a, b) => b.reviews - a.reviews);
         break;
       default:
-        // Featured - keep original order
         break;
     }
     
@@ -178,6 +178,15 @@ const Shop = () => {
                         {product.badge}
                       </span>
                     )}
+                    
+                    {/* Pinterest Save Button */}
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <PinterestSaveButton
+                        imageUrl={product.image}
+                        description={`${product.name} - ${product.price} | Found on Cozy Nest Decor`}
+                        url={window.location.origin + `/shop?product=${product.id}`}
+                      />
+                    </div>
                     
                     {/* Quick View Overlay */}
                     <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">

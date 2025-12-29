@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
+import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { blogPosts } from "@/data/blogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -111,12 +112,21 @@ const BlogPost = () => {
       {/* Featured Image */}
       <section className="pb-12">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto relative">
             <img 
               src={post.image} 
               alt={post.title}
               className="w-full aspect-video object-cover rounded-2xl"
             />
+            {/* Pinterest Save Button */}
+            <div className="absolute top-4 right-4">
+              <PinterestSaveButton
+                imageUrl={post.image}
+                description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
+                url={window.location.href}
+                size="medium"
+              />
+            </div>
           </div>
         </div>
       </section>

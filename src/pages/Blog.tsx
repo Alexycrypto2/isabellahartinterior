@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
+import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { blogPosts } from "@/data/blogPosts";
 
 const Blog = () => {
@@ -64,42 +65,51 @@ const Blog = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post) => (
                 <article key={post.id} className="group">
-                  <Link to={`/blog/${post.id}`} className="block">
-                    <div className="relative overflow-hidden rounded-2xl mb-5">
+                  <div className="relative overflow-hidden rounded-2xl mb-5">
+                    <Link to={`/blog/${post.id}`}>
                       <img 
                         src={post.image} 
                         alt={post.title}
                         className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
                       />
-                      
-                      {/* Category Badge */}
-                      <div className="absolute top-4 left-4">
-                        <span className="category-badge">
-                          {post.category}
-                        </span>
-                      </div>
-                    </div>
+                    </Link>
                     
-                    <div className="space-y-3">
-                      <div className="flex items-center text-sm text-muted-foreground gap-3">
-                        <span>{post.readTime}</span>
-                        <span>•</span>
-                        <span>{post.author}</span>
-                      </div>
-                      
-                      <h2 className="font-display text-xl font-medium group-hover:text-primary transition-colors duration-300 line-clamp-2">
-                        {post.title}
-                      </h2>
-                      
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      
-                      <span className="inline-block text-sm font-medium text-primary group-hover:underline">
-                        Read More →
+                    {/* Category Badge */}
+                    <div className="absolute top-4 left-4">
+                      <span className="category-badge">
+                        {post.category}
                       </span>
                     </div>
+                    
+                    {/* Pinterest Save Button */}
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <PinterestSaveButton
+                        imageUrl={post.image}
+                        description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
+                        url={window.location.origin + `/blog/${post.id}`}
+                      />
+                    </div>
+                  </div>
+                  
+                  <Link to={`/blog/${post.id}`} className="block space-y-3">
+                    <div className="flex items-center text-sm text-muted-foreground gap-3">
+                      <span>{post.readTime}</span>
+                      <span>•</span>
+                      <span>{post.author}</span>
+                    </div>
+                    
+                    <h2 className="font-display text-xl font-medium group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                      {post.title}
+                    </h2>
+                    
+                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                      {post.excerpt}
+                    </p>
+                    
+                    <span className="inline-block text-sm font-medium text-primary group-hover:underline">
+                      Read More →
+                    </span>
                   </Link>
                 </article>
               ))}
