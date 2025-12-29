@@ -3,6 +3,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
+import PageTransition from "@/components/PageTransition";
 import { blogPosts } from "@/data/blogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,8 +70,9 @@ const BlogPost = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navigation />
       
       {/* Hero Section */}
       <section className="pt-32 pb-8">
@@ -171,7 +173,8 @@ const BlogPost = () => {
 
       <Newsletter />
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

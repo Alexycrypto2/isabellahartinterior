@@ -3,6 +3,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
+import PageTransition from "@/components/PageTransition";
 import { products, categories } from "@/data/products";
 import { ExternalLink, Star, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,8 +46,9 @@ const Shop = () => {
   }, [activeCategory, sortBy]);
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navigation />
       
       {/* Hero Section */}
       <section className="pt-32 pb-12 bg-muted/30">
@@ -275,7 +277,8 @@ const Shop = () => {
 
       <Newsletter />
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

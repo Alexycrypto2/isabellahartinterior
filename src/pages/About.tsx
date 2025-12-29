@@ -1,13 +1,14 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
+import PageTransition from "@/components/PageTransition";
 import { Heart, Sparkles, Home, Users } from "lucide-react";
 
 const About = () => {
   return (
-    <div className="min-h-screen">
-      <Navigation />
-      
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navigation />
       {/* Hero Section */}
       <section className="pt-32 pb-20 bg-muted/30">
         <div className="container mx-auto px-6">
@@ -169,7 +170,8 @@ const About = () => {
 
       <Newsletter />
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 
