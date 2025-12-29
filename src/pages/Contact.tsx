@@ -1,5 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,8 +36,9 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navigation />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 bg-muted/30">
@@ -243,7 +245,8 @@ const Contact = () => {
       </section>
 
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

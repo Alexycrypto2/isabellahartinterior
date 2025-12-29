@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
+import PageTransition from "@/components/PageTransition";
 import { blogPosts } from "@/data/blogPosts";
 
 const Blog = () => {
@@ -16,8 +17,9 @@ const Blog = () => {
     : blogPosts.filter(post => post.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <Navigation />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 bg-muted/30">
@@ -135,7 +137,8 @@ const Blog = () => {
 
       <Newsletter />
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 
