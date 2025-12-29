@@ -64,10 +64,20 @@ export default {
         terracotta: "hsl(var(--terracotta))",
         cream: "hsl(var(--cream))",
         "warm-brown": "hsl(var(--warm-brown))",
+        blush: {
+          DEFAULT: "hsl(var(--blush))",
+          light: "hsl(var(--blush-light))",
+          dark: "hsl(var(--blush-dark))",
+        },
+        gray: {
+          warm: "hsl(var(--gray-warm))",
+          soft: "hsl(var(--gray-soft))",
+          mist: "hsl(var(--gray-mist))",
+        },
       },
       fontFamily: {
-        display: ['Cormorant Garamond', 'serif'],
-        sans: ['Nunito Sans', 'sans-serif'],
+        display: ['Playfair Display', 'serif'],
+        sans: ['Outfit', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
