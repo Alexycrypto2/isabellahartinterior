@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -18,12 +19,27 @@ const Newsletter = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Welcome to Cozy Nest! Check your inbox for a welcome gift 🎁");
-    setEmail("");
-    setIsLoading(false);
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert({ email: email.trim().toLowerCase() });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error("You're already subscribed!");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Welcome to Cozy Nest! Check your inbox for a welcome gift 🎁");
+        setEmail("");
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
