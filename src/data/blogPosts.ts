@@ -1,3 +1,7 @@
+import blogBedroom from "@/assets/blog-bedroom-styling.jpg";
+import blogLivingRoom from "@/assets/blog-living-room-tips.jpg";
+import blogEntryway from "@/assets/blog-entryway.jpg";
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -12,314 +16,274 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
-    id: "sustainable-architecture-future",
-    title: "The Future of Sustainable Architecture",
-    excerpt: "Exploring how modern architectural practices are evolving to meet environmental challenges while maintaining design excellence.",
+    id: "cozy-bedroom-styling-guide",
+    title: "The Ultimate Guide to Creating a Cozy Bedroom Retreat",
+    excerpt: "Transform your bedroom into a peaceful sanctuary with these simple yet effective styling tips that won't break the bank.",
     content: `
-# The Future of Sustainable Architecture
+# The Ultimate Guide to Creating a Cozy Bedroom Retreat
 
-The architectural landscape is undergoing a profound transformation as we face the urgent need to address climate change and environmental degradation. Sustainable architecture is no longer a niche consideration—it has become the cornerstone of responsible design practice.
+Your bedroom should be your personal sanctuary – a place where you can unwind, recharge, and escape from the chaos of everyday life. Creating a cozy bedroom doesn't require a complete renovation or an unlimited budget. With thoughtful choices and a few key pieces, you can transform any bedroom into a warm, inviting retreat.
 
-## Defining Sustainable Architecture
+## Start with the Foundation: Your Bedding
 
-Sustainable architecture encompasses more than just energy efficiency. It represents a holistic approach to building design that considers the entire lifecycle of a structure, from material sourcing to end-of-life disposal. This philosophy integrates environmental, social, and economic factors to create buildings that not only minimize their ecological footprint but also enhance the quality of life for their occupants.
+The bed is the centerpiece of any bedroom, and investing in quality bedding makes all the difference.
 
-## Key Principles of Sustainable Design
+### Layer Your Bedding
+- **Base layer**: Start with crisp, breathable sheets in a neutral tone
+- **Middle layer**: Add a lightweight quilt or coverlet
+- **Top layer**: Finish with a chunky knit throw or textured blanket
+- **Pillows**: Mix sizes and textures – euro shams, sleeping pillows, and decorative accent pillows
 
-### Material Selection
-The choice of building materials plays a crucial role in sustainable architecture. Architects are increasingly turning to:
-- Recycled and upcycled materials
-- Locally sourced materials to reduce transportation emissions
-- Bio-based materials like bamboo, cork, and mycelium
-- Materials with low embodied energy
+### Choose Warm, Natural Fabrics
+Linen, cotton, and wool create that lived-in, cozy aesthetic we all love. They also regulate temperature better than synthetic materials.
 
-### Energy Efficiency
-Modern sustainable buildings incorporate:
-- Passive solar design principles
-- High-performance insulation systems
-- Smart building technologies
-- Renewable energy integration
-- Natural ventilation strategies
+## Lighting Sets the Mood
 
-### Water Management
-Sustainable architecture addresses water conservation through:
-- Rainwater harvesting systems
-- Greywater recycling
-- Permeable landscaping
-- Low-flow fixtures and appliances
+Harsh overhead lighting is the enemy of cozy. Instead, create layers of warm, ambient light.
 
-## Emerging Trends
+### Lighting Tips:
+- Use warm-toned bulbs (2700K-3000K)
+- Add bedside table lamps with soft shades
+- Consider a statement pendant or chandelier
+- Include candles for ultimate ambiance
 
-The future of sustainable architecture is being shaped by several emerging trends:
+## Add Texture Everywhere
 
-### Biophilic Design
-The integration of natural elements into built environments is gaining momentum. This approach recognizes the innate human connection to nature and seeks to incorporate natural light, ventilation, vegetation, and organic forms into architectural design.
+Texture is the secret ingredient to making any space feel inviting and curated.
 
-### Circular Economy Principles
-Architects are beginning to design for disassembly, creating buildings that can be easily deconstructed and their materials reused in new projects. This approach challenges the traditional linear model of construction and waste.
+### Ways to Add Texture:
+- Woven baskets for storage and decor
+- Rattan or wood furniture pieces
+- Chunky knit blankets and pillows
+- Natural fiber rugs
+- Dried flowers and pampas grass
 
-### Carbon-Neutral and Carbon-Negative Buildings
-The next generation of sustainable buildings aims not just to minimize carbon emissions but to actively remove carbon from the atmosphere through innovative design and material choices.
+## Don't Forget the Details
 
-## Challenges and Opportunities
+It's the small touches that make a room feel complete and personal.
 
-While the path toward sustainable architecture presents challenges—including higher upfront costs, regulatory barriers, and the need for specialized knowledge—it also offers tremendous opportunities. These include reduced operational costs, improved occupant health and productivity, and the potential to create resilient communities that can adapt to changing environmental conditions.
+### Finishing Touches:
+- A small tray for jewelry and everyday items
+- Fresh or dried flowers on the nightstand
+- A few carefully chosen books
+- A scented candle that brings you joy
+- Personal photos in simple frames
 
-## Conclusion
+## Color Palette Matters
 
-The future of architecture lies in our ability to create buildings that work in harmony with natural systems. As architects, we have the responsibility and the opportunity to design a built environment that supports both human well-being and planetary health. The transition to sustainable architecture is not just an environmental imperative—it is a creative challenge that will define the next era of architectural innovation.
+Stick to warm, neutral tones with occasional pops of earthy colors like terracotta, sage green, or dusty rose. This creates a cohesive, calming atmosphere.
+
+## The Bottom Line
+
+Creating a cozy bedroom is about intention – choosing pieces that bring you comfort and joy, and arranging them in a way that feels natural and inviting. Start with one or two changes and build from there. Your perfect retreat awaits!
     `,
-    author: "Sarah Chen",
-    date: "2024-03-15",
-    readTime: "8 min read",
-    category: "SUSTAINABILITY",
-    image: "/src/assets/blog-sustainable-architecture.jpg"
-  },
-  {
-    id: "minimalism-modern-living",
-    title: "Minimalism in Modern Living Spaces",
-    excerpt: "How the principles of minimalist design are reshaping contemporary residential architecture and interior spaces.",
-    content: `
-# Minimalism in Modern Living Spaces
-
-In an era of overwhelming digital noise and material excess, minimalist architecture offers a sanctuary of calm and clarity. This design philosophy, rooted in the Japanese concept of "ma" (negative space) and Scandinavian functionality, has evolved into a defining characteristic of contemporary residential design.
-
-## The Philosophy Behind Minimalism
-
-Minimalist architecture is not about creating empty or stark spaces—it's about intentional design choices that prioritize function, beauty, and the essential elements of living. The approach emphasizes:
-
-- **Simplicity over complexity**
-- **Quality over quantity**
-- **Space over stuff**
-- **Light over ornament**
-
-## Core Elements of Minimalist Design
-
-### Clean Lines and Geometric Forms
-Minimalist architecture favors simple geometric shapes and clean lines. This creates a sense of order and tranquility that serves as a backdrop for daily life. The absence of decorative elements allows the architecture itself to become the focal point.
-
-### Natural Materials
-The minimalist palette typically includes:
-- Raw concrete
-- Natural wood
-- Steel and glass
-- Stone and marble
-- Neutral textiles
-
-These materials are chosen for their inherent beauty and authenticity, often displayed in their natural state without excessive finishing or treatment.
-
-### Strategic Use of Light
-Natural light becomes a design element in minimalist spaces. Large windows, skylights, and glass walls not only illuminate the interior but create a connection with the outdoors. The interplay of light and shadow throughout the day adds depth and interest to otherwise simple surfaces.
-
-### Functional Furniture and Built-ins
-Every piece serves a purpose in minimalist design. Furniture is often built-in or carefully selected for both function and aesthetic value. Storage solutions are integrated seamlessly into the architecture, maintaining the clean lines while providing necessary functionality.
-
-## The Psychology of Minimalist Living
-
-Research in environmental psychology suggests that minimalist spaces can have profound effects on mental well-being:
-
-### Reduced Stress and Anxiety
-Clutter-free environments have been shown to reduce cortisol levels and promote feelings of calm and control.
-
-### Enhanced Focus and Productivity
-With fewer visual distractions, occupants often report improved concentration and mental clarity.
-
-### Greater Appreciation for Quality
-When surrounded by fewer but higher-quality items, people tend to develop a deeper appreciation for craftsmanship and design.
-
-## Challenges and Considerations
-
-### Storage Solutions
-One of the biggest challenges in minimalist design is providing adequate storage while maintaining clean aesthetics. This requires creative solutions such as:
-- Hidden storage compartments
-- Multi-functional furniture
-- Dedicated storage rooms or areas
-
-### Personalization
-Creating minimalist spaces that feel warm and personal requires careful curation of meaningful objects and artwork.
-
-### Maintenance
-Minimalist spaces can show wear and dirt more easily, requiring consistent maintenance to preserve their pristine appearance.
-
-## Minimalism and Sustainability
-
-The minimalist approach aligns naturally with sustainable design principles:
-- **Reduced material consumption**
-- **Focus on durability over trends**
-- **Energy efficiency through passive design**
-- **Long-term thinking over short-term aesthetics**
-
-## Conclusion
-
-Minimalism in modern living spaces represents more than just an aesthetic choice—it's a lifestyle philosophy that prioritizes intention, quality, and well-being. As our lives become increasingly complex, the simplicity and clarity of minimalist design offer a path toward more meaningful and sustainable ways of living.
-
-The challenge for architects and designers is to create minimalist spaces that feel alive and welcoming rather than cold or sterile. When executed thoughtfully, minimalist design can provide the perfect canvas for life's most important moments.
-    `,
-    author: "Marcus Rodriguez",
-    date: "2024-03-10",
+    author: "Emma Rose",
+    date: "2024-12-15",
     readTime: "6 min read",
-    category: "DESIGN",
-    image: "/src/assets/blog-minimalist-living.jpg"
+    category: "BEDROOM",
+    image: blogBedroom
   },
   {
-    id: "urban-planning-community-spaces",
-    title: "Urban Planning and Community Spaces",
-    excerpt: "Examining the role of thoughtful urban planning in creating vibrant, inclusive communities through architectural design.",
+    id: "living-room-styling-tips",
+    title: "10 Living Room Styling Tips That Interior Designers Swear By",
+    excerpt: "Professional interior designers share their secrets for creating a stunning living room that's both beautiful and functional.",
     content: `
-# Urban Planning and Community Spaces
+# 10 Living Room Styling Tips That Interior Designers Swear By
 
-The fabric of our cities is woven through the careful orchestration of public and private spaces, each contributing to the complex ecosystem of urban life. As populations continue to urbanize, the role of thoughtful urban planning and community-centered architectural design becomes increasingly critical in shaping livable, sustainable, and equitable cities.
+The living room is the heart of your home – it's where you relax, entertain, and spend quality time with loved ones. Getting the styling right can feel overwhelming, but these professional tips will help you create a space that's both stunning and livable.
 
-## The Evolution of Urban Planning
+## 1. Start with a Focal Point
 
-Urban planning has evolved from purely functional considerations—managing traffic flow, utilities, and zoning—to encompass broader goals of social equity, environmental sustainability, and community well-being. This shift recognizes that cities are not just collections of buildings and infrastructure, but complex social organisms that require careful nurturing.
+Every great living room needs a focal point. This could be:
+- A beautiful fireplace
+- A statement piece of artwork
+- A stunning view through large windows
+- An accent wall with texture or color
 
-### From Zoning to Place-Making
+Arrange your furniture to complement this focal point, drawing the eye naturally to the star of the room.
 
-Traditional zoning practices often created segregated, single-use districts that required extensive commuting and limited social interaction. Contemporary urban planning embraces mixed-use development and place-making strategies that:
+## 2. Layer Your Lighting
 
-- **Encourage walkability and cycling**
-- **Mix residential, commercial, and office spaces**
-- **Create destinations rather than just developments**
-- **Foster chance encounters and community building**
+Just like in the bedroom, lighting is crucial. Create depth with:
+- **Ambient lighting**: Overhead fixtures or recessed lights
+- **Task lighting**: Reading lamps or desk lamps
+- **Accent lighting**: Candles, string lights, or picture lights
 
-## The Architecture of Community
+## 3. Mix Textures and Materials
 
-Community spaces serve as the living rooms of our cities—places where strangers become neighbors, where cultural exchange happens naturally, and where the social fabric of urban life is strengthened.
+A room with only one texture feels flat and unfinished. Combine:
+- Smooth leather or velvet with chunky knits
+- Glass or metal with natural wood
+- Soft textiles with hard surfaces
 
-### Public Squares and Plazas
-Well-designed public squares act as outdoor rooms that can accommodate a variety of activities:
-- **Markets and festivals**
-- **Informal gatherings and people-watching**
-- **Children's play and elderly socialization**
-- **Political demonstrations and civic engagement**
+## 4. Don't Push All Furniture Against Walls
 
-### Community Centers and Libraries
-Modern community centers are evolving beyond their traditional roles to become:
-- **Flexible spaces that adapt to different needs**
-- **Technology hubs providing digital access**
-- **Venues for lifelong learning and skill development**
-- **Safe havens during emergencies or extreme weather**
+This is one of the biggest mistakes people make. Pull your sofa away from the wall to create a more intimate, cozy conversation area. This also makes the room feel larger and more intentional.
 
-### Parks and Green Spaces
-Urban parks provide essential ecosystem services while creating opportunities for recreation, contemplation, and community gathering. Effective park design considers:
-- **Diverse programming for different age groups**
-- **Seasonal activities and year-round usability**
-- **Biodiversity and habitat creation**
-- **Stormwater management and climate resilience**
+## 5. Invest in Quality Basics
 
-## Principles of Inclusive Design
+Splurge on pieces you'll use every day:
+- A comfortable, well-made sofa
+- A durable, stylish rug
+- Quality coffee and side tables
 
-Creating truly community-centered spaces requires attention to inclusivity and accessibility:
+Save money on decorative accessories that can be easily updated.
 
-### Universal Design
-Spaces should be usable by people of all abilities, ages, and backgrounds. This includes:
-- **Physical accessibility through ramps, elevators, and clear sightlines**
-- **Sensory considerations for those with hearing or visual impairments**
-- **Cultural sensitivity in programming and design**
-- **Economic accessibility through free or low-cost activities**
+## 6. Add Greenery
 
-### Safety and Comfort
-Community spaces must feel safe and welcoming to all users:
-- **Good lighting and clear sightlines**
-- **Natural surveillance through strategic positioning**
-- **Comfortable seating and weather protection**
-- **Clean and well-maintained facilities**
+Plants bring life and freshness to any space. If you're not a plant parent, try:
+- Dried arrangements and pampas grass
+- High-quality faux plants
+- Fresh cut branches in a statement vase
 
-## The Role of Participation
+## 7. Create Zones
 
-Successful community spaces are designed with, not just for, the people who will use them. Participatory design processes involve:
+In an open-plan space, use rugs, furniture arrangement, and lighting to define different areas for lounging, reading, or conversation.
 
-### Community Engagement
-- **Public meetings and design charrettes**
-- **Surveys and focus groups with diverse stakeholders**
-- **Pop-up installations to test design ideas**
-- **Ongoing feedback and adaptation**
+## 8. Style Your Coffee Table
 
-### Cultural Responsiveness
-Understanding the specific cultural context of a community is essential:
-- **Recognizing existing social patterns and traditions**
-- **Incorporating local materials and architectural vernacular**
-- **Supporting local businesses and economies**
-- **Celebrating cultural diversity through programming and design**
+A well-styled coffee table adds instant polish:
+- Start with a tray to corral items
+- Add a stack of coffee table books
+- Include something organic (plant, flowers, bowl of fruit)
+- Finish with a candle or small decorative object
 
-## Technology and Smart Cities
+## 9. Don't Forget the Fifth Wall
 
-The integration of technology into urban planning offers new opportunities for community building:
+The ceiling is often overlooked but can add so much character through:
+- Statement light fixtures
+- Paint color or wallpaper
+- Exposed beams or architectural details
 
-### Digital Infrastructure
-- **Free Wi-Fi in public spaces**
-- **Digital wayfinding and information systems**
-- **Online platforms for community organizing**
-- **Data collection for continuous improvement**
+## 10. Edit Ruthlessly
 
-### Responsive Design
-Smart city technologies can make spaces more adaptive to community needs:
-- **Lighting that responds to usage patterns**
-- **Flexible infrastructure for different events**
-- **Real-time feedback systems**
-- **Environmental monitoring for health and comfort**
+The secret to a beautiful room is knowing when to stop. Remove anything that doesn't serve a purpose or bring you joy. White space is important – not every surface needs something on it.
 
-## Challenges and Opportunities
+## Final Thoughts
 
-### Gentrification and Displacement
-Well-designed community spaces can inadvertently contribute to gentrification. Planners must consider:
-- **Affordable housing preservation**
-- **Local business protection**
-- **Community ownership models**
-- **Equitable development strategies**
+Creating a beautiful living room takes time. Start with the foundational pieces, then layer in accessories and decor over time. Trust your instincts and choose pieces that speak to you!
+    `,
+    author: "James Chen",
+    date: "2024-12-10",
+    readTime: "8 min read",
+    category: "LIVING ROOM",
+    image: blogLivingRoom
+  },
+  {
+    id: "entryway-organization-ideas",
+    title: "Small Entryway Organization Ideas That Make a Big Impact",
+    excerpt: "Maximize your small entryway with these clever organization solutions and styling tips that create a welcoming first impression.",
+    content: `
+# Small Entryway Organization Ideas That Make a Big Impact
 
-### Climate Change Adaptation
-Urban planning must increasingly consider climate resilience:
-- **Heat island effect mitigation**
-- **Flood management and permeable surfaces**
-- **Emergency shelter and evacuation routes**
-- **Food security and urban agriculture**
+Your entryway is the first thing guests see when they enter your home – and the last thing you see before leaving. Even if your entryway is tiny (or practically non-existent), there are ways to make it functional and beautiful.
 
-## Case Studies in Success
+## Why Your Entryway Matters
 
-### Copenhagen's Public Spaces
-Copenhagen has transformed itself into one of the world's most livable cities through strategic investment in:
-- **Extensive cycling infrastructure**
-- **Year-round public space programming**
-- **Climate-adapted design for Nordic conditions**
-- **Strong public-private partnerships**
+A well-organized entryway:
+- Creates a great first impression
+- Reduces daily stress and chaos
+- Keeps clutter from spreading to other rooms
+- Sets the tone for your entire home
 
-### Medellín's Urban Acupuncture
-Medellín, Colombia, has used targeted architectural interventions to transform neighborhoods:
-- **Library parks in underserved areas**
-- **Cable car systems connecting hillside communities**
-- **Green corridors along waterways**
-- **Community-led improvement projects**
+## Essential Elements of a Functional Entryway
 
-## The Future of Community-Centered Design
+### 1. A Place for Keys and Small Items
 
-As we look toward the future, several trends are shaping community-centered urban design:
+Nothing is more frustrating than searching for your keys when you're running late. Solutions include:
+- A small dish or bowl on a console table
+- A wall-mounted key hook
+- A small tray for everyday essentials
 
-### Tactical Urbanism
-Temporary, low-cost interventions that test ideas before permanent implementation:
-- **Pop-up parks and parklets**
-- **Temporary bike lanes**
-- **Street art and murals**
-- **Community gardens**
+### 2. Shoe Storage
 
-### Intergenerational Design
-Spaces that bring together people of all ages:
-- **Playgrounds adjacent to senior seating**
-- **Community workshops and maker spaces**
-- **Intergenerational housing models**
-- **Shared learning environments**
+Shoes by the door are inevitable. Keep them tidy with:
+- A bench with hidden storage
+- A slim shoe rack or cabinet
+- Baskets or bins under a console table
+
+### 3. Coat and Bag Storage
+
+Whether you have a closet or not, you need hooks:
+- Wall-mounted coat hooks at varying heights
+- An over-the-door hook system
+- A small coat rack if space allows
+
+### 4. A Landing Zone for Mail
+
+Prevent mail pile-up with:
+- A wall-mounted mail organizer
+- Small baskets on a shelf
+- A dedicated "in" and "out" system
+
+## Small Space Solutions
+
+### Vertical Storage
+When floor space is limited, go up:
+- Floating shelves
+- Wall-mounted organizers
+- Over-the-door storage
+
+### Multi-Functional Furniture
+Choose pieces that do double duty:
+- A storage ottoman for seating and storage
+- A console table with drawers and shelves
+- A mirror with hidden storage
+
+### Light Colors and Mirrors
+Make your space feel larger with:
+- Light-colored walls and furniture
+- A large mirror to reflect light
+- Glass or lucite furniture pieces
+
+## Styling Your Entryway
+
+Once the practical elements are in place, add personality:
+
+### Console Table Styling
+- Start with a lamp for warm lighting
+- Add a small plant or vase with greenery
+- Include a decorative bowl or tray
+- Finish with a piece of art above
+
+### Wall Decor
+- A gallery wall of family photos
+- A statement mirror
+- A single piece of oversized art
+- Floating shelves with curated objects
+
+## Seasonal Updates
+
+Keep your entryway fresh by updating with the seasons:
+- **Spring/Summer**: Fresh flowers, lighter textiles
+- **Fall**: Pumpkins, warm candles, cozy throws
+- **Winter**: Evergreen branches, festive touches
+
+## The 5-Minute Daily Reset
+
+The key to maintaining an organized entryway is a quick daily reset:
+1. Hang up coats and bags
+2. Put shoes in their place
+3. Sort mail and recycle junk
+4. Wipe down surfaces
+5. Fluff any textiles
+
+## Budget-Friendly Ideas
+
+You don't need to spend a lot:
+- DIY a key hook from a piece of driftwood
+- Repurpose baskets and containers you already own
+- Shop secondhand for console tables and benches
+- Use command hooks for a no-drill solution
 
 ## Conclusion
 
-The future of our cities depends on our ability to create spaces that strengthen community bonds while addressing the challenges of urbanization, climate change, and social inequality. Through thoughtful urban planning and community-centered architectural design, we can build cities that are not just efficient and sustainable, but truly livable for all their inhabitants.
-
-The most successful community spaces are those that grow and evolve with their users, adapting to changing needs while maintaining their essential character as places of gathering, exchange, and belonging. As architects and planners, our role is to provide the physical framework for community life while remaining flexible enough to support the unexpected ways that people will inhabit and transform these spaces.
+Even the smallest entryway can be transformed into a functional, beautiful space that welcomes you home every day. Start with the essentials, add your personal style, and maintain it with a simple daily routine. Your future self will thank you!
     `,
-    author: "Elena Nakamura",
-    date: "2024-03-05",
-    readTime: "10 min read",
-    category: "URBAN PLANNING",
-    image: "/src/assets/blog-urban-planning.jpg"
+    author: "Sophie Miller",
+    date: "2024-12-05",
+    readTime: "7 min read",
+    category: "ORGANIZATION",
+    image: blogEntryway
   }
 ];
