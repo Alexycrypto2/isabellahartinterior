@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logoImage from "@/assets/logo.png";
+import logoImage from "@/assets/logo.jpg";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,15 +11,12 @@ const Navigation = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center">
           <img 
             src={logoImage} 
-            alt="Room Refine logo" 
-            className="h-9 w-auto dark:invert"
+            alt="RoomRefine logo" 
+            className="h-12 w-auto"
           />
-          <span className="font-display text-xl font-semibold text-foreground tracking-tight">
-            Room Refine
-          </span>
         </Link>
         
         <div className="hidden md:flex items-center space-x-10">
