@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Newsletter from "@/components/Newsletter";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import { blogPosts } from "@/data/blogPosts";
@@ -171,7 +170,6 @@ const BlogPost = () => {
         </div>
       </section>
 
-      <Newsletter />
       <Footer />
       </div>
     </PageTransition>

@@ -1,6 +1,5 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Newsletter from "@/components/Newsletter";
 import PageTransition from "@/components/PageTransition";
 import { Heart, Sparkles, Home, Users } from "lucide-react";
 
@@ -168,7 +167,6 @@ const About = () => {
         </div>
       </section>
 
-      <Newsletter />
       <Footer />
       </div>
     </PageTransition>
