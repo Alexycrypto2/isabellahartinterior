@@ -1,8 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+// Allowed origins for CORS - restrict to your app domains
+const allowedOrigins = [
+  "https://roomeefine.lovable.app",
+  "https://lovable.dev",
+  "http://localhost:5173",
+  "http://localhost:8080",
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigin = origin && allowedOrigins.some(allowed => origin.startsWith(allowed.replace(/:\d+$/, '')))
+    ? origin 
+    : allowedOrigins[0];
+  
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Credentials": "true",
+  };
 };
 
 const products = [
@@ -15,6 +30,9 @@ const products = [
 ];
 
 serve(async (req) => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,10 +42,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("Service configuration error");
     }
 
-    console.log("Received preferences:", preferences);
+    console.log("Processing recommendation request for room:", preferences?.room);
 
     const systemPrompt = `You are a home decor product recommendation assistant. Based on user preferences, recommend the best products from our catalog.
 
@@ -71,30 +90,29 @@ Please recommend products that would work best for me.`;
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      console.error("AI gateway error:", response.status);
       throw new Error("Failed to get AI recommendations");
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
-    
-    console.log("AI response:", content);
 
     let recommendations;
     try {
       recommendations = JSON.parse(content);
     } catch {
-      console.error("Failed to parse AI response:", content);
-      throw new Error("Invalid AI response format");
+      console.error("Failed to parse AI response");
+      throw new Error("Invalid response format");
     }
+
+    console.log("Successfully generated", recommendations.recommendations?.length || 0, "recommendations");
 
     return new Response(JSON.stringify(recommendations), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Recommendations error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    console.error("Recommendations function error:", error instanceof Error ? error.message : "Unknown error");
+    return new Response(JSON.stringify({ error: "Failed to get recommendations. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -54,7 +54,10 @@ export const ProductRecommendations = () => {
       setRecommendations(data.recommendations || []);
       setStep(4);
     } catch (error) {
-      console.error("Error getting recommendations:", error);
+      // Only log in development to prevent info leakage
+      if (import.meta.env.DEV) {
+        console.error("Recommendations error:", error instanceof Error ? error.message : "Unknown error");
+      }
       toast({
         title: "Error",
         description: "Failed to get recommendations. Please try again.",
