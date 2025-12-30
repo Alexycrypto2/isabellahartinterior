@@ -94,7 +94,10 @@ export const Chatbot = () => {
     try {
       await streamChat(updatedMessages);
     } catch (error) {
-      console.error("Chat error:", error);
+      // Only log error type in development, not full error details
+      if (import.meta.env.DEV) {
+        console.error("Chat error:", error instanceof Error ? error.message : "Unknown error");
+      }
       setMessages(prev => [...prev, { 
         role: "assistant", 
         content: "I'm sorry, I encountered an error. Please try again." 
