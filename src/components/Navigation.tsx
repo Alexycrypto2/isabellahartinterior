@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logoIcon from "@/assets/logo-icon.png";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,15 +10,18 @@ const Navigation = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <img 
-            src={logoIcon} 
-            alt="RoomRefine" 
-            className="h-10 w-10"
-          />
-          <span className="font-display text-xl font-semibold tracking-tight" style={{ color: '#B8956B' }}>
-            RoomRefine
-          </span>
+        <Link to="/" className="flex items-center gap-2 group">
+          {/* Elegant R monogram */}
+          <div className="relative w-10 h-10 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[#B8956B] to-[#8B6914] opacity-90 group-hover:opacity-100 transition-opacity" />
+            <span className="relative text-white font-display text-xl font-bold tracking-tight">R</span>
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-display text-lg font-semibold tracking-tight text-[#B8956B]">
+              Roomee<span className="text-foreground">fine</span>
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Interior Design</span>
+          </div>
         </Link>
         
         <div className="hidden md:flex items-center space-x-10">
