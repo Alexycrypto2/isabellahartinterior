@@ -17,7 +17,7 @@ const Navigation = () => {
             alt="RoomRefine" 
             className="h-10 w-10"
           />
-          <span className="font-display text-xl font-semibold tracking-tight" style={{ color: '#C4A86B' }}>
+          <span className="font-display text-xl font-semibold tracking-tight" style={{ color: '#B8956B' }}>
             RoomRefine
           </span>
         </Link>
