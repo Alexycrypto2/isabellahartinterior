@@ -18,7 +18,7 @@ const Navigation = () => {
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-display text-lg font-semibold tracking-tight text-[#B8956B]">
-              Roomee<span className="text-foreground">fine</span>
+              Room<span className="text-foreground">Refine</span>
             </span>
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Interior Design</span>
           </div>
