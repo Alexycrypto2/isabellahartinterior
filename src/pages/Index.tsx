@@ -1,13 +1,26 @@
+import { lazy, Suspense } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
-import Categories from "@/components/Categories";
-import SocialProof from "@/components/SocialProof";
-import BlogPreview from "@/components/BlogPreview";
-import Newsletter from "@/components/Newsletter";
-import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import { ProductRecommendations } from "@/components/ProductRecommendations";
+
+// Lazy load below-fold components for better initial load performance
+const Categories = lazy(() => import("@/components/Categories"));
+const SocialProof = lazy(() => import("@/components/SocialProof"));
+const BlogPreview = lazy(() => import("@/components/BlogPreview"));
+const Newsletter = lazy(() => import("@/components/Newsletter"));
+const Footer = lazy(() => import("@/components/Footer"));
+const ProductRecommendations = lazy(() => 
+  import("@/components/ProductRecommendations").then(module => ({ 
+    default: module.ProductRecommendations 
+  }))
+);
+
+const SectionLoader = () => (
+  <div className="py-24 flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const Index = () => {
   return (
@@ -17,13 +30,25 @@ const Index = () => {
         <main>
           <Hero />
           <FeaturedProducts />
-          <ProductRecommendations />
-          <Categories />
-          <SocialProof />
-          <BlogPreview />
-          <Newsletter />
+          <Suspense fallback={<SectionLoader />}>
+            <ProductRecommendations />
+          </Suspense>
+          <Suspense fallback={<SectionLoader />}>
+            <Categories />
+          </Suspense>
+          <Suspense fallback={<SectionLoader />}>
+            <SocialProof />
+          </Suspense>
+          <Suspense fallback={<SectionLoader />}>
+            <BlogPreview />
+          </Suspense>
+          <Suspense fallback={<SectionLoader />}>
+            <Newsletter />
+          </Suspense>
         </main>
-        <Footer />
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
       </div>
     </PageTransition>
   );

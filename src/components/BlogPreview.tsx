@@ -1,10 +1,11 @@
+import { memo } from "react";
 import { blogPosts } from "@/data/blogPosts";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 
-const BlogPreview = () => {
+const BlogPreview = memo(() => {
   const recentPosts = blogPosts.slice(0, 3);
 
   return (
@@ -39,6 +40,9 @@ const BlogPreview = () => {
                     <img 
                       src={post.image} 
                       alt={post.title}
+                      width={400}
+                      height={300}
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
                     />
@@ -76,6 +80,8 @@ const BlogPreview = () => {
       </div>
     </section>
   );
-};
+});
+
+BlogPreview.displayName = "BlogPreview";
 
 export default BlogPreview;

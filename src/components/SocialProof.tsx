@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Star, Quote } from "lucide-react";
 
 const testimonials = [
@@ -35,7 +36,7 @@ const featuredIn = [
   { name: "Better Homes", logo: "🌿" },
 ];
 
-const SocialProof = () => {
+const SocialProof = memo(() => {
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-6">
@@ -105,6 +106,8 @@ const SocialProof = () => {
       </div>
     </section>
   );
-};
+});
+
+SocialProof.displayName = "SocialProof";
 
 export default SocialProof;
