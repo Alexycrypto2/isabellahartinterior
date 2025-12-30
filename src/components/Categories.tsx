@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { categories } from "@/data/products";
 import { Link } from "react-router-dom";
 
-const Categories = () => {
+const Categories = memo(() => {
   const displayCategories = categories.filter(cat => cat.id !== 'all');
 
   return (
@@ -42,6 +43,8 @@ const Categories = () => {
       </div>
     </section>
   );
-};
+});
+
+Categories.displayName = "Categories";
 
 export default Categories;
