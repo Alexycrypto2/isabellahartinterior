@@ -8,7 +8,6 @@ import PageTransition from "@/components/PageTransition";
 const Categories = lazy(() => import("@/components/Categories"));
 const SocialProof = lazy(() => import("@/components/SocialProof"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
-const Newsletter = lazy(() => import("@/components/Newsletter"));
 const Footer = lazy(() => import("@/components/Footer"));
 const ProductRecommendations = lazy(() => 
   import("@/components/ProductRecommendations").then(module => ({ 
@@ -41,9 +40,6 @@ const Index = () => {
           </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <BlogPreview />
-          </Suspense>
-          <Suspense fallback={<SectionLoader />}>
-            <Newsletter />
           </Suspense>
         </main>
         <Suspense fallback={null}>

@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Newsletter from "@/components/Newsletter";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import ProductSearch from "@/components/ProductSearch";
@@ -341,7 +340,6 @@ const Shop = () => {
         </div>
       </section>
 
-      <Newsletter />
       <Footer />
       
       {/* Quick View Modal */}
