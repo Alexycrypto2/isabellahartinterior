@@ -20,6 +20,77 @@ const getCorsHeaders = (origin: string | null) => {
   };
 };
 
+// Rate limiting using in-memory store (per instance)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_MAX = 10; // requests per window
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
+// Valid options for preferences
+const VALID_STYLES = ["modern", "minimalist", "bohemian", "scandinavian", "industrial", "traditional", "coastal", "farmhouse"];
+const VALID_ROOMS = ["living-room", "bedroom", "kitchen", "bathroom", "office", "dining-room", "entryway"];
+const VALID_BUDGETS = ["budget", "mid-range", "luxury"];
+const VALID_PRIORITIES = ["style", "comfort", "functionality", "durability"];
+
+// Validate preferences structure
+function validatePreferences(preferences: unknown): { valid: boolean; error?: string } {
+  if (!preferences || typeof preferences !== "object") {
+    return { valid: false, error: "Preferences object is required" };
+  }
+  
+  const prefs = preferences as Record<string, unknown>;
+  
+  if (!prefs.style || typeof prefs.style !== "string") {
+    return { valid: false, error: "Style preference is required" };
+  }
+  
+  if (!VALID_STYLES.includes(prefs.style.toLowerCase())) {
+    return { valid: false, error: "Invalid style preference" };
+  }
+  
+  if (!prefs.room || typeof prefs.room !== "string") {
+    return { valid: false, error: "Room preference is required" };
+  }
+  
+  if (!VALID_ROOMS.includes(prefs.room.toLowerCase())) {
+    return { valid: false, error: "Invalid room preference" };
+  }
+  
+  if (!prefs.budget || typeof prefs.budget !== "string") {
+    return { valid: false, error: "Budget preference is required" };
+  }
+  
+  if (!VALID_BUDGETS.includes(prefs.budget.toLowerCase())) {
+    return { valid: false, error: "Invalid budget preference" };
+  }
+  
+  if (!prefs.priority || typeof prefs.priority !== "string") {
+    return { valid: false, error: "Priority preference is required" };
+  }
+  
+  if (!VALID_PRIORITIES.includes(prefs.priority.toLowerCase())) {
+    return { valid: false, error: "Invalid priority preference" };
+  }
+  
+  return { valid: true };
+}
+
 const products = [
   { id: "rattan-pendant-lamp", name: "Boho Rattan Pendant Light", category: "lighting", price: "$89.99", description: "Hand-woven rattan pendant lamp that adds warmth and texture" },
   { id: "ceramic-vase-pampas", name: "Ceramic Vase with Dried Pampas", category: "decor", price: "$45.99", description: "Elegant two-tone ceramic vase with pampas grass" },
@@ -37,8 +108,32 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Get client IP for rate limiting
+  const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                   req.headers.get("x-real-ip") || 
+                   "unknown";
+
+  // Check rate limit
+  if (!checkRateLimit(clientIP)) {
+    return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
+      status: 429,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const { preferences } = await req.json();
+    const body = await req.json();
+    const { preferences } = body;
+    
+    // Validate input
+    const validation = validatePreferences(preferences);
+    if (!validation.valid) {
+      return new Response(JSON.stringify({ error: validation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -90,6 +185,12 @@ Please recommend products that would work best for me.`;
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       console.error("AI gateway error:", response.status);
       throw new Error("Failed to get AI recommendations");
     }
