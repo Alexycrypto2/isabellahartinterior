@@ -20,27 +20,94 @@ const getCorsHeaders = (origin: string | null) => {
   };
 };
 
-// Rate limiting using in-memory store (per instance)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_MAX = 20; // requests per window
+// Enhanced rate limiting with sliding window and daily limits
+const rateLimitStore = new Map<string, { 
+  count: number; 
+  resetTime: number;
+  dailyCount: number;
+  dailyResetTime: number;
+}>();
+const RATE_LIMIT_MAX = 10; // Reduced: requests per minute window
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const DAILY_LIMIT_MAX = 100; // Daily limit per IP
+const DAILY_WINDOW = 24 * 60 * 60 * 1000; // 24 hours
 
-function checkRateLimit(ip: string): boolean {
+// Burst protection - track rapid sequential requests
+const burstStore = new Map<string, number[]>();
+const BURST_WINDOW = 5000; // 5 seconds
+const BURST_MAX = 3; // Max 3 requests in 5 seconds
+
+function checkRateLimit(ip: string): { allowed: boolean; reason?: string } {
   const now = Date.now();
-  const record = rateLimitStore.get(ip);
   
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return true;
+  // Check burst rate (rapid fire protection)
+  const bursts = burstStore.get(ip) || [];
+  const recentBursts = bursts.filter(t => now - t < BURST_WINDOW);
+  
+  if (recentBursts.length >= BURST_MAX) {
+    return { allowed: false, reason: "Too many requests in quick succession. Please slow down." };
   }
   
+  recentBursts.push(now);
+  burstStore.set(ip, recentBursts);
+  
+  // Get or initialize rate limit record
+  let record = rateLimitStore.get(ip);
+  
+  if (!record) {
+    record = { 
+      count: 0, 
+      resetTime: now + RATE_LIMIT_WINDOW,
+      dailyCount: 0,
+      dailyResetTime: now + DAILY_WINDOW
+    };
+  }
+  
+  // Reset minute window if expired
+  if (now > record.resetTime) {
+    record.count = 0;
+    record.resetTime = now + RATE_LIMIT_WINDOW;
+  }
+  
+  // Reset daily window if expired
+  if (now > record.dailyResetTime) {
+    record.dailyCount = 0;
+    record.dailyResetTime = now + DAILY_WINDOW;
+  }
+  
+  // Check daily limit
+  if (record.dailyCount >= DAILY_LIMIT_MAX) {
+    return { allowed: false, reason: "Daily usage limit reached. Please try again tomorrow." };
+  }
+  
+  // Check minute limit
   if (record.count >= RATE_LIMIT_MAX) {
-    return false;
+    return { allowed: false, reason: "Rate limit exceeded. Please wait a moment and try again." };
   }
   
+  // Increment counters
   record.count++;
-  return true;
+  record.dailyCount++;
+  rateLimitStore.set(ip, record);
+  
+  return { allowed: true };
 }
+
+// Cleanup old entries periodically to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of rateLimitStore.entries()) {
+    if (now > record.dailyResetTime) {
+      rateLimitStore.delete(ip);
+    }
+  }
+  for (const [ip, bursts] of burstStore.entries()) {
+    const recent = bursts.filter(t => now - t < BURST_WINDOW);
+    if (recent.length === 0) {
+      burstStore.delete(ip);
+    }
+  }
+}, 60000); // Cleanup every minute
 
 // Validate message structure
 function validateMessages(messages: unknown): { valid: boolean; error?: string } {
@@ -100,9 +167,11 @@ serve(async (req) => {
                    req.headers.get("x-real-ip") || 
                    "unknown";
 
-  // Check rate limit
-  if (!checkRateLimit(clientIP)) {
-    return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
+  // Check rate limit with enhanced protection
+  const rateLimitResult = checkRateLimit(clientIP);
+  if (!rateLimitResult.allowed) {
+    console.log(`Rate limit triggered for IP: ${clientIP.substring(0, 8)}... - ${rateLimitResult.reason}`);
+    return new Response(JSON.stringify({ error: rateLimitResult.reason }), {
       status: 429,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
