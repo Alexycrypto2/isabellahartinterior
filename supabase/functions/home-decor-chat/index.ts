@@ -20,6 +20,73 @@ const getCorsHeaders = (origin: string | null) => {
   };
 };
 
+// Rate limiting using in-memory store (per instance)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_MAX = 20; // requests per window
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
+// Validate message structure
+function validateMessages(messages: unknown): { valid: boolean; error?: string } {
+  if (!Array.isArray(messages)) {
+    return { valid: false, error: "Messages must be an array" };
+  }
+  
+  if (messages.length === 0) {
+    return { valid: false, error: "Messages array cannot be empty" };
+  }
+  
+  if (messages.length > 50) {
+    return { valid: false, error: "Too many messages (max 50)" };
+  }
+  
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    
+    if (!msg || typeof msg !== "object") {
+      return { valid: false, error: `Message ${i + 1} is invalid` };
+    }
+    
+    if (!msg.role || typeof msg.role !== "string") {
+      return { valid: false, error: `Message ${i + 1} missing valid role` };
+    }
+    
+    if (msg.role !== "user" && msg.role !== "assistant") {
+      return { valid: false, error: `Message ${i + 1} has invalid role` };
+    }
+    
+    if (!msg.content || typeof msg.content !== "string") {
+      return { valid: false, error: `Message ${i + 1} missing valid content` };
+    }
+    
+    if (msg.content.length > 4000) {
+      return { valid: false, error: `Message ${i + 1} exceeds max length (4000 chars)` };
+    }
+    
+    if (msg.content.trim().length === 0) {
+      return { valid: false, error: `Message ${i + 1} cannot be empty` };
+    }
+  }
+  
+  return { valid: true };
+}
+
 serve(async (req) => {
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
@@ -28,8 +95,32 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Get client IP for rate limiting
+  const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                   req.headers.get("x-real-ip") || 
+                   "unknown";
+
+  // Check rate limit
+  if (!checkRateLimit(clientIP)) {
+    return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
+      status: 429,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    const { messages } = body;
+    
+    // Validate input
+    const validation = validateMessages(messages);
+    if (!validation.valid) {
+      return new Response(JSON.stringify({ error: validation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -46,7 +137,9 @@ serve(async (req) => {
 - Current design trends and timeless styles
 - Space optimization and organization tips
 
-Keep your responses helpful, concise, and inspiring. When suggesting products, focus on general guidance rather than specific brands unless asked. Be warm and encouraging in your tone.`;
+Keep your responses helpful, concise, and inspiring. When suggesting products, focus on general guidance rather than specific brands unless asked. Be warm and encouraging in your tone.
+
+Important: Only answer questions related to home decor, interior design, furniture, and home improvement. Politely decline to answer questions about unrelated topics.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
