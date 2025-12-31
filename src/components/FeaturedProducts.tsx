@@ -1,8 +1,9 @@
 import { products } from "@/data/products";
-import { ExternalLink, Star } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
+import StarRating from "@/components/StarRating";
 
 const FeaturedProducts = () => {
   const featuredProducts = products.slice(0, 6);
@@ -13,7 +14,7 @@ const FeaturedProducts = () => {
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-label text-primary mb-3 block">Shop Our Favorites</span>
+            <span className="text-label text-accent mb-3 block">Shop Our Favorites</span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
               Trending Right Now
             </h2>
@@ -43,11 +44,11 @@ const FeaturedProducts = () => {
                   />
                   
                   {/* Badge */}
-                  {product.badge && (
-                    <span className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${
-                      product.badge === 'Sale' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-secondary text-secondary-foreground'
+                    {product.badge && (
+                      <span className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${
+                        product.badge === 'Sale' 
+                          ? 'bg-accent text-accent-foreground' 
+                          : 'bg-secondary text-secondary-foreground'
                     }`}>
                       {product.badge}
                     </span>
@@ -57,7 +58,7 @@ const FeaturedProducts = () => {
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <PinterestSaveButton
                       imageUrl={product.image}
-                      description={`${product.name} - ${product.price} | Found on Cozy Nest Decor`}
+                      description={`${product.name} - ${product.price} | Found on RoomRefine`}
                       url={window.location.origin + `/shop?product=${product.id}`}
                     />
                   </div>
@@ -78,15 +79,12 @@ const FeaturedProducts = () => {
                   </p>
                   
                   {/* Rating */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-primary text-primary" />
-                      <span className="text-sm font-medium">{product.rating}</span>
-                    </div>
-                    <span className="text-muted-foreground text-sm">
-                      ({product.reviews.toLocaleString()} reviews)
-                    </span>
-                  </div>
+                  <StarRating 
+                    rating={product.rating} 
+                    reviews={product.reviews}
+                    size="sm"
+                    className="mb-4"
+                  />
                   
                   {/* Price & CTA */}
                   <div className="flex items-center justify-between">
@@ -103,7 +101,7 @@ const FeaturedProducts = () => {
                     
                     <Button 
                       size="sm" 
-                      className="rounded-full"
+                      className="rounded-full bg-accent text-accent-foreground hover:brightness-110"
                       asChild
                     >
                       <a 

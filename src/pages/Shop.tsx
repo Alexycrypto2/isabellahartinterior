@@ -7,7 +7,8 @@ import ProductSearch from "@/components/ProductSearch";
 import { ProductGridSkeleton } from "@/components/ProductSkeleton";
 import ProductQuickView from "@/components/ProductQuickView";
 import { products, categories, Product } from "@/data/products";
-import { ExternalLink, Star, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
+import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
+import StarRating from "@/components/StarRating";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
 import {
@@ -84,7 +85,7 @@ const Shop = () => {
       <section className="pt-32 pb-12 bg-muted/30">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="text-label text-primary mb-4 block">Shop Our Collection</span>
+            <span className="text-label text-accent mb-4 block">Shop Our Collection</span>
             <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
               Curated Home
               <br />
@@ -132,7 +133,7 @@ const Shop = () => {
                       onClick={() => setActiveCategory(category.id)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                         activeCategory === category.id 
-                          ? "bg-primary text-primary-foreground" 
+                          ? "bg-accent text-accent-foreground"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
@@ -180,7 +181,7 @@ const Shop = () => {
                       }}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                         activeCategory === category.id 
-                          ? "bg-primary text-primary-foreground" 
+                          ? "bg-accent text-accent-foreground"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
@@ -215,7 +216,7 @@ const Shop = () => {
                       {product.badge && (
                         <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ${
                           product.badge === 'Sale' 
-                            ? 'bg-primary text-primary-foreground' 
+                            ? 'bg-accent text-accent-foreground' 
                             : 'bg-secondary text-secondary-foreground'
                         }`}>
                           {product.badge}
@@ -237,7 +238,7 @@ const Shop = () => {
                           <Heart 
                             className={`w-4 h-4 ${
                               isInWishlist(product.id) 
-                                ? "fill-primary text-primary" 
+                                ? "fill-accent text-accent"
                                 : "text-neutral-700"
                             }`} 
                           />
@@ -247,8 +248,8 @@ const Shop = () => {
                       {/* Quick View Overlay */}
                       <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                         <Button 
-                          size="sm" 
-                          className="rounded-full"
+                          size="sm"
+                          className="rounded-full bg-accent text-accent-foreground hover:brightness-110"
                           onClick={() => handleQuickView(product)}
                         >
                           <Eye className="mr-2 w-4 h-4" />
@@ -268,15 +269,12 @@ const Shop = () => {
                       </h3>
                       
                       {/* Rating */}
-                      <div className="flex items-center gap-1.5 mb-3">
-                        <div className="flex items-center gap-0.5">
-                          <Star className="w-3.5 h-3.5 fill-primary text-primary" />
-                          <span className="text-sm font-medium">{product.rating}</span>
-                        </div>
-                        <span className="text-muted-foreground text-xs">
-                          ({product.reviews.toLocaleString()})
-                        </span>
-                      </div>
+                      <StarRating 
+                        rating={product.rating} 
+                        reviews={product.reviews} 
+                        size="sm"
+                        className="mb-3"
+                      />
                       
                       {/* Price */}
                       <div className="flex items-center justify-between">
@@ -294,7 +292,7 @@ const Shop = () => {
                           href={product.affiliateUrl}
                           target="_blank"
                           rel="noopener noreferrer nofollow"
-                          className="text-primary hover:text-primary/80 transition-colors"
+                          className="text-accent hover:text-accent/80 transition-colors"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
