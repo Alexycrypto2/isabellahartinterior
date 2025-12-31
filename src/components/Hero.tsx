@@ -1,22 +1,31 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import heroImage from "@/assets/hero-home-decor.jpg";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Hero = memo(() => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Image */}
-      <img 
-        src={heroImage}
-        alt="Beautiful home decor interior"
-        width={1920}
-        height={1080}
-        fetchPriority="high"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover object-center"
-      />
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-neutral-900">
+      {/* Background Image with loading state */}
+      {!imageError && (
+        <img 
+          src={heroImage}
+          alt="Beautiful home decor interior"
+          width={1920}
+          height={1080}
+          loading="eager"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+          className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      )}
       
       {/* Overlay */}
       <div className="absolute inset-0 hero-overlay" />
