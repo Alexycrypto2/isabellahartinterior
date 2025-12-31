@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
+import Newsletter from "@/components/Newsletter";
 import { blogPosts } from "@/data/blogPosts";
 
 const Blog = () => {
@@ -24,7 +25,7 @@ const Blog = () => {
       <section className="pt-32 pb-16 bg-muted/30">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="text-label text-primary mb-4 block">Inspiration & Tips</span>
+            <span className="text-label text-accent mb-4 block">Inspiration & Tips</span>
             <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
               Style Your Space
             </h1>
@@ -47,7 +48,7 @@ const Blog = () => {
                   onClick={() => setActiveCategory(category)}
                   className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     activeCategory === category 
-                      ? "bg-primary text-primary-foreground" 
+                      ? "bg-accent text-accent-foreground" 
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
@@ -87,7 +88,7 @@ const Blog = () => {
                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <PinterestSaveButton
                         imageUrl={post.image}
-                        description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
+                        description={`${post.title} | Home Styling Tips from RoomRefine`}
                         url={window.location.origin + `/blog/${post.id}`}
                       />
                     </div>
@@ -100,7 +101,7 @@ const Blog = () => {
                       <span>{post.author}</span>
                     </div>
                     
-                    <h2 className="font-display text-xl font-medium group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                    <h2 className="font-display text-xl font-medium group-hover:text-accent transition-colors duration-300 line-clamp-2">
                       {post.title}
                     </h2>
                     
@@ -108,7 +109,7 @@ const Blog = () => {
                       {post.excerpt}
                     </p>
                     
-                    <span className="inline-block text-sm font-medium text-primary group-hover:underline">
+                    <span className="inline-block text-sm font-medium text-accent gold-underline">
                       Read More →
                     </span>
                   </Link>
@@ -124,7 +125,7 @@ const Blog = () => {
                 </p>
                 <button 
                   onClick={() => setActiveCategory("ALL")}
-                  className="text-primary font-medium hover:underline"
+                  className="text-accent font-medium hover:underline"
                 >
                   View All Posts
                 </button>
@@ -133,6 +134,9 @@ const Blog = () => {
           </div>
         </div>
       </section>
+
+      {/* Newsletter Section */}
+      <Newsletter />
 
       <Footer />
       </div>

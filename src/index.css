@@ -2,82 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Soft & Neutral Design System - Airy, Elegant, Professional */
+/* Modern & Minimalist Design System - RoomRefine */
 
 @layer base {
   :root {
-    /* Pure Soft Whites */
-    --background: 30 20% 99%;
-    --foreground: 220 15% 20%;
+    /* Background: Warm White */
+    --background: 45 14% 98%;
+    --foreground: 0 0% 18%;
     
-    --card: 30 15% 98%;
-    --card-foreground: 220 15% 20%;
+    /* Card: Slightly warmer */
+    --card: 40 10% 97%;
+    --card-foreground: 0 0% 18%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover-foreground: 0 0% 18%;
     
-    /* Primary: Dusty Blush Rose */
-    --primary: 350 30% 65%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Soft Greige */
+    --primary: 36 11% 82%;
+    --primary-foreground: 0 0% 18%;
     
-    /* Secondary: Soft Warm Gray */
-    --secondary: 30 10% 94%;
-    --secondary-foreground: 220 15% 30%;
+    /* Secondary: Charcoal Gray */
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 100%;
     
-    /* Muted: Whisper Gray */
-    --muted: 30 8% 96%;
-    --muted-foreground: 220 10% 50%;
+    /* Muted: Light Gray */
+    --muted: 40 8% 95%;
+    --muted-foreground: 0 0% 40%;
     
-    /* Accent: Champagne Blush */
-    --accent: 20 25% 93%;
-    --accent-foreground: 220 15% 25%;
+    /* Accent: Brushed Gold (restricted use) */
+    --accent: 40 52% 60%;
+    --accent-foreground: 0 0% 100%;
     
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 30 15% 90%;
-    --input: 30 10% 94%;
-    --ring: 350 30% 65%;
+    --border: 40 10% 90%;
+    --input: 40 8% 94%;
+    --ring: 40 52% 60%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 30 15% 98%;
-    --sidebar-foreground: 220 15% 25%;
-    --sidebar-primary: 350 30% 65%;
+    --sidebar-background: 40 10% 97%;
+    --sidebar-foreground: 0 0% 25%;
+    --sidebar-primary: 40 52% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 10% 94%;
-    --sidebar-accent-foreground: 220 15% 25%;
-    --sidebar-border: 30 15% 90%;
-    --sidebar-ring: 350 30% 65%;
+    --sidebar-accent: 40 8% 94%;
+    --sidebar-accent-foreground: 0 0% 25%;
+    --sidebar-border: 40 10% 90%;
+    --sidebar-ring: 40 52% 60%;
     
     /* Custom Design Tokens */
-    --sage: 150 15% 85%;
-    --sage-foreground: 150 20% 30%;
-    --terracotta: 15 35% 60%;
-    --cream: 30 20% 96%;
-    --warm-brown: 25 20% 35%;
-    
-    /* Blush Accent */
-    --blush: 350 30% 65%;
-    --blush-light: 350 35% 92%;
-    --blush-dark: 350 25% 50%;
+    --greige: 36 11% 82%;
+    --greige-foreground: 0 0% 18%;
+    --charcoal: 0 0% 18%;
+    --warm-white: 45 14% 98%;
+    --gold: 40 52% 60%;
+    --gold-light: 40 45% 75%;
+    --gold-dark: 40 55% 45%;
     
     /* Elegant Grays */
-    --gray-warm: 30 8% 75%;
-    --gray-soft: 30 5% 85%;
-    --gray-mist: 30 10% 92%;
+    --gray-warm: 40 6% 70%;
+    --gray-soft: 40 4% 82%;
+    --gray-mist: 40 8% 92%;
     
     /* Refined Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220 15% 15% / 0.5), hsl(220 15% 15% / 0.2));
-    --gradient-warm: linear-gradient(180deg, hsl(30 20% 99%), hsl(30 15% 96%));
-    --gradient-accent: linear-gradient(135deg, hsl(350 30% 65% / 0.08), hsl(20 25% 93% / 0.4));
-    --gradient-blush: linear-gradient(135deg, hsl(350 35% 92%), hsl(30 20% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 15% / 0.55), hsl(0 0% 15% / 0.25));
+    --gradient-warm: linear-gradient(180deg, hsl(45 14% 98%), hsl(40 10% 95%));
+    --gradient-accent: linear-gradient(135deg, hsl(40 52% 60% / 0.1), hsl(40 8% 94% / 0.5));
+    --gradient-gold: linear-gradient(135deg, hsl(40 52% 60%), hsl(40 55% 50%));
     
     /* Elegant Shadows */
-    --shadow-soft: 0 4px 24px -6px hsl(220 15% 20% / 0.06);
-    --shadow-warm: 0 12px 48px -12px hsl(350 30% 65% / 0.12);
-    --shadow-card: 0 2px 16px -4px hsl(220 15% 20% / 0.04);
-    --shadow-hover: 0 20px 60px -15px hsl(220 15% 20% / 0.1);
+    --shadow-soft: 0 4px 24px -6px hsl(0 0% 18% / 0.06);
+    --shadow-warm: 0 12px 48px -12px hsl(40 52% 60% / 0.15);
+    --shadow-card: 0 2px 16px -4px hsl(0 0% 18% / 0.04);
+    --shadow-hover: 0 20px 60px -15px hsl(0 0% 18% / 0.12);
     
     /* Smooth Transitions */
     --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -86,66 +84,64 @@
 
   .dark {
     /* Deep Charcoal Background */
-    --background: 220 18% 8%;
-    --foreground: 40 15% 95%;
+    --background: 0 0% 8%;
+    --foreground: 40 10% 95%;
     
-    --card: 220 15% 12%;
-    --card-foreground: 40 15% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 40 10% 95%;
     
-    --popover: 220 15% 12%;
-    --popover-foreground: 40 15% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 40 10% 95%;
     
-    /* Primary: Soft Blush Pink */
-    --primary: 350 45% 70%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Muted Greige */
+    --primary: 36 8% 40%;
+    --primary-foreground: 40 10% 95%;
     
-    /* Secondary: Neutral Slate */
-    --secondary: 220 10% 20%;
-    --secondary-foreground: 40 12% 90%;
+    /* Secondary: Light Gray */
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 40 10% 90%;
     
     /* Muted: Deep Charcoal */
-    --muted: 220 12% 16%;
-    --muted-foreground: 40 10% 65%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 40 6% 65%;
     
-    /* Accent: Subtle Neutral (NOT blush for better UI) */
-    --accent: 220 10% 18%;
-    --accent-foreground: 40 15% 92%;
+    /* Accent: Brushed Gold */
+    --accent: 40 52% 55%;
+    --accent-foreground: 0 0% 100%;
     
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 220 10% 22%;
-    --input: 220 12% 16%;
-    --ring: 350 45% 70%;
+    --border: 0 0% 22%;
+    --input: 0 0% 16%;
+    --ring: 40 52% 55%;
     
-    --sidebar-background: 220 15% 10%;
-    --sidebar-foreground: 40 15% 92%;
-    --sidebar-primary: 350 45% 70%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 40 10% 92%;
+    --sidebar-primary: 40 52% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 10% 18%;
-    --sidebar-accent-foreground: 40 15% 92%;
-    --sidebar-border: 220 10% 22%;
-    --sidebar-ring: 350 45% 70%;
+    --sidebar-accent: 0 0% 18%;
+    --sidebar-accent-foreground: 40 10% 92%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-ring: 40 52% 55%;
     
-    --sage: 150 10% 30%;
-    --sage-foreground: 150 15% 85%;
-    --terracotta: 15 30% 55%;
-    --cream: 220 10% 16%;
-    --warm-brown: 40 12% 78%;
+    --greige: 36 8% 40%;
+    --greige-foreground: 40 10% 95%;
+    --charcoal: 40 10% 95%;
+    --warm-white: 0 0% 12%;
+    --gold: 40 52% 55%;
+    --gold-light: 40 40% 35%;
+    --gold-dark: 40 50% 50%;
     
-    --blush: 350 45% 70%;
-    --blush-light: 350 20% 25%;
-    --blush-dark: 350 35% 60%;
-    
-    --gray-warm: 220 8% 50%;
-    --gray-soft: 220 6% 40%;
-    --gray-mist: 220 10% 25%;
+    --gray-warm: 0 0% 50%;
+    --gray-soft: 0 0% 40%;
+    --gray-mist: 0 0% 25%;
     
     /* Dark Mode Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220 18% 5% / 0.75), hsl(220 18% 5% / 0.35));
-    --gradient-warm: linear-gradient(180deg, hsl(220 15% 12%), hsl(220 18% 8%));
-    --gradient-accent: linear-gradient(135deg, hsl(350 45% 70% / 0.1), hsl(220 12% 16% / 0.5));
-    --gradient-blush: linear-gradient(135deg, hsl(350 20% 18%), hsl(220 15% 12%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 5% / 0.75), hsl(0 0% 5% / 0.35));
+    --gradient-warm: linear-gradient(180deg, hsl(0 0% 12%), hsl(0 0% 8%));
+    --gradient-accent: linear-gradient(135deg, hsl(40 52% 55% / 0.1), hsl(0 0% 16% / 0.5));
+    --gradient-gold: linear-gradient(135deg, hsl(40 52% 55%), hsl(40 50% 45%));
   }
 }
 
@@ -184,9 +180,9 @@
     background: var(--gradient-warm);
   }
   
-  /* Blush Gradient Background */
-  .bg-blush-gradient {
-    background: var(--gradient-blush);
+  /* Gold Gradient Background */
+  .bg-gold-gradient {
+    background: var(--gradient-gold);
   }
   
   /* Smooth Reveal Animation */
@@ -217,35 +213,35 @@
     box-shadow: var(--shadow-hover);
   }
   
-  /* Affiliate Link Button */
+  /* Affiliate Link Button - Gold Accent */
   .affiliate-btn {
     @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 font-medium transition-all duration-300;
-    @apply bg-primary text-primary-foreground rounded-sm;
-    @apply shadow-sm hover:shadow-lg hover:bg-primary/90;
+    @apply bg-accent text-accent-foreground rounded-sm;
+    @apply shadow-sm hover:shadow-lg hover:brightness-110;
     letter-spacing: 0.05em;
   }
   
   /* Category Badge */
   .category-badge {
     @apply inline-block px-4 py-1.5 rounded-sm text-xs font-medium tracking-wider uppercase;
-    @apply bg-blush-gradient text-foreground/80;
+    @apply bg-muted text-foreground/80;
   }
   
   /* Newsletter Input */
   .newsletter-input {
     @apply w-full px-6 py-4 border border-border bg-background rounded-sm;
-    @apply focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary;
+    @apply focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent;
     @apply transition-all duration-300 placeholder:text-muted-foreground/60;
   }
   
-  /* Elegant Link Underline */
+  /* Elegant Link Underline - Gold */
   .link-elegant {
     @apply relative inline-block;
   }
   
   .link-elegant::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-full h-px bg-primary scale-x-0 origin-right transition-transform duration-300;
+    @apply absolute bottom-0 left-0 w-full h-px bg-accent scale-x-0 origin-right transition-transform duration-300;
   }
   
   .link-elegant:hover::after {
@@ -254,6 +250,25 @@
   
   /* Soft Divider */
   .divider-soft {
-    @apply w-16 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto;
+    @apply w-16 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent mx-auto;
+  }
+  
+  /* Gold accent button */
+  .btn-gold {
+    @apply bg-accent text-accent-foreground hover:brightness-110 transition-all duration-300;
+  }
+  
+  /* Gold underline for links */
+  .gold-underline {
+    @apply relative;
+  }
+  
+  .gold-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 origin-left transition-transform duration-300;
+  }
+  
+  .gold-underline:hover::after {
+    @apply scale-x-100;
   }
 }

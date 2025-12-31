@@ -8,6 +8,7 @@ import PageTransition from "@/components/PageTransition";
 const Categories = lazy(() => import("@/components/Categories"));
 const SocialProof = lazy(() => import("@/components/SocialProof"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
+const Newsletter = lazy(() => import("@/components/Newsletter"));
 const Footer = lazy(() => import("@/components/Footer"));
 const ProductRecommendations = lazy(() => 
   import("@/components/ProductRecommendations").then(module => ({ 
@@ -17,7 +18,7 @@ const ProductRecommendations = lazy(() =>
 
 const SectionLoader = () => (
   <div className="py-24 flex items-center justify-center">
-    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
   </div>
 );
 
@@ -40,6 +41,9 @@ const Index = () => {
           </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <BlogPreview />
+          </Suspense>
+          <Suspense fallback={<SectionLoader />}>
+            <Newsletter />
           </Suspense>
         </main>
         <Suspense fallback={null}>
