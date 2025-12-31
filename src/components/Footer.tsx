@@ -10,9 +10,13 @@ const Footer = () => {
             {/* Brand */}
             <div className="md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">✨</span>
-                <span className="font-display text-xl font-semibold text-foreground">
-                  Room Refine
+                {/* Gold R monogram */}
+                <div className="relative w-8 h-8 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-lg bg-gradient-gold" />
+                  <span className="relative text-accent-foreground font-display text-base font-bold">R</span>
+                </div>
+                <span className="font-display text-xl font-semibold">
+                  <span className="text-accent">Room</span><span className="text-foreground">Refine</span>
                 </span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
@@ -23,7 +27,7 @@ const Footer = () => {
                   href="https://pinterest.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                  className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                   aria-label="Pinterest"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -34,14 +38,14 @@ const Footer = () => {
                   href="https://instagram.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                  className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                   aria-label="Instagram"
                 >
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a 
                   href="mailto:hello@roomrefine.com"
-                  className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                  className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                   aria-label="Email"
                 >
                   <Mail className="w-5 h-5" />
@@ -54,22 +58,22 @@ const Footer = () => {
               <h4 className="font-display text-lg font-medium mb-4">Shop</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/shop" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/shop" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     All Products
                   </Link>
                 </li>
                 <li>
-                  <Link to="/categories?filter=lighting" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/categories?filter=lighting" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Lighting
                   </Link>
                 </li>
                 <li>
-                  <Link to="/categories?filter=decor" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/categories?filter=decor" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Decor & Accents
                   </Link>
                 </li>
                 <li>
-                  <Link to="/categories?filter=textiles" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/categories?filter=textiles" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Textiles
                   </Link>
                 </li>
@@ -81,17 +85,17 @@ const Footer = () => {
               <h4 className="font-display text-lg font-medium mb-4">Inspiration</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/blog" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link to="/blog/cozy-bedroom-styling-guide" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/blog/cozy-bedroom-styling-guide" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Bedroom Ideas
                   </Link>
                 </li>
                 <li>
-                  <Link to="/blog/living-room-styling-tips" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/blog/living-room-styling-tips" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Living Room Tips
                   </Link>
                 </li>
@@ -103,12 +107,12 @@ const Footer = () => {
               <h4 className="font-display text-lg font-medium mb-4">Company</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to="/contact" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Contact
                   </Link>
                 </li>
@@ -120,7 +124,7 @@ const Footer = () => {
           <div className="border-t border-border mt-12 pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-muted-foreground text-sm">
-                © {new Date().getFullYear()} Room Refine. All rights reserved.
+                © {new Date().getFullYear()} RoomRefine. All rights reserved.
               </p>
               <p className="text-muted-foreground text-sm text-center md:text-right">
                 As an Amazon Associate, I earn from qualifying purchases.
