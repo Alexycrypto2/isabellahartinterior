@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
@@ -32,9 +33,24 @@ const BlogPost = () => {
     );
   }
 
-  // Simple markdown-like rendering
+  /**
+   * SECURITY: Content rendering with XSS protection
+   * 
+   * Current implementation sanitizes all content using DOMPurify before rendering.
+   * This protects against XSS attacks if blog content source changes from static
+   * data to user-generated or CMS-fetched content in the future.
+   * 
+   * WARNING: Do not remove DOMPurify sanitization if adding dynamic content sources.
+   */
+  const sanitizeText = (text: string): string => {
+    return DOMPurify.sanitize(text, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  };
+
   const renderContent = (content: string) => {
-    return content
+    // Sanitize the entire content first to remove any malicious HTML/scripts
+    const sanitizedContent = sanitizeText(content);
+    
+    return sanitizedContent
       .split('\n')
       .map((line, index) => {
         if (line.startsWith('# ')) {
@@ -47,8 +63,8 @@ const BlogPost = () => {
           return <h3 key={index} className="font-display text-xl md:text-2xl font-medium mb-3 mt-8">{line.slice(4)}</h3>;
         }
         if (line.startsWith('- **')) {
-          const content = line.slice(2);
-          const match = content.match(/\*\*(.+?)\*\*:?\s*(.*)/);
+          const lineContent = line.slice(2);
+          const match = lineContent.match(/\*\*(.+?)\*\*:?\s*(.*)/);
           if (match) {
             return (
               <li key={index} className="mb-2 ml-6 text-muted-foreground">
