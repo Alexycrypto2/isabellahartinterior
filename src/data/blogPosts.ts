@@ -12,6 +12,7 @@ export interface BlogPost {
   readTime: string;
   category: string;
   image: string;
+  relatedProducts: string[]; // Product IDs for "Shop the Look" section
 }
 
 export const blogPosts: BlogPost[] = [
@@ -81,7 +82,8 @@ Creating a cozy bedroom is about intention – choosing pieces that bring you co
     date: "2024-12-15",
     readTime: "6 min read",
     category: "BEDROOM",
-    image: blogBedroom
+    image: blogBedroom,
+    relatedProducts: ["chunky-knit-blanket", "linen-pillow-set", "rattan-pendant-lamp"]
   },
   {
     id: "living-room-styling-tips",
@@ -167,7 +169,8 @@ Creating a beautiful living room takes time. Start with the foundational pieces,
     date: "2024-12-10",
     readTime: "8 min read",
     category: "LIVING ROOM",
-    image: blogLivingRoom
+    image: blogLivingRoom,
+    relatedProducts: ["ceramic-vase-pampas", "chunky-knit-blanket", "gold-round-mirror", "linen-pillow-set"]
   },
   {
     id: "entryway-organization-ideas",
@@ -284,6 +287,7 @@ Even the smallest entryway can be transformed into a functional, beautiful space
     date: "2024-12-05",
     readTime: "7 min read",
     category: "ORGANIZATION",
-    image: blogEntryway
+    image: blogEntryway,
+    relatedProducts: ["floating-wall-shelf", "gold-round-mirror", "ceramic-vase-pampas"]
   }
 ];
