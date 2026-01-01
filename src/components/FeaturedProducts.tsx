@@ -58,8 +58,11 @@ const FeaturedProducts = () => {
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <PinterestSaveButton
                       imageUrl={product.image}
-                      description={`${product.name} - ${product.price} | Found on RoomRefine`}
+                      description={`${product.name} - ${product.price}`}
                       url={window.location.origin + `/shop?product=${product.id}`}
+                      price={product.price}
+                      isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
+                      isOnSale={product.badge === 'Sale'}
                     />
                   </div>
                 </div>
