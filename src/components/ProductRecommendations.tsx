@@ -94,10 +94,10 @@ export const ProductRecommendations = () => {
             AI-Powered Recommendations
           </div>
           <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
-            Find Your Perfect Pieces
+            Get Personalized Amazon Decor Picks in 30 Seconds
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Answer a few questions and our AI will curate personalized product recommendations just for you.
+            Tell us your style — we'll show you top-rated Amazon finds that match. No sign-up needed.
           </p>
         </div>
 
@@ -230,7 +230,7 @@ export const ProductRecommendations = () => {
                             rel="noopener noreferrer"
                             className="inline-flex items-center text-sm text-primary hover:underline mt-2"
                           >
-                            View Product <ArrowRight className="w-3 h-3 ml-1" />
+                            Shop on Amazon <ArrowRight className="w-3 h-3 ml-1" />
                           </a>
                         </div>
                       </motion.div>

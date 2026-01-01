@@ -116,6 +116,11 @@ const Footer = () => {
                     Contact
                   </Link>
                 </li>
+                <li>
+                  <Link to="/disclosure" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                    Affiliate Disclosure
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

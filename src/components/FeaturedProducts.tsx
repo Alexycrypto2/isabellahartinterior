@@ -14,12 +14,12 @@ const FeaturedProducts = () => {
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-label text-accent mb-3 block">Shop Our Favorites</span>
+            <span className="text-label text-accent mb-3 block">Bestsellers on Amazon</span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
               Trending Right Now
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Hand-selected pieces our community is loving. Updated weekly with fresh finds.
+              Top-rated pieces from Amazon our community is loving. Updated weekly with fresh finds.
             </p>
           </div>
           
@@ -110,7 +110,7 @@ const FeaturedProducts = () => {
                         rel="noopener noreferrer nofollow"
                         className="flex items-center gap-1"
                       >
-                        View
+                        Shop on Amazon
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </Button>

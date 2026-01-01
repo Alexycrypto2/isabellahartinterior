@@ -15,12 +15,12 @@ const BlogPreview = memo(() => {
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
             <div>
-              <span className="text-label text-primary mb-3 block">Inspiration & Tips</span>
+              <span className="text-label text-primary mb-3 block">Inspiration & Shop the Look</span>
               <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
                 Style Your Space
               </h2>
               <p className="text-muted-foreground text-lg max-w-xl">
-                Get inspired with our latest styling guides, tips, and home decor trends.
+                Get inspired with our styling guides — each post includes shoppable Amazon links.
               </p>
             </div>
             <Link to="/blog" className="mt-6 md:mt-0">
