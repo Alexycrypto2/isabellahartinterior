@@ -52,33 +52,44 @@ const AdminSettings = () => {
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Helper to get setting value by key
+  const getSetting = (key: string) => {
+    const setting = settings?.find(s => s.key === key);
+    return setting?.value || {};
+  };
+
   useEffect(() => {
     if (settings) {
       // Hero
-      setHeroTitle(settings.hero?.title || '');
-      setHeroSubtitle(settings.hero?.subtitle || '');
-      setHeroImage(settings.hero?.image_url || '');
+      const hero = getSetting('hero') as Record<string, string>;
+      setHeroTitle(hero.title || '');
+      setHeroSubtitle(hero.subtitle || '');
+      setHeroImage(hero.image_url || '');
       
       // Shop hero
-      setShopTitle(settings.shop_hero?.title || '');
-      setShopSubtitle(settings.shop_hero?.subtitle || '');
-      setShopImage(settings.shop_hero?.image_url || '');
+      const shopHero = getSetting('shop_hero') as Record<string, string>;
+      setShopTitle(shopHero.title || '');
+      setShopSubtitle(shopHero.subtitle || '');
+      setShopImage(shopHero.image_url || '');
       
       // About
-      setAboutTitle(settings.about?.title || '');
-      setAboutDescription(settings.about?.description || '');
-      setAboutImage(settings.about?.image_url || '');
+      const about = getSetting('about') as Record<string, string>;
+      setAboutTitle(about.title || '');
+      setAboutDescription(about.description || '');
+      setAboutImage(about.image_url || '');
       
       // Contact
-      setContactEmail(settings.contact?.email || '');
-      setContactPhone(settings.contact?.phone || '');
-      setContactAddress(settings.contact?.address || '');
+      const contact = getSetting('contact') as Record<string, string>;
+      setContactEmail(contact.email || '');
+      setContactPhone(contact.phone || '');
+      setContactAddress(contact.address || '');
       
       // Footer
-      setFooterCopyright(settings.footer?.copyright || '');
+      const footer = getSetting('footer') as Record<string, string>;
+      setFooterCopyright(footer.copyright || '');
       
       // Social media
-      const social = settings.social_media || {};
+      const social = getSetting('social_media') as Record<string, string>;
       setSocialInstagram(social.instagram || '');
       setSocialFacebook(social.facebook || '');
       setSocialTwitter(social.twitter || '');

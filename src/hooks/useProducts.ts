@@ -18,6 +18,9 @@ export interface Product {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  og_image_url: string | null;
 }
 
 export interface ProductInput {
@@ -34,6 +37,9 @@ export interface ProductInput {
   badge?: string | null;
   is_featured?: boolean;
   is_active?: boolean;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  og_image_url?: string | null;
 }
 
 export interface ProductCategory {

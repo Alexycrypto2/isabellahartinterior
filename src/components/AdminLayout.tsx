@@ -14,6 +14,7 @@ import {
   FileText,
   Image,
   Users,
+  Palette,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -145,6 +146,15 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
           {/* Settings Section */}
           <p className="text-xs font-medium text-muted-foreground px-3 py-2">SETTINGS</p>
+          <Link to="/admin/appearance">
+            <Button
+              variant={isActive('/admin/appearance') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Palette className="mr-2 h-4 w-4" />
+              Appearance
+            </Button>
+          </Link>
           <Link to="/admin/settings">
             <Button
               variant={isActive('/admin/settings') ? 'secondary' : 'ghost'}

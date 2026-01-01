@@ -78,6 +78,9 @@ export type Database = {
           excerpt: string
           id: string
           image_url: string | null
+          meta_description: string | null
+          meta_title: string | null
+          og_image_url: string | null
           published: boolean
           read_time: string
           slug: string
@@ -93,6 +96,9 @@ export type Database = {
           excerpt: string
           id?: string
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
           published?: boolean
           read_time?: string
           slug: string
@@ -108,6 +114,9 @@ export type Database = {
           excerpt?: string
           id?: string
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
           published?: boolean
           read_time?: string
           slug?: string
@@ -175,7 +184,10 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           is_featured: boolean | null
+          meta_description: string | null
+          meta_title: string | null
           name: string
+          og_image_url: string | null
           original_price: string | null
           price: string
           rating: number | null
@@ -193,7 +205,10 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
+          og_image_url?: string | null
           original_price?: string | null
           price: string
           rating?: number | null
@@ -211,7 +226,10 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
+          og_image_url?: string | null
           original_price?: string | null
           price?: string
           rating?: number | null
