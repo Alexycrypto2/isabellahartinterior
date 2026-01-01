@@ -12,6 +12,8 @@ import {
   Package,
   Settings,
   FileText,
+  Image,
+  Users,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -113,6 +115,29 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               New Product
+            </Button>
+          </Link>
+
+          <Separator className="my-3" />
+
+          {/* Content Section */}
+          <p className="text-xs font-medium text-muted-foreground px-3 py-2">CONTENT</p>
+          <Link to="/admin/media">
+            <Button
+              variant={isActive('/admin/media') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Image className="mr-2 h-4 w-4" />
+              Media Library
+            </Button>
+          </Link>
+          <Link to="/admin/subscribers">
+            <Button
+              variant={isActive('/admin/subscribers') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Subscribers
             </Button>
           </Link>
 

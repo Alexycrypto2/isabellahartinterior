@@ -28,6 +28,8 @@ const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts"));
 const AdminProductEditor = lazy(() => import("./pages/AdminProductEditor"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminMedia = lazy(() => import("./pages/AdminMedia"));
+const AdminSubscribers = lazy(() => import("./pages/AdminSubscribers"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -62,6 +64,8 @@ const AnimatedRoutes = () => {
           <Route path="/admin/products/new" element={<AdminProductEditor />} />
           <Route path="/admin/products/edit/:id" element={<AdminProductEditor />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/media" element={<AdminMedia />} />
+          <Route path="/admin/subscribers" element={<AdminSubscribers />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
