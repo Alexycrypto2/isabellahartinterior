@@ -15,6 +15,9 @@ export interface BlogPost {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  og_image_url: string | null;
 }
 
 export interface BlogPostInput {
@@ -27,6 +30,9 @@ export interface BlogPostInput {
   image_url?: string | null;
   read_time: string;
   published: boolean;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  og_image_url?: string | null;
 }
 
 // Helper to log activity

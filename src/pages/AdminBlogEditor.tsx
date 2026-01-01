@@ -54,6 +54,11 @@ const AdminBlogEditor = () => {
   const [published, setPublished] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
+  
+  // SEO fields
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [ogImageUrl, setOgImageUrl] = useState('');
 
   useEffect(() => {
     if (existingPost) {
@@ -67,6 +72,10 @@ const AdminBlogEditor = () => {
       setImageUrl(existingPost.image_url || '');
       setPublished(existingPost.published);
       setAutoSlug(false);
+      // SEO fields
+      setMetaTitle((existingPost as any).meta_title || '');
+      setMetaDescription((existingPost as any).meta_description || '');
+      setOgImageUrl((existingPost as any).og_image_url || '');
     }
   }, [existingPost]);
 
@@ -157,6 +166,9 @@ const AdminBlogEditor = () => {
         read_time: readTime,
         image_url: imageUrl || null,
         published,
+        meta_title: metaTitle || null,
+        meta_description: metaDescription || null,
+        og_image_url: ogImageUrl || null,
       };
 
       if (isEditing && id) {
@@ -381,6 +393,60 @@ const AdminBlogEditor = () => {
           <div className="space-y-2">
             <Label>Content *</Label>
             <RichTextEditor content={content} onChange={setContent} />
+          </div>
+
+          {/* SEO Section */}
+          <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
+            <h3 className="font-medium text-lg">SEO Settings</h3>
+            <p className="text-sm text-muted-foreground">
+              Optimize how this post appears in search engines and social media
+            </p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="metaTitle">
+                Meta Title
+                <span className="text-muted-foreground text-sm ml-2">
+                  ({metaTitle.length}/60 characters)
+                </span>
+              </Label>
+              <Input
+                id="metaTitle"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                placeholder="SEO title (defaults to post title)"
+                maxLength={60}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="metaDescription">
+                Meta Description
+                <span className="text-muted-foreground text-sm ml-2">
+                  ({metaDescription.length}/160 characters)
+                </span>
+              </Label>
+              <Textarea
+                id="metaDescription"
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                placeholder="SEO description (defaults to excerpt)"
+                maxLength={160}
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ogImageUrl">Open Graph Image URL</Label>
+              <Input
+                id="ogImageUrl"
+                value={ogImageUrl}
+                onChange={(e) => setOgImageUrl(e.target.value)}
+                placeholder="Social sharing image (defaults to featured image)"
+              />
+              <p className="text-xs text-muted-foreground">
+                Recommended: 1200x630px for optimal social media display
+              </p>
+            </div>
           </div>
         </div>
       </form>

@@ -18,14 +18,7 @@ export const useSiteSettings = () => {
         .select('*');
       
       if (error) throw error;
-      
-      // Convert to a key-value map for easier access
-      const settingsMap: Record<string, Record<string, any>> = {};
-      (data as SiteSetting[]).forEach(setting => {
-        settingsMap[setting.key] = setting.value;
-      });
-      
-      return settingsMap;
+      return data as SiteSetting[];
     },
   });
 };

@@ -57,6 +57,11 @@ const AdminProductEditor = () => {
   const [isActive, setIsActive] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
+  
+  // SEO fields
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [ogImageUrl, setOgImageUrl] = useState('');
 
   useEffect(() => {
     if (existingProduct) {
@@ -74,6 +79,10 @@ const AdminProductEditor = () => {
       setIsFeatured(existingProduct.is_featured);
       setIsActive(existingProduct.is_active);
       setAutoSlug(false);
+      // SEO fields
+      setMetaTitle((existingProduct as any).meta_title || '');
+      setMetaDescription((existingProduct as any).meta_description || '');
+      setOgImageUrl((existingProduct as any).og_image_url || '');
     }
   }, [existingProduct]);
 
@@ -147,6 +156,9 @@ const AdminProductEditor = () => {
         badge: badge || null,
         is_featured: isFeatured,
         is_active: isActive,
+        meta_title: metaTitle || null,
+        meta_description: metaDescription || null,
+        og_image_url: ogImageUrl || null,
       };
 
       if (isEditing && id) {
@@ -309,6 +321,60 @@ const AdminProductEditor = () => {
             </div>
             <p className="text-sm text-muted-foreground">Or paste an image URL:</p>
             <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
+          </div>
+
+          {/* SEO Section */}
+          <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
+            <h3 className="font-medium text-lg">SEO Settings</h3>
+            <p className="text-sm text-muted-foreground">
+              Optimize how this product appears in search engines and social media
+            </p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="metaTitle">
+                Meta Title
+                <span className="text-muted-foreground text-sm ml-2">
+                  ({metaTitle.length}/60 characters)
+                </span>
+              </Label>
+              <Input
+                id="metaTitle"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                placeholder="SEO title (defaults to product name)"
+                maxLength={60}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="metaDescription">
+                Meta Description
+                <span className="text-muted-foreground text-sm ml-2">
+                  ({metaDescription.length}/160 characters)
+                </span>
+              </Label>
+              <Textarea
+                id="metaDescription"
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                placeholder="SEO description (defaults to product description)"
+                maxLength={160}
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ogImageUrl">Open Graph Image URL</Label>
+              <Input
+                id="ogImageUrl"
+                value={ogImageUrl}
+                onChange={(e) => setOgImageUrl(e.target.value)}
+                placeholder="Social sharing image (defaults to product image)"
+              />
+              <p className="text-xs text-muted-foreground">
+                Recommended: 1200x630px for optimal social media display
+              </p>
+            </div>
           </div>
         </div>
       </form>
