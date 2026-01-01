@@ -90,14 +90,15 @@ export const EmailCapturePopup = () => {
             className="fixed inset-0 bg-foreground/50 backdrop-blur-sm z-[60]"
           />
 
-          {/* Popup */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[61] w-[90vw] max-w-md"
-          >
+          {/* Popup Container - Centered */}
+          <div className="fixed inset-0 z-[61] flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="w-full max-w-md pointer-events-auto"
+            >
             <div className="bg-background rounded-3xl shadow-2xl overflow-hidden border border-border">
               {/* Close Button */}
               <button
@@ -197,6 +198,7 @@ export const EmailCapturePopup = () => {
               </div>
             </div>
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
