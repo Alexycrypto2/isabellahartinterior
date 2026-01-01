@@ -32,7 +32,7 @@ const Navigation = () => {
             Categories
           </Link>
           <Link to="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            Inspiration
+            Blog
           </Link>
           <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
             About
@@ -79,7 +79,7 @@ const Navigation = () => {
               className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
               onClick={() => setIsMenuOpen(false)}
             >
-              Inspiration
+              Blog
             </Link>
             <Link 
               to="/about" 
