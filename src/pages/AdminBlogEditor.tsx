@@ -20,10 +20,9 @@ import {
   useCreateBlogPost,
   useUpdateBlogPost,
 } from '@/hooks/useBlogPosts';
+import { useCategories } from '@/hooks/useCategories';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Save, Image as ImageIcon, Upload } from 'lucide-react';
-
-const CATEGORIES = ['BEDROOM', 'LIVING ROOM', 'ORGANIZATION', 'KITCHEN', 'BATHROOM', 'OUTDOOR'];
 
 const generateSlug = (title: string) => {
   return title
@@ -40,6 +39,7 @@ const AdminBlogEditor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: existingPost, isLoading: isLoadingPost } = useBlogPostById(id || '');
+  const { data: categories } = useCategories();
   const createMutation = useCreateBlogPost();
   const updateMutation = useUpdateBlogPost();
 
@@ -300,9 +300,9 @@ const AdminBlogEditor = () => {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
+                  {categories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name}>
+                      {cat.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
