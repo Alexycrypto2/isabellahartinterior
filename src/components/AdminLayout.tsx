@@ -2,12 +2,16 @@ import { ReactNode, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   LayoutDashboard,
   LogOut,
   Home,
   PlusCircle,
   Tag,
+  Package,
+  Settings,
+  FileText,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -43,17 +47,19 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   };
 
   const isActive = (path: string) => location.pathname === path;
+  const isActivePrefix = (prefix: string) => location.pathname.startsWith(prefix);
 
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <aside className="w-64 border-r bg-muted/30 flex flex-col">
         <div className="p-6 border-b">
-          <h1 className="font-display text-xl font-medium">Blog Admin</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage your content</p>
+          <h1 className="font-display text-xl font-medium">Admin Panel</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage your website</p>
         </div>
         
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-1">
+          {/* Dashboard */}
           <Link to="/admin">
             <Button
               variant={isActive('/admin') ? 'secondary' : 'ghost'}
@@ -63,6 +69,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               Dashboard
             </Button>
           </Link>
+
+          <Separator className="my-3" />
+          
+          {/* Blog Section */}
+          <p className="text-xs font-medium text-muted-foreground px-3 py-2">BLOG</p>
           <Link to="/admin/blog/new">
             <Button
               variant={isActive('/admin/blog/new') ? 'secondary' : 'ghost'}
@@ -78,7 +89,44 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               className="w-full justify-start"
             >
               <Tag className="mr-2 h-4 w-4" />
-              Categories
+              Blog Categories
+            </Button>
+          </Link>
+
+          <Separator className="my-3" />
+
+          {/* Products Section */}
+          <p className="text-xs font-medium text-muted-foreground px-3 py-2">PRODUCTS</p>
+          <Link to="/admin/products">
+            <Button
+              variant={isActivePrefix('/admin/products') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Package className="mr-2 h-4 w-4" />
+              All Products
+            </Button>
+          </Link>
+          <Link to="/admin/products/new">
+            <Button
+              variant={isActive('/admin/products/new') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Product
+            </Button>
+          </Link>
+
+          <Separator className="my-3" />
+
+          {/* Settings Section */}
+          <p className="text-xs font-medium text-muted-foreground px-3 py-2">SETTINGS</p>
+          <Link to="/admin/settings">
+            <Button
+              variant={isActive('/admin/settings') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Site Settings
             </Button>
           </Link>
         </nav>
