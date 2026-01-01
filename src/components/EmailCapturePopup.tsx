@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const POPUP_DELAY = 15000; // 15 seconds
 const STORAGE_KEY = "build-better-popup-shown";
-const STORAGE_EXPIRY_DAYS = 7; // Don't show again for 7 days
+const STORAGE_EXPIRY_DAYS = 1; // Don't show again for 1 day
 
 export const EmailCapturePopup = () => {
   const [isOpen, setIsOpen] = useState(false);
