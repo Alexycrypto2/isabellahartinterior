@@ -8,6 +8,7 @@ import { AnimatePresence } from "framer-motion";
 import ScrollToTop from "@/components/ScrollToTop";
 import { WishlistProvider } from "@/hooks/useWishlist";
 import { Chatbot } from "@/components/Chatbot";
+import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 
@@ -60,6 +61,7 @@ const App = () => (
             <ScrollToTop />
             <AnimatedRoutes />
             <Chatbot />
+            <EmailCapturePopup />
           </BrowserRouter>
         </WishlistProvider>
       </TooltipProvider>
