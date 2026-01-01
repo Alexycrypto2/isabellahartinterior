@@ -5,16 +5,18 @@ import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import Newsletter from "@/components/Newsletter";
-import { blogPosts } from "@/data/blogPosts";
+import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Blog = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
+  const { data: posts, isLoading, error } = usePublishedBlogPosts();
   
-  const categories = ["ALL", "BEDROOM", "LIVING ROOM", "ORGANIZATION"];
+  const categories = ["ALL", "BEDROOM", "LIVING ROOM", "ORGANIZATION", "KITCHEN", "BATHROOM", "OUTDOOR"];
   
   const filteredPosts = activeCategory === "ALL" 
-    ? blogPosts 
-    : blogPosts.filter(post => post.category === activeCategory);
+    ? posts 
+    : posts?.filter(post => post.category === activeCategory);
 
   return (
     <PageTransition>
@@ -64,61 +66,88 @@ const Blog = () => {
       <section className="py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.map((post) => (
-                <article key={post.id} className="group">
-                  <div className="relative overflow-hidden rounded-2xl mb-5">
-                    <Link to={`/blog/${post.id}`}>
-                      <img 
-                        src={post.image} 
-                        alt={post.title}
-                        className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    </Link>
-                    
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4">
-                      <span className="category-badge">
-                        {post.category}
-                      </span>
-                    </div>
-                    
-                    {/* Pinterest Save Button */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <PinterestSaveButton
-                        imageUrl={post.image}
-                        description={`${post.title} | Home Styling Tips from RoomRefine`}
-                        url={window.location.origin + `/blog/${post.id}`}
-                      />
-                    </div>
+            {isLoading ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="aspect-[4/3] rounded-2xl" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
                   </div>
-                  
-                  <Link to={`/blog/${post.id}`} className="block space-y-3">
-                    <div className="flex items-center text-sm text-muted-foreground gap-3">
-                      <span>{post.readTime}</span>
-                      <span>•</span>
-                      <span>{post.author}</span>
+                ))}
+              </div>
+            ) : error ? (
+              <div className="text-center py-20">
+                <p className="text-xl text-destructive mb-4">
+                  Failed to load blog posts. Please try again.
+                </p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredPosts?.map((post) => (
+                  <article key={post.id} className="group">
+                    <div className="relative overflow-hidden rounded-2xl mb-5">
+                      <Link to={`/blog/${post.slug}`}>
+                        {post.image_url ? (
+                          <img 
+                            src={post.image_url} 
+                            alt={post.title}
+                            className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center">
+                            <span className="text-muted-foreground">No image</span>
+                          </div>
+                        )}
+                      </Link>
+                      
+                      {/* Category Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className="category-badge">
+                          {post.category}
+                        </span>
+                      </div>
+                      
+                      {/* Pinterest Save Button */}
+                      {post.image_url && (
+                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <PinterestSaveButton
+                            imageUrl={post.image_url}
+                            description={`${post.title} | Home Styling Tips from RoomRefine`}
+                            url={window.location.origin + `/blog/${post.slug}`}
+                          />
+                        </div>
+                      )}
                     </div>
                     
-                    <h2 className="font-display text-xl font-medium group-hover:text-accent transition-colors duration-300 line-clamp-2">
-                      {post.title}
-                    </h2>
-                    
-                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    
-                    <span className="inline-block text-sm font-medium text-accent gold-underline">
-                      Read More →
-                    </span>
-                  </Link>
-                </article>
-              ))}
-            </div>
+                    <Link to={`/blog/${post.slug}`} className="block space-y-3">
+                      <div className="flex items-center text-sm text-muted-foreground gap-3">
+                        <span>{post.read_time}</span>
+                        <span>•</span>
+                        <span>{post.author}</span>
+                      </div>
+                      
+                      <h2 className="font-display text-xl font-medium group-hover:text-accent transition-colors duration-300 line-clamp-2">
+                        {post.title}
+                      </h2>
+                      
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                      
+                      <span className="inline-block text-sm font-medium text-accent gold-underline">
+                        Read More →
+                      </span>
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            )}
 
             {/* Empty State */}
-            {filteredPosts.length === 0 && (
+            {!isLoading && !error && filteredPosts?.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-xl text-muted-foreground mb-4">
                   No posts found in this category yet.

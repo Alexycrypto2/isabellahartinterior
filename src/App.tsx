@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import ScrollToTop from "@/components/ScrollToTop";
 import { WishlistProvider } from "@/hooks/useWishlist";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -20,6 +21,9 @@ const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Disclosure = lazy(() => import("./pages/Disclosure"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminBlogEditor = lazy(() => import("./pages/AdminBlogEditor"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -43,8 +47,12 @@ const AnimatedRoutes = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:id" element={<BlogPost />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/disclosure" element={<Disclosure />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
+          <Route path="/admin/blog/edit/:id" element={<AdminBlogEditor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
@@ -56,16 +64,18 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WishlistProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <AnimatedRoutes />
-            <Chatbot />
-            <EmailCapturePopup />
-          </BrowserRouter>
-        </WishlistProvider>
+        <AuthProvider>
+          <WishlistProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <AnimatedRoutes />
+              <Chatbot />
+              <EmailCapturePopup />
+            </BrowserRouter>
+          </WishlistProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>

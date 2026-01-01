@@ -1,12 +1,14 @@
 import { memo } from "react";
-import { blogPosts } from "@/data/blogPosts";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
+import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const BlogPreview = memo(() => {
-  const recentPosts = blogPosts.slice(0, 3);
+  const { data: posts, isLoading } = usePublishedBlogPosts();
+  const recentPosts = posts?.slice(0, 3) || [];
 
   return (
     <section className="py-24 bg-background">
@@ -32,50 +34,70 @@ const BlogPreview = memo(() => {
           </div>
           
           {/* Blog Posts Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {recentPosts.map((post) => (
-              <article key={post.id} className="group">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
-                  <Link to={`/blog/${post.id}`}>
-                    <img 
-                      src={post.image} 
-                      alt={post.title}
-                      width={400}
-                      height={300}
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </Link>
-                  
-                  {/* Pinterest Save Button */}
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <PinterestSaveButton
-                      imageUrl={post.image}
-                      description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
-                      url={window.location.origin + `/blog/${post.id}`}
-                    />
-                  </div>
+          {isLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="aspect-[4/3] rounded-2xl" />
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-6 w-full" />
                 </div>
-                
-                {/* Content */}
-                <Link to={`/blog/${post.id}`}>
-                  <div className="flex items-center gap-4 mb-3">
-                    <span className="category-badge">{post.category}</span>
-                    <span className="text-sm text-muted-foreground">{post.readTime}</span>
+              ))}
+            </div>
+          ) : recentPosts.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {recentPosts.map((post) => (
+                <article key={post.id} className="group">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
+                    <Link to={`/blog/${post.slug}`}>
+                      {post.image_url ? (
+                        <img 
+                          src={post.image_url} 
+                          alt={post.title}
+                          width={400}
+                          height={300}
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <span className="text-muted-foreground">No image</span>
+                        </div>
+                      )}
+                    </Link>
+                    
+                    {/* Pinterest Save Button */}
+                    {post.image_url && (
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <PinterestSaveButton
+                          imageUrl={post.image_url}
+                          description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
+                          url={window.location.origin + `/blog/${post.slug}`}
+                        />
+                      </div>
+                    )}
                   </div>
                   
-                  <h3 className="font-display text-xl font-medium mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                    {post.title}
-                  </h3>
-                  
-                  <p className="text-muted-foreground text-sm line-clamp-2">
-                    {post.excerpt}
-                  </p>
-                </Link>
-              </article>
-            ))}
-          </div>
+                  {/* Content */}
+                  <Link to={`/blog/${post.slug}`}>
+                    <div className="flex items-center gap-4 mb-3">
+                      <span className="category-badge">{post.category}</span>
+                      <span className="text-sm text-muted-foreground">{post.read_time}</span>
+                    </div>
+                    
+                    <h3 className="font-display text-xl font-medium mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                      {post.title}
+                    </h3>
+                    
+                    <p className="text-muted-foreground text-sm line-clamp-2">
+                      {post.excerpt}
+                    </p>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
