@@ -1,11 +1,58 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Lightbulb, Home, DollarSign, Sofa } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Message = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/home-decor-chat`;
+
+// Quick suggestion buttons
+const quickSuggestions = [
+  { icon: Home, label: "Small space tips", query: "How do I decorate my small living room?" },
+  { icon: DollarSign, label: "Budget decorating", query: "What are some budget-friendly decorating ideas?" },
+  { icon: Lightbulb, label: "Lighting ideas", query: "What's the best lighting for creating a cozy atmosphere?" },
+  { icon: Sofa, label: "Living room help", query: "How can I style my living room like a designer?" },
+];
+
+// Parse markdown links and convert to clickable HTML
+const parseMessageContent = (content: string) => {
+  // Match markdown links: [text](url)
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(content)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    
+    // Add the clickable link
+    const [, linkText, linkUrl] = match;
+    parts.push(
+      <a
+        key={match.index}
+        href={linkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline hover:text-primary/80 font-medium"
+      >
+        {linkText}
+      </a>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text after last link
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : content;
+};
 
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,10 +129,11 @@ export const Chatbot = () => {
     }
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (messageText?: string) => {
+    const textToSend = messageText || input.trim();
+    if (!textToSend || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input.trim() };
+    const userMessage: Message = { role: "user", content: textToSend };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setInput("");
@@ -94,7 +142,6 @@ export const Chatbot = () => {
     try {
       await streamChat(updatedMessages);
     } catch (error) {
-      // Only log error type in development, not full error details
       if (import.meta.env.DEV) {
         console.error("Chat error:", error instanceof Error ? error.message : "Unknown error");
       }
@@ -112,6 +159,10 @@ export const Chatbot = () => {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleQuickSuggestion = (query: string) => {
+    handleSend(query);
   };
 
   return (
@@ -146,9 +197,24 @@ export const Chatbot = () => {
             {/* Messages */}
             <div className="h-80 overflow-y-auto p-4 space-y-4 bg-muted/30">
               {messages.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Hi! I'm your Build Better design assistant. Ask me about decorating tips, product recommendations, or help finding the perfect pieces for your space!</p>
+                <div className="text-center text-muted-foreground py-4">
+                  <MessageCircle className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm mb-4">Hi! I'm your Build Better design assistant. How can I help you today?</p>
+                  
+                  {/* Quick Suggestion Buttons */}
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    {quickSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuickSuggestion(suggestion.query)}
+                        className="flex items-center gap-2 p-2.5 text-xs text-left bg-background border border-border rounded-lg hover:bg-muted hover:border-primary/50 transition-colors"
+                        disabled={isLoading}
+                      >
+                        <suggestion.icon className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-foreground">{suggestion.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
               {messages.map((msg, i) => (
@@ -157,13 +223,15 @@ export const Chatbot = () => {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                    className={`max-w-[85%] rounded-2xl px-4 py-2 ${
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-br-md"
                         : "bg-background border border-border rounded-bl-md"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    <div className="text-sm whitespace-pre-wrap">
+                      {msg.role === "assistant" ? parseMessageContent(msg.content) : msg.content}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -190,7 +258,7 @@ export const Chatbot = () => {
                   disabled={isLoading}
                 />
                 <Button
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={!input.trim() || isLoading}
                   size="icon"
                   className="rounded-full"
