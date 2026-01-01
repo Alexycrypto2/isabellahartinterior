@@ -1,12 +1,59 @@
-import { products } from "@/data/products";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import StarRating from "@/components/StarRating";
+import { useActiveProducts, Product } from "@/hooks/useProducts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const FeaturedProducts = () => {
-  const featuredProducts = products.slice(0, 6);
+  const { data: products, isLoading } = useActiveProducts();
+
+  // Get featured products first, then fill with latest products up to 6
+  const featuredProducts = products
+    ?.filter((p) => p.is_featured)
+    .slice(0, 6) || [];
+  
+  const remainingSlots = 6 - featuredProducts.length;
+  const additionalProducts = products
+    ?.filter((p) => !p.is_featured)
+    .slice(0, remainingSlots) || [];
+  
+  const displayProducts = [...featuredProducts, ...additionalProducts];
+
+  if (isLoading) {
+    return (
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <Skeleton className="h-4 w-32 mx-auto mb-3" />
+              <Skeleton className="h-12 w-64 mx-auto mb-4" />
+              <Skeleton className="h-6 w-96 mx-auto" />
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
+                  <Skeleton className="aspect-square" />
+                  <div className="p-6 space-y-3">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!displayProducts || displayProducts.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-24 bg-background">
@@ -25,7 +72,7 @@ const FeaturedProducts = () => {
           
           {/* Products Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.map((product, index) => (
+            {displayProducts.map((product, index) => (
               <article 
                 key={product.id} 
                 className="group product-card bg-card rounded-2xl overflow-hidden border border-border"
@@ -34,7 +81,7 @@ const FeaturedProducts = () => {
                 {/* Image Container */}
                 <div className="relative aspect-square overflow-hidden">
                   <img 
-                    src={product.image} 
+                    src={product.image_url || '/placeholder.svg'} 
                     alt={product.name}
                     width={400}
                     height={400}
@@ -58,7 +105,7 @@ const FeaturedProducts = () => {
                   {/* Pinterest Save Button */}
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <PinterestSaveButton
-                      imageUrl={product.image}
+                      imageUrl={product.image_url || ''}
                       description={`${product.name} - ${product.price}`}
                       url={window.location.origin + `/shop?product=${product.id}`}
                       price={product.price}
@@ -84,8 +131,8 @@ const FeaturedProducts = () => {
                   
                   {/* Rating */}
                   <StarRating 
-                    rating={product.rating} 
-                    reviews={product.reviews}
+                    rating={product.rating || 0} 
+                    reviews={product.reviews || 0}
                     size="sm"
                     className="mb-4"
                   />
@@ -96,9 +143,9 @@ const FeaturedProducts = () => {
                       <span className="text-xl font-semibold text-foreground">
                         {product.price}
                       </span>
-                      {product.originalPrice && (
+                      {product.original_price && (
                         <span className="text-sm text-muted-foreground line-through">
-                          {product.originalPrice}
+                          {product.original_price}
                         </span>
                       )}
                     </div>
@@ -109,7 +156,7 @@ const FeaturedProducts = () => {
                       asChild
                     >
                       <a 
-                        href={product.affiliateUrl} 
+                        href={product.affiliate_url} 
                         target="_blank" 
                         rel="noopener noreferrer nofollow"
                         className="flex items-center gap-1"

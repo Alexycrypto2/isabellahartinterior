@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
@@ -6,7 +6,7 @@ import PageTransition from "@/components/PageTransition";
 import ProductSearch from "@/components/ProductSearch";
 import { ProductGridSkeleton } from "@/components/ProductSkeleton";
 import ProductQuickView from "@/components/ProductQuickView";
-import { products, categories, Product } from "@/data/products";
+import { useActiveProducts, useProductCategories, Product } from "@/hooks/useProducts";
 import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import shopHero from "@/assets/shop-hero.jpg";
@@ -20,24 +20,48 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Interface for quick view compatibility
+interface QuickViewProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  originalPrice?: string;
+  category: string;
+  image: string;
+  affiliateUrl: string;
+  rating: number;
+  reviews: number;
+  badge?: string;
+}
+
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<QuickViewProduct | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { data: products, isLoading } = useActiveProducts();
+  const { data: dbCategories } = useProductCategories();
 
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  // Build categories with "All Products" first
+  const categories = useMemo(() => {
+    const allCategory = { id: "all", name: "All Products", icon: "✨", slug: "all" };
+    if (!dbCategories) return [allCategory];
+    return [allCategory, ...dbCategories.map(c => ({ 
+      id: c.slug, 
+      name: c.name, 
+      icon: c.icon || "📦",
+      slug: c.slug 
+    }))];
+  }, [dbCategories]);
 
   const filteredAndSortedProducts = useMemo(() => {
+    if (!products) return [];
+    
     let result = activeCategory === "all" 
       ? [...products] 
       : products.filter(p => p.category === activeCategory);
@@ -60,20 +84,36 @@ const Shop = () => {
         result.sort((a, b) => parseFloat(b.price.replace('$', '')) - parseFloat(a.price.replace('$', '')));
         break;
       case "rating":
-        result.sort((a, b) => b.rating - a.rating);
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       case "reviews":
-        result.sort((a, b) => b.reviews - a.reviews);
+        result.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
         break;
       default:
+        // Featured products first
+        result.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
         break;
     }
     
     return result;
-  }, [activeCategory, sortBy, searchQuery]);
+  }, [products, activeCategory, sortBy, searchQuery]);
 
   const handleQuickView = (product: Product) => {
-    setSelectedProduct(product);
+    // Convert to quick view format
+    const quickViewProduct: QuickViewProduct = {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      originalPrice: product.original_price || undefined,
+      category: product.category,
+      image: product.image_url || '/placeholder.svg',
+      affiliateUrl: product.affiliate_url,
+      rating: product.rating || 0,
+      reviews: product.reviews || 0,
+      badge: product.badge || undefined,
+    };
+    setSelectedProduct(quickViewProduct);
     setIsQuickViewOpen(true);
   };
 
@@ -220,7 +260,7 @@ const Shop = () => {
                     {/* Image Container */}
                     <div className="relative aspect-square overflow-hidden">
                       <img 
-                        src={product.image} 
+                        src={product.image_url || '/placeholder.svg'} 
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
@@ -240,7 +280,7 @@ const Shop = () => {
                       {/* Action Buttons */}
                       <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
-                          imageUrl={product.image}
+                          imageUrl={product.image_url || ''}
                           description={`${product.name} - ${product.price}`}
                           url={window.location.origin + `/shop?product=${product.id}`}
                           price={product.price}
@@ -287,8 +327,8 @@ const Shop = () => {
                       
                       {/* Rating */}
                       <StarRating 
-                        rating={product.rating} 
-                        reviews={product.reviews} 
+                        rating={product.rating || 0} 
+                        reviews={product.reviews || 0} 
                         size="sm"
                         className="mb-3"
                       />
@@ -299,14 +339,14 @@ const Shop = () => {
                           <span className="text-lg font-semibold text-foreground">
                             {product.price}
                           </span>
-                          {product.originalPrice && (
+                          {product.original_price && (
                             <span className="text-sm text-muted-foreground line-through">
-                              {product.originalPrice}
+                              {product.original_price}
                             </span>
                           )}
                         </div>
                         <a 
-                          href={product.affiliateUrl}
+                          href={product.affiliate_url}
                           target="_blank"
                           rel="noopener noreferrer nofollow"
                           className="text-accent hover:text-accent/80 transition-colors"
