@@ -1,10 +1,10 @@
 import { lazy, Suspense } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import FeaturedProducts from "@/components/FeaturedProducts";
 import PageTransition from "@/components/PageTransition";
 
 // Lazy load below-fold components for better initial load performance
+const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"));
 const Categories = lazy(() => import("@/components/Categories"));
 const SocialProof = lazy(() => import("@/components/SocialProof"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
@@ -29,7 +29,9 @@ const Index = () => {
         <Navigation />
         <main>
           <Hero />
-          <FeaturedProducts />
+          <Suspense fallback={<SectionLoader />}>
+            <FeaturedProducts />
+          </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <ProductRecommendations />
           </Suspense>

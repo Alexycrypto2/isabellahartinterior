@@ -39,6 +39,7 @@ const FeaturedProducts = () => {
                     width={400}
                     height={400}
                     decoding="async"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                   />
