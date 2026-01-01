@@ -271,12 +271,11 @@ const AdminMedia = () => {
                   </div>
                 </div>
                 {/* File info */}
+                {/* File info */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-foreground/80 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <p className="text-background text-xs truncate">{file.name}</p>
                   <p className="text-background/70 text-xs">
                     {formatFileSize((file.metadata?.size as number) || undefined)}
-                  </p>
-                </div>
                   </p>
                 </div>
               </div>

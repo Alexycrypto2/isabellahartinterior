@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface ActivityLog {
   id: string;
@@ -8,8 +9,8 @@ export interface ActivityLog {
   entity_type: string;
   entity_id: string | null;
   entity_name: string | null;
-  details: Record<string, unknown> | null;
-  created_at: string;
+  details: Json | null;
+  created_at: string | null;
 }
 
 // Fetch recent activity logs (admin)
@@ -39,20 +40,22 @@ export const useLogActivity = () => {
       entity_type: string;
       entity_id?: string;
       entity_name?: string;
-      details?: Record<string, unknown>;
+      details?: Json;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       
+      const logEntry = {
+        action: log.action,
+        entity_type: log.entity_type,
+        entity_id: log.entity_id || null,
+        entity_name: log.entity_name || null,
+        details: log.details || null,
+        user_id: user?.id || null,
+      };
+      
       const { data, error } = await supabase
         .from('activity_logs')
-        .insert({
-          action: log.action,
-          entity_type: log.entity_type,
-          entity_id: log.entity_id,
-          entity_name: log.entity_name,
-          details: log.details,
-          user_id: user?.id,
-        })
+        .insert([logEntry])
         .select()
         .single();
       
