@@ -29,6 +29,27 @@ export interface BlogPostInput {
   published: boolean;
 }
 
+// Helper to log activity
+const logActivity = async (
+  action: string,
+  entityType: string,
+  entityId?: string,
+  entityName?: string
+) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('activity_logs').insert([{
+      action,
+      entity_type: entityType,
+      entity_id: entityId || null,
+      entity_name: entityName || null,
+      user_id: user?.id || null,
+    }]);
+  } catch (error) {
+    console.error('Failed to log activity:', error);
+  }
+};
+
 // Fetch all published blog posts (public)
 export const usePublishedBlogPosts = () => {
   return useQuery({
@@ -118,8 +139,10 @@ export const useCreateBlogPost = () => {
       if (error) throw error;
       return data as BlogPost;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Blog post created', 'blog_post', data.id, data.title);
     },
   });
 };
@@ -140,8 +163,10 @@ export const useUpdateBlogPost = () => {
       if (error) throw error;
       return data as BlogPost;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Blog post updated', 'blog_post', data.id, data.title);
     },
   });
 };
@@ -152,15 +177,25 @@ export const useDeleteBlogPost = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
+      // First get the post title for logging
+      const { data: post } = await supabase
+        .from('blog_posts')
+        .select('title')
+        .eq('id', id)
+        .single();
+      
       const { error } = await supabase
         .from('blog_posts')
         .delete()
         .eq('id', id);
       
       if (error) throw error;
+      return { id, title: post?.title };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Blog post deleted', 'blog_post', data.id, data.title);
     },
   });
 };
@@ -181,8 +216,11 @@ export const useTogglePublishStatus = () => {
       if (error) throw error;
       return data as BlogPost;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      const action = data.published ? 'Blog post published' : 'Blog post unpublished';
+      logActivity(action, 'blog_post', data.id, data.title);
     },
   });
 };
