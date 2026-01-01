@@ -45,6 +45,27 @@ export interface ProductCategory {
   created_at: string;
 }
 
+// Helper to log activity
+const logActivity = async (
+  action: string,
+  entityType: string,
+  entityId?: string,
+  entityName?: string
+) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('activity_logs').insert([{
+      action,
+      entity_type: entityType,
+      entity_id: entityId || null,
+      entity_name: entityName || null,
+      user_id: user?.id || null,
+    }]);
+  } catch (error) {
+    console.error('Failed to log activity:', error);
+  }
+};
+
 // Fetch all active products (public)
 export const useActiveProducts = () => {
   return useQuery({
@@ -111,8 +132,10 @@ export const useCreateProduct = () => {
       if (error) throw error;
       return data as Product;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Product created', 'product', data.id, data.name);
     },
   });
 };
@@ -133,8 +156,10 @@ export const useUpdateProduct = () => {
       if (error) throw error;
       return data as Product;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Product updated', 'product', data.id, data.name);
     },
   });
 };
@@ -145,15 +170,25 @@ export const useDeleteProduct = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
+      // First get the product name for logging
+      const { data: product } = await supabase
+        .from('products')
+        .select('name')
+        .eq('id', id)
+        .single();
+      
       const { error } = await supabase
         .from('products')
         .delete()
         .eq('id', id);
       
       if (error) throw error;
+      return { id, name: product?.name };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Product deleted', 'product', data.id, data.name);
     },
   });
 };
@@ -174,8 +209,11 @@ export const useToggleProductStatus = () => {
       if (error) throw error;
       return data as Product;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      const action = data.is_active ? 'Product activated' : 'Product deactivated';
+      logActivity(action, 'product', data.id, data.name);
     },
   });
 };
@@ -211,8 +249,10 @@ export const useCreateProductCategory = () => {
       if (error) throw error;
       return data as ProductCategory;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['product-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Category created', 'product_category', data.id, data.name);
     },
   });
 };
@@ -233,8 +273,10 @@ export const useUpdateProductCategory = () => {
       if (error) throw error;
       return data as ProductCategory;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['product-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Category updated', 'product_category', data.id, data.name);
     },
   });
 };
@@ -245,15 +287,25 @@ export const useDeleteProductCategory = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
+      // First get the category name for logging
+      const { data: category } = await supabase
+        .from('product_categories')
+        .select('name')
+        .eq('id', id)
+        .single();
+      
       const { error } = await supabase
         .from('product_categories')
         .delete()
         .eq('id', id);
       
       if (error) throw error;
+      return { id, name: category?.name };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['product-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs'] });
+      logActivity('Category deleted', 'product_category', data.id, data.name);
     },
   });
 };
