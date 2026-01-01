@@ -139,8 +139,8 @@ export const Chatbot = () => {
           >
             {/* Header */}
             <div className="bg-primary text-primary-foreground p-4">
-              <h3 className="font-display text-lg font-semibold">Design Assistant</h3>
-              <p className="text-sm opacity-90">Ask me about home decor & design</p>
+              <h3 className="font-display text-lg font-semibold">Build Better Assistant</h3>
+              <p className="text-sm opacity-90">Your trusted home decor guide</p>
             </div>
 
             {/* Messages */}
@@ -148,7 +148,7 @@ export const Chatbot = () => {
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground py-8">
                   <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Hi! Ask me anything about home decor, furniture, colors, or styling tips.</p>
+                  <p className="text-sm">Hi! I'm your Build Better design assistant. Ask me about decorating tips, product recommendations, or help finding the perfect pieces for your space!</p>
                 </div>
               )}
               {messages.map((msg, i) => (
