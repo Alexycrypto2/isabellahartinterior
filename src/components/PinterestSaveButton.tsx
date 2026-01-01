@@ -4,21 +4,54 @@ interface PinterestSaveButtonProps {
   url?: string;
   size?: "small" | "medium" | "large";
   shape?: "round" | "rect";
+  price?: string;
+  isBestseller?: boolean;
+  isOnSale?: boolean;
 }
+
+// Enhance description with buyer intent keywords for Pinterest algorithm
+const enhanceDescription = (
+  description: string, 
+  price?: string, 
+  isBestseller?: boolean,
+  isOnSale?: boolean
+): string => {
+  const keywords: string[] = [];
+  
+  // Add buyer intent keywords
+  if (isBestseller) keywords.push("Bestseller");
+  if (isOnSale) keywords.push("On Sale");
+  if (price) {
+    const priceNum = parseFloat(price.replace(/[$,]/g, ''));
+    if (priceNum < 50) keywords.push("Under $50");
+    else if (priceNum < 100) keywords.push("Under $100");
+  }
+  
+  // Build enhanced description
+  const prefix = keywords.length > 0 ? `${keywords.join(" | ")} — ` : "";
+  const suffix = " | Shop on Amazon | Top-Rated Home Decor | RoomRefine";
+  
+  return `${prefix}${description}${suffix}`;
+};
 
 const PinterestSaveButton = ({ 
   imageUrl, 
   description, 
   url = window.location.href,
   size = "small",
-  shape = "round"
+  shape = "round",
+  price,
+  isBestseller,
+  isOnSale
 }: PinterestSaveButtonProps) => {
+  
+  const enhancedDescription = enhanceDescription(description, price, isBestseller, isOnSale);
   
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    const pinterestUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${encodeURIComponent(imageUrl)}&description=${encodeURIComponent(description)}`;
+    const pinterestUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${encodeURIComponent(imageUrl)}&description=${encodeURIComponent(enhancedDescription)}`;
     
     window.open(
       pinterestUrl,

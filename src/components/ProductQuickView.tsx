@@ -45,8 +45,11 @@ const ProductQuickView = ({ product, isOpen, onClose }: ProductQuickViewProps) =
             <div className="absolute top-4 right-4">
               <PinterestSaveButton
                 imageUrl={product.image}
-                description={`${product.name} - ${product.price} | Found on Room Refine`}
+                description={`${product.name} - ${product.price}`}
                 url={window.location.origin + `/shop?product=${product.id}`}
+                price={product.price}
+                isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
+                isOnSale={product.badge === 'Sale'}
               />
             </div>
           </div>

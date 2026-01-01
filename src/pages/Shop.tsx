@@ -241,8 +241,11 @@ const Shop = () => {
                       <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
                           imageUrl={product.image}
-                          description={`${product.name} - ${product.price} | Found on Room Refine`}
+                          description={`${product.name} - ${product.price}`}
                           url={window.location.origin + `/shop?product=${product.id}`}
+                          price={product.price}
+                          isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
+                          isOnSale={product.badge === 'Sale'}
                         />
                         <button
                           onClick={() => toggleWishlist(product.id, product.name)}
