@@ -92,20 +92,20 @@ const Shop = () => {
             className="w-full h-full object-cover"
           />
           {/* Stronger overlay for better text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/85 to-background" />
         </div>
         
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center py-12">
-            <span className="inline-block px-4 py-1.5 bg-accent/20 backdrop-blur-sm rounded-full text-accent font-medium text-sm mb-6">
+            <span className="inline-block px-4 py-1.5 bg-primary text-primary-foreground rounded-full font-medium text-sm mb-6">
               Shop Our Collection
             </span>
-            <h1 className="font-display text-5xl md:text-7xl font-semibold text-foreground mb-6 drop-shadow-sm">
+            <h1 className="font-display text-5xl md:text-7xl font-semibold text-foreground mb-6">
               Curated Home
               <br />
-              <span className="italic text-primary">Decor Finds</span>
+              <span className="italic text-foreground/90">Decor Finds</span>
             </h1>
-            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-8 drop-shadow-sm">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Every piece is handpicked for quality, style, and value. Click any product 
               to shop directly on Amazon.
             </p>
