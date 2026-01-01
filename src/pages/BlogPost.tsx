@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
+import ShopTheLook from "@/components/ShopTheLook";
 import { blogPosts } from "@/data/blogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -149,13 +150,24 @@ const BlogPost = () => {
       </section>
 
       {/* Content */}
-      <section className="pb-20">
+      <section className="pb-12">
         <div className="container mx-auto px-6">
           <article className="max-w-3xl mx-auto prose-lg">
             {renderContent(post.content)}
           </article>
         </div>
       </section>
+
+      {/* Shop the Look Section */}
+      {post.relatedProducts && post.relatedProducts.length > 0 && (
+        <section className="pb-12">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <ShopTheLook productIds={post.relatedProducts} />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Related Posts */}
       <section className="py-16 bg-muted/30">
