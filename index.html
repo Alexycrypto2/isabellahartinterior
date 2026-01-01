@@ -24,9 +24,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://hgjqfmechyneaqhipilt.supabase.co" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet"></noscript>
+
+    <!-- Critical CSS for FCP - hero above-the-fold styles -->
+    <style>
+      *,::before,::after{box-sizing:border-box;border:0 solid}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Outfit,system-ui,sans-serif}
+      body{margin:0;line-height:inherit;background-color:#0a0a0a;color:#fafafa}
+      #root{min-height:100vh}
+      .min-h-screen{min-height:100vh}
+      .relative{position:relative}
+      .absolute{position:absolute}
+      .inset-0{inset:0}
+      .flex{display:flex}
+      .items-center{align-items:center}
+      .overflow-hidden{overflow:hidden}
+      .w-full{width:100%}
+      .h-full{height:100%}
+      .object-cover{object-fit:cover}
+      .container{width:100%;margin-left:auto;margin-right:auto;padding-left:1.5rem;padding-right:1.5rem}
+      @media(min-width:1280px){.container{max-width:1280px}}
+    </style>
 
     <script type="application/ld+json">
     {
