@@ -19,6 +19,8 @@ const Hero = memo(() => {
           height={1080}
           loading="eager"
           decoding="async"
+          fetchPriority="high"
+          sizes="100vw"
           onLoad={() => setImageLoaded(true)}
           onError={() => setImageError(true)}
           className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${
