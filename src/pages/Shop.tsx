@@ -9,6 +9,7 @@ import ProductQuickView from "@/components/ProductQuickView";
 import { products, categories, Product } from "@/data/products";
 import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
 import StarRating from "@/components/StarRating";
+import shopHero from "@/assets/shop-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
 import {
@@ -81,12 +82,22 @@ const Shop = () => {
       <div className="min-h-screen">
         <Navigation />
       
-      {/* Hero Section */}
-      <section className="pt-32 pb-12 bg-muted/30">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
+      {/* Hero Section with Image */}
+      <section className="relative pt-24 pb-16 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={shopHero} 
+            alt="Stylish home decor collection" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+        </div>
+        
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-4xl mx-auto text-center py-12">
             <span className="text-label text-accent mb-4 block">Shop Our Collection</span>
-            <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
+            <h1 className="font-display text-5xl md:text-7xl font-medium text-foreground mb-6">
               Curated Home
               <br />
               <span className="italic">Decor Finds</span>
