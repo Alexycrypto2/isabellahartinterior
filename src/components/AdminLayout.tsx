@@ -4,10 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
-  FileText,
   LogOut,
   Home,
   PlusCircle,
+  Tag,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -70,6 +70,15 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               New Post
+            </Button>
+          </Link>
+          <Link to="/admin/categories">
+            <Button
+              variant={isActive('/admin/categories') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Tag className="mr-2 h-4 w-4" />
+              Categories
             </Button>
           </Link>
         </nav>

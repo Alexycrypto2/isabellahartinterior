@@ -6,13 +6,15 @@ import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import Newsletter from "@/components/Newsletter";
 import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
+import { useCategories } from "@/hooks/useCategories";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Blog = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const { data: posts, isLoading, error } = usePublishedBlogPosts();
+  const { data: dbCategories } = useCategories();
   
-  const categories = ["ALL", "BEDROOM", "LIVING ROOM", "ORGANIZATION", "KITCHEN", "BATHROOM", "OUTDOOR"];
+  const categories = ["ALL", ...(dbCategories?.map(c => c.name) || [])];
   
   const filteredPosts = activeCategory === "ALL" 
     ? posts 
