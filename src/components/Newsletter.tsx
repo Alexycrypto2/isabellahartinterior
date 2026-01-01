@@ -77,12 +77,11 @@ const Newsletter = ({ variant = "default", className = "" }: NewsletterProps) =>
           </div>
           
           <h2 className="font-display text-3xl md:text-5xl font-medium text-display mb-4">
-            Get Inspired Weekly
+            Get Weekly Amazon Home Decor Deals + Styling Tips
           </h2>
           
           <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            Subscribe to receive our best curated finds, styling tips, and exclusive deals 
-            straight to your inbox.
+            We only send deals that actually save you money — top-rated products, price drops, and exclusive finds. No spam.
           </p>
           
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">

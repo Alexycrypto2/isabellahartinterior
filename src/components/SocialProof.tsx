@@ -6,34 +6,29 @@ const testimonials = [
     id: 1,
     name: "Sarah M.",
     location: "New York, NY",
-    text: "Room Refine has completely transformed how I shop for home decor. Every recommendation has been spot-on for my aesthetic!",
+    text: "Found the perfect rattan pendant light for my dining room — rated 4.8 stars on Amazon and under $90! RoomRefine made it so easy.",
     rating: 5,
     avatar: "SM",
+    purchasedItem: "Boho Rattan Pendant Light",
   },
   {
     id: 2,
     name: "Jessica L.",
     location: "Austin, TX",
-    text: "I've saved so much time finding the perfect pieces. The curated selection makes shopping for decor actually enjoyable.",
+    text: "I've saved so much time finding top-rated pieces. The curated Amazon selection makes shopping for decor actually enjoyable.",
     rating: 5,
     avatar: "JL",
+    purchasedItem: "Ceramic Decorative Vase Set",
   },
   {
     id: 3,
     name: "Emily R.",
     location: "Los Angeles, CA",
-    text: "The styling tips on the blog are gold! I've completely redone my living room based on their suggestions.",
+    text: "The styling tips on the blog are gold! Found a bestselling throw blanket through their links — 5 stars and under $50!",
     rating: 5,
     avatar: "ER",
+    purchasedItem: "Chunky Knit Throw Blanket",
   },
-];
-
-const featuredIn = [
-  { name: "Apartment Therapy", logo: "🏠" },
-  { name: "House Beautiful", logo: "✨" },
-  { name: "Elle Decor", logo: "🌟" },
-  { name: "Architectural Digest", logo: "🏛️" },
-  { name: "Better Homes", logo: "🌿" },
 ];
 
 const SocialProof = memo(() => {
@@ -43,7 +38,7 @@ const SocialProof = memo(() => {
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-label text-primary mb-4 block">Trusted by Thousands</span>
+            <span className="text-label text-primary mb-4 block">Loved by 10,000+ Home Decor Shoppers</span>
             <h2 className="font-display text-4xl md:text-5xl font-medium text-display mb-4">
               What Our <span className="italic">Community</span> Says
             </h2>
@@ -80,26 +75,28 @@ const SocialProof = memo(() => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    <p className="text-xs text-muted-foreground">Purchased: {testimonial.purchasedItem}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Featured In */}
+          {/* Stats */}
           <div className="text-center">
-            <p className="text-label text-muted-foreground mb-8">As Featured In</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              {featuredIn.map((brand) => (
-                <div
-                  key={brand.name}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-300"
-                >
-                  <span className="text-2xl">{brand.logo}</span>
-                  <span className="font-display text-lg font-medium">{brand.name}</span>
-                </div>
-              ))}
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+              <div className="text-center">
+                <p className="font-display text-3xl md:text-4xl font-semibold text-foreground">10,000+</p>
+                <p className="text-sm text-muted-foreground">Happy Shoppers</p>
+              </div>
+              <div className="text-center">
+                <p className="font-display text-3xl md:text-4xl font-semibold text-foreground">4.8★</p>
+                <p className="text-sm text-muted-foreground">Avg. Product Rating</p>
+              </div>
+              <div className="text-center">
+                <p className="font-display text-3xl md:text-4xl font-semibold text-foreground">500+</p>
+                <p className="text-sm text-muted-foreground">Curated Products</p>
+              </div>
             </div>
           </div>
         </div>

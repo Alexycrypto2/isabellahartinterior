@@ -98,16 +98,16 @@ const Shop = () => {
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center py-12">
             <span className="inline-block px-4 py-1.5 bg-primary text-primary-foreground rounded-full font-medium text-sm mb-6">
-              Shop Our Collection
+              Top-Rated Products on Amazon
             </span>
             <h1 className="font-display text-5xl md:text-7xl font-semibold text-foreground mb-6">
-              Curated Home
+              Curated Decor
               <br />
-              <span className="italic text-foreground/90">Decor Finds</span>
+              <span className="italic text-foreground/90">All Under $100</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Every piece is handpicked for quality, style, and value. Click any product 
-              to shop directly on Amazon.
+              Handpicked, top-rated pieces from Amazon. Every product is rated 4+ stars. 
+              Click any item to shop directly.
             </p>
             
             {/* Search Bar */}

@@ -11,12 +11,12 @@ const Categories = memo(() => {
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-label text-primary mb-3 block">Browse By Room</span>
+            <span className="text-label text-primary mb-3 block">Browse Top-Rated on Amazon</span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
               Shop by Category
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Find the perfect pieces for every room in your home.
+              Bestselling Amazon finds for every room — all under $100.
             </p>
           </div>
           

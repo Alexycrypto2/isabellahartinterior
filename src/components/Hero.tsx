@@ -36,27 +36,27 @@ const Hero = memo(() => {
           <div className="reveal">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/20 backdrop-blur-sm text-accent-foreground text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4 text-accent" />
-              Curated Home Decor Finds
+              Top-Rated Finds on Amazon
             </span>
           </div>
           
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-medium text-accent-foreground leading-[1.1] mb-6 reveal">
-            Make Your House
+            Shop Top-Rated
             <br />
-            <span className="italic">Feel Like Home</span>
+            <span className="italic">Home Decor — All Under $100</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-accent-foreground/80 font-light max-w-lg mb-10 reveal-delayed">
-            Discover handpicked home decor pieces that bring warmth, style, and personality to every corner of your space.
+          <p className="text-xl md:text-2xl text-accent-foreground/80 font-light max-w-lg mb-8 reveal-delayed">
+            Handpicked, high-rated pieces from Amazon — curated for modern, cozy, and stylish spaces. New finds added weekly.
           </p>
           
-          <div className="flex flex-wrap gap-4 reveal-delayed">
+          <div className="flex flex-wrap gap-4 mb-4 reveal-delayed">
             <Link to="/shop">
               <Button 
                 size="lg" 
                 className="rounded-sm px-10 py-6 bg-accent text-accent-foreground hover:brightness-110 font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                Shop Now
+                Shop on Amazon
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -70,6 +70,10 @@ const Hero = memo(() => {
               </Button>
             </Link>
           </div>
+          
+          <p className="text-xs text-accent-foreground/60 reveal-delayed">
+            As an Amazon Associate, I earn from qualifying purchases.
+          </p>
         </div>
       </div>
       
