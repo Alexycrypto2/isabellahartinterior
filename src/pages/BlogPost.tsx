@@ -5,15 +5,39 @@ import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import ShopTheLook from "@/components/ShopTheLook";
-import { blogPosts } from "@/data/blogPosts";
+import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const BlogPost = () => {
-  const { id } = useParams<{ id: string }>();
-  const post = blogPosts.find(p => p.id === id);
+  const { slug } = useParams<{ slug: string }>();
+  const { data: post, isLoading, error } = useBlogPostBySlug(slug || '');
+  const { data: allPosts } = usePublishedBlogPosts();
 
-  if (!post) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="pt-32 pb-32 container mx-auto px-6">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="aspect-video rounded-2xl" />
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !post) {
     return (
       <div className="min-h-screen">
         <Navigation />
@@ -36,54 +60,16 @@ const BlogPost = () => {
 
   /**
    * SECURITY: Content rendering with XSS protection
-   * 
-   * Current implementation sanitizes all content using DOMPurify before rendering.
-   * This protects against XSS attacks if blog content source changes from static
-   * data to user-generated or CMS-fetched content in the future.
-   * 
-   * WARNING: Do not remove DOMPurify sanitization if adding dynamic content sources.
+   * Sanitizes HTML content using DOMPurify before rendering.
    */
-  const sanitizeText = (text: string): string => {
-    return DOMPurify.sanitize(text, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  const sanitizeHtml = (html: string): string => {
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel'],
+    });
   };
 
-  const renderContent = (content: string) => {
-    // Sanitize the entire content first to remove any malicious HTML/scripts
-    const sanitizedContent = sanitizeText(content);
-    
-    return sanitizedContent
-      .split('\n')
-      .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="font-display text-4xl md:text-5xl font-medium mb-6 mt-8">{line.slice(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="font-display text-2xl md:text-3xl font-medium mb-4 mt-10">{line.slice(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="font-display text-xl md:text-2xl font-medium mb-3 mt-8">{line.slice(4)}</h3>;
-        }
-        if (line.startsWith('- **')) {
-          const lineContent = line.slice(2);
-          const match = lineContent.match(/\*\*(.+?)\*\*:?\s*(.*)/);
-          if (match) {
-            return (
-              <li key={index} className="mb-2 ml-6 text-muted-foreground">
-                <strong className="text-foreground">{match[1]}</strong>
-                {match[2] && `: ${match[2]}`}
-              </li>
-            );
-          }
-        }
-        if (line.startsWith('- ')) {
-          return <li key={index} className="mb-2 ml-6 text-muted-foreground">{line.slice(2)}</li>;
-        }
-        if (line.trim() === '') {
-          return <br key={index} />;
-        }
-        return <p key={index} className="text-muted-foreground leading-relaxed mb-4">{line}</p>;
-      });
-  };
+  const relatedPosts = allPosts?.filter(p => p.id !== post.id).slice(0, 3) || [];
 
   return (
     <PageTransition>
@@ -116,11 +102,11 @@ const BlogPost = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>{post.readTime}</span>
+                <span>{post.read_time}</span>
               </div>
             </div>
           </div>
@@ -128,75 +114,75 @@ const BlogPost = () => {
       </section>
 
       {/* Featured Image */}
-      <section className="pb-12">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto relative">
-            <img 
-              src={post.image} 
-              alt={post.title}
-              className="w-full aspect-video object-cover rounded-2xl"
-            />
-            {/* Pinterest Save Button */}
-            <div className="absolute top-4 right-4">
-              <PinterestSaveButton
-                imageUrl={post.image}
-                description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
-                url={window.location.href}
-                size="medium"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Content */}
-      <section className="pb-12">
-        <div className="container mx-auto px-6">
-          <article className="max-w-3xl mx-auto prose-lg">
-            {renderContent(post.content)}
-          </article>
-        </div>
-      </section>
-
-      {/* Shop the Look Section */}
-      {post.relatedProducts && post.relatedProducts.length > 0 && (
+      {post.image_url && (
         <section className="pb-12">
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
-              <ShopTheLook productIds={post.relatedProducts} />
+            <div className="max-w-4xl mx-auto relative">
+              <img 
+                src={post.image_url} 
+                alt={post.title}
+                className="w-full aspect-video object-cover rounded-2xl"
+              />
+              {/* Pinterest Save Button */}
+              <div className="absolute top-4 right-4">
+                <PinterestSaveButton
+                  imageUrl={post.image_url}
+                  description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
+                  url={window.location.href}
+                  size="medium"
+                />
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Related Posts */}
-      <section className="py-16 bg-muted/30">
+      {/* Content */}
+      <section className="pb-12">
         <div className="container mx-auto px-6">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="font-display text-3xl font-medium text-center mb-10">
-              More Inspiration
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {blogPosts.filter(p => p.id !== post.id).slice(0, 3).map((relatedPost) => (
-                <Link key={relatedPost.id} to={`/blog/${relatedPost.id}`} className="group">
-                  <div className="rounded-2xl overflow-hidden mb-4">
-                    <img 
-                      src={relatedPost.image} 
-                      alt={relatedPost.title}
-                      className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                  <span className="category-badge mb-2 inline-block text-[10px]">{relatedPost.category}</span>
-                  <h3 className="font-display text-lg font-medium group-hover:text-primary transition-colors line-clamp-2">
-                    {relatedPost.title}
-                  </h3>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <article 
+            className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent prose-img:rounded-lg"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
+          />
         </div>
       </section>
+
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-6">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="font-display text-3xl font-medium text-center mb-10">
+                More Inspiration
+              </h2>
+              <div className="grid md:grid-cols-3 gap-8">
+                {relatedPosts.map((relatedPost) => (
+                  <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`} className="group">
+                    <div className="rounded-2xl overflow-hidden mb-4">
+                      {relatedPost.image_url ? (
+                        <img 
+                          src={relatedPost.image_url} 
+                          alt={relatedPost.title}
+                          className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center">
+                          <span className="text-muted-foreground">No image</span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="category-badge mb-2 inline-block text-[10px]">{relatedPost.category}</span>
+                    <h3 className="font-display text-lg font-medium group-hover:text-primary transition-colors line-clamp-2">
+                      {relatedPost.title}
+                    </h3>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
       </div>

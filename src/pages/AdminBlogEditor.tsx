@@ -1,0 +1,391 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import AdminLayout from '@/components/AdminLayout';
+import RichTextEditor from '@/components/RichTextEditor';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import {
+  useBlogPostById,
+  useCreateBlogPost,
+  useUpdateBlogPost,
+} from '@/hooks/useBlogPosts';
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Save, Image as ImageIcon, Upload } from 'lucide-react';
+
+const CATEGORIES = ['BEDROOM', 'LIVING ROOM', 'ORGANIZATION', 'KITCHEN', 'BATHROOM', 'OUTDOOR'];
+
+const generateSlug = (title: string) => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+};
+
+const AdminBlogEditor = () => {
+  const { id } = useParams<{ id: string }>();
+  const isEditing = !!id;
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: existingPost, isLoading: isLoadingPost } = useBlogPostById(id || '');
+  const createMutation = useCreateBlogPost();
+  const updateMutation = useUpdateBlogPost();
+
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [excerpt, setExcerpt] = useState('');
+  const [content, setContent] = useState('');
+  const [author, setAuthor] = useState('');
+  const [category, setCategory] = useState('');
+  const [readTime, setReadTime] = useState('5 min read');
+  const [imageUrl, setImageUrl] = useState('');
+  const [published, setPublished] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [autoSlug, setAutoSlug] = useState(true);
+
+  useEffect(() => {
+    if (existingPost) {
+      setTitle(existingPost.title);
+      setSlug(existingPost.slug);
+      setExcerpt(existingPost.excerpt);
+      setContent(existingPost.content);
+      setAuthor(existingPost.author);
+      setCategory(existingPost.category);
+      setReadTime(existingPost.read_time);
+      setImageUrl(existingPost.image_url || '');
+      setPublished(existingPost.published);
+      setAutoSlug(false);
+    }
+  }, [existingPost]);
+
+  useEffect(() => {
+    if (autoSlug && title) {
+      setSlug(generateSlug(title));
+    }
+  }, [title, autoSlug]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload an image file.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please upload an image smaller than 5MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `featured/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      setImageUrl(publicUrl);
+      toast({
+        title: 'Image uploaded',
+        description: 'Your image has been uploaded successfully.',
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Failed to upload image. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title || !slug || !excerpt || !content || !author || !category) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const postData = {
+        title,
+        slug,
+        excerpt,
+        content,
+        author,
+        category,
+        read_time: readTime,
+        image_url: imageUrl || null,
+        published,
+      };
+
+      if (isEditing && id) {
+        await updateMutation.mutateAsync({ id, ...postData });
+        toast({
+          title: 'Post updated',
+          description: 'Your blog post has been updated successfully.',
+        });
+      } else {
+        await createMutation.mutateAsync(postData);
+        toast({
+          title: 'Post created',
+          description: 'Your blog post has been created successfully.',
+        });
+      }
+
+      navigate('/admin');
+    } catch (error: any) {
+      let message = 'Failed to save the post.';
+      if (error.message?.includes('duplicate')) {
+        message = 'A post with this slug already exists. Please use a different title.';
+      }
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (isEditing && isLoadingPost) {
+    return (
+      <AdminLayout>
+        <div className="p-8 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <form onSubmit={handleSubmit} className="p-8 max-w-4xl">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate('/admin')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <h1 className="font-display text-2xl font-medium">
+              {isEditing ? 'Edit Post' : 'New Post'}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="published"
+                checked={published}
+                onCheckedChange={setPublished}
+              />
+              <Label htmlFor="published">
+                {published ? 'Published' : 'Draft'}
+              </Label>
+            </div>
+            <Button
+              type="submit"
+              className="rounded-full"
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {createMutation.isPending || updateMutation.isPending
+                ? 'Saving...'
+                : 'Save Post'}
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter post title"
+              className="text-lg"
+            />
+          </div>
+
+          {/* Slug */}
+          <div className="space-y-2">
+            <Label htmlFor="slug">
+              Slug *
+              <span className="text-muted-foreground text-sm ml-2">
+                (URL-friendly identifier)
+              </span>
+            </Label>
+            <Input
+              id="slug"
+              value={slug}
+              onChange={(e) => {
+                setSlug(e.target.value);
+                setAutoSlug(false);
+              }}
+              placeholder="post-url-slug"
+            />
+          </div>
+
+          {/* Excerpt */}
+          <div className="space-y-2">
+            <Label htmlFor="excerpt">Excerpt *</Label>
+            <Textarea
+              id="excerpt"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              placeholder="Brief summary of the post..."
+              rows={2}
+            />
+          </div>
+
+          {/* Meta row */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="author">Author *</Label>
+              <Input
+                id="author"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Author name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="readTime">Read Time</Label>
+              <Input
+                id="readTime"
+                value={readTime}
+                onChange={(e) => setReadTime(e.target.value)}
+                placeholder="5 min read"
+              />
+            </div>
+          </div>
+
+          {/* Featured Image */}
+          <div className="space-y-2">
+            <Label>Featured Image</Label>
+            <div className="border-2 border-dashed rounded-lg p-6">
+              {imageUrl ? (
+                <div className="relative">
+                  <img
+                    src={imageUrl}
+                    alt="Featured"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Replace Image
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-4">
+                    Upload a featured image for your post
+                  </p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    {isUploading ? 'Uploading...' : 'Upload Image'}
+                  </Button>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Or paste an image URL:
+            </p>
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+
+          {/* Content */}
+          <div className="space-y-2">
+            <Label>Content *</Label>
+            <RichTextEditor content={content} onChange={setContent} />
+          </div>
+        </div>
+      </form>
+    </AdminLayout>
+  );
+};
+
+export default AdminBlogEditor;
