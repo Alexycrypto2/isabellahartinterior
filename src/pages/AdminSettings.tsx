@@ -6,14 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSiteSettings, useUpdateSiteSetting } from '@/hooks/useSiteSettings';
+import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Image as ImageIcon, Home, Info, Mail, FileText } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2 } from 'lucide-react';
 
 const AdminSettings = () => {
   const { data: settings, isLoading } = useSiteSettings();
-  const updateMutation = useUpdateSiteSetting();
+  const updateMutation = useUpsertSiteSetting();
   const { toast } = useToast();
 
   // Hero settings
@@ -36,8 +36,17 @@ const AdminSettings = () => {
   const [contactPhone, setContactPhone] = useState('');
   const [contactAddress, setContactAddress] = useState('');
 
-  // Footer settings
+// Footer settings
   const [footerCopyright, setFooterCopyright] = useState('');
+
+  // Social media settings
+  const [socialInstagram, setSocialInstagram] = useState('');
+  const [socialFacebook, setSocialFacebook] = useState('');
+  const [socialTwitter, setSocialTwitter] = useState('');
+  const [socialPinterest, setSocialPinterest] = useState('');
+  const [socialYoutube, setSocialYoutube] = useState('');
+  const [socialTiktok, setSocialTiktok] = useState('');
+  const [socialLinkedin, setSocialLinkedin] = useState('');
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -67,6 +76,16 @@ const AdminSettings = () => {
       
       // Footer
       setFooterCopyright(settings.footer?.copyright || '');
+      
+      // Social media
+      const social = settings.social_media || {};
+      setSocialInstagram(social.instagram || '');
+      setSocialFacebook(social.facebook || '');
+      setSocialTwitter(social.twitter || '');
+      setSocialPinterest(social.pinterest || '');
+      setSocialYoutube(social.youtube || '');
+      setSocialTiktok(social.tiktok || '');
+      setSocialLinkedin(social.linkedin || '');
     }
   }, [settings]);
 
@@ -176,9 +195,29 @@ const AdminSettings = () => {
     try {
       await updateMutation.mutateAsync({
         key: 'footer',
-        value: { copyright: footerCopyright, social_links: settings?.footer?.social_links || {} },
+        value: { copyright: footerCopyright },
       });
       toast({ title: 'Saved', description: 'Footer updated successfully.' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
+    }
+  };
+
+  const saveSocialMedia = async () => {
+    try {
+      await updateMutation.mutateAsync({
+        key: 'social_media',
+        value: {
+          instagram: socialInstagram || null,
+          facebook: socialFacebook || null,
+          twitter: socialTwitter || null,
+          pinterest: socialPinterest || null,
+          youtube: socialYoutube || null,
+          tiktok: socialTiktok || null,
+          linkedin: socialLinkedin || null,
+        },
+      });
+      toast({ title: 'Saved', description: 'Social media links updated successfully.' });
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
     }
@@ -205,7 +244,7 @@ const AdminSettings = () => {
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+          <TabsList className="grid grid-cols-6 w-full max-w-3xl">
             <TabsTrigger value="hero" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               Hero
@@ -221,6 +260,10 @@ const AdminSettings = () => {
             <TabsTrigger value="contact" className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
               Contact
+            </TabsTrigger>
+            <TabsTrigger value="social" className="flex items-center gap-2">
+              <Share2 className="h-4 w-4" />
+              Social
             </TabsTrigger>
             <TabsTrigger value="footer" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -356,6 +399,52 @@ const AdminSettings = () => {
                 <Button onClick={saveContact} disabled={updateMutation.isPending}>
                   <Save className="mr-2 h-4 w-4" />
                   Save Contact Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Media Section */}
+          <TabsContent value="social">
+            <Card>
+              <CardHeader>
+                <CardTitle>Social Media Links</CardTitle>
+                <CardDescription>Add your social media profile URLs to display across your site</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Instagram</Label>
+                    <Input value={socialInstagram} onChange={(e) => setSocialInstagram(e.target.value)} placeholder="https://instagram.com/yourusername" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Facebook</Label>
+                    <Input value={socialFacebook} onChange={(e) => setSocialFacebook(e.target.value)} placeholder="https://facebook.com/yourpage" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Twitter / X</Label>
+                    <Input value={socialTwitter} onChange={(e) => setSocialTwitter(e.target.value)} placeholder="https://twitter.com/yourusername" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Pinterest</Label>
+                    <Input value={socialPinterest} onChange={(e) => setSocialPinterest(e.target.value)} placeholder="https://pinterest.com/yourusername" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>YouTube</Label>
+                    <Input value={socialYoutube} onChange={(e) => setSocialYoutube(e.target.value)} placeholder="https://youtube.com/@yourchannel" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>TikTok</Label>
+                    <Input value={socialTiktok} onChange={(e) => setSocialTiktok(e.target.value)} placeholder="https://tiktok.com/@yourusername" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>LinkedIn</Label>
+                    <Input value={socialLinkedin} onChange={(e) => setSocialLinkedin(e.target.value)} placeholder="https://linkedin.com/in/yourusername" />
+                  </div>
+                </div>
+                <Button onClick={saveSocialMedia} disabled={updateMutation.isPending}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Social Media Links
                 </Button>
               </CardContent>
             </Card>
