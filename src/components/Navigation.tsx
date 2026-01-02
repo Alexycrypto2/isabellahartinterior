@@ -28,8 +28,8 @@ const Navigation = () => {
           <Link to="/shop" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
             Shop
           </Link>
-          <Link to="/categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            Categories
+          <Link to="/inspiration" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
+            Inspiration
           </Link>
           <Link to="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
             Blog
@@ -68,11 +68,11 @@ const Navigation = () => {
               Shop
             </Link>
             <Link 
-              to="/categories" 
+              to="/inspiration" 
               className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
               onClick={() => setIsMenuOpen(false)}
             >
-              Categories
+              Inspiration
             </Link>
             <Link 
               to="/blog" 
