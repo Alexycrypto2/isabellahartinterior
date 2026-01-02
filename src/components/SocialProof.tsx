@@ -1,6 +1,9 @@
 import { memo } from "react";
 import { Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
+import avatarSarah from "@/assets/avatar-sarah.jpg";
+import avatarJessica from "@/assets/avatar-jessica.jpg";
+import avatarEmily from "@/assets/avatar-emily.jpg";
 
 const testimonials = [
   {
@@ -9,7 +12,8 @@ const testimonials = [
     location: "New York, NY",
     text: "Found the perfect rattan pendant light for my dining room — rated 4.8 stars on Amazon and under $90! RoomRefine made it so easy.",
     rating: 5,
-    avatar: "SM",
+    avatar: avatarSarah,
+    initials: "SM",
     purchasedItem: "Boho Rattan Pendant Light",
   },
   {
@@ -18,7 +22,8 @@ const testimonials = [
     location: "Austin, TX",
     text: "I've saved so much time finding top-rated pieces. The curated Amazon selection makes shopping for decor actually enjoyable.",
     rating: 5,
-    avatar: "JL",
+    avatar: avatarJessica,
+    initials: "JL",
     purchasedItem: "Ceramic Decorative Vase Set",
   },
   {
@@ -27,7 +32,8 @@ const testimonials = [
     location: "Los Angeles, CA",
     text: "The styling tips on the blog are gold! Found a bestselling throw blanket through their links — 5 stars and under $50!",
     rating: 5,
-    avatar: "ER",
+    avatar: avatarEmily,
+    initials: "ER",
     purchasedItem: "Chunky Knit Throw Blanket",
   },
 ];
@@ -85,9 +91,17 @@ const SocialProof = memo(() => {
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
-                    {testimonial.avatar}
-                  </div>
+                  <motion.div 
+                    className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-accent/20"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <img 
+                      src={testimonial.avatar} 
+                      alt={testimonial.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
                   <div>
                     <p className="font-medium text-foreground">{testimonial.name}</p>
                     <p className="text-xs text-muted-foreground">Purchased: {testimonial.purchasedItem}</p>
