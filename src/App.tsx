@@ -15,6 +15,7 @@ import Index from "./pages/Index";
 
 // Lazy load non-critical pages
 const Shop = lazy(() => import("./pages/Shop"));
+const Inspiration = lazy(() => import("./pages/Inspiration"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const About = lazy(() => import("./pages/About"));
@@ -50,7 +51,7 @@ const AnimatedRoutes = () => {
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Index />} />
           <Route path="/shop" element={<Shop />} />
-          <Route path="/categories" element={<Shop />} />
+          <Route path="/inspiration" element={<Inspiration />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<Blog />} />
