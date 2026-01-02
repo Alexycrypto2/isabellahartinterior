@@ -63,7 +63,7 @@ export const usePublishedBlogPosts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select('id, title, slug, excerpt, content, author, category, image_url, read_time, published, created_at, updated_at, meta_title, meta_description, og_image_url')
         .eq('published', true)
         .order('created_at', { ascending: false });
       
