@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Star, Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -59,7 +60,21 @@ const SocialProof = memo(() => {
                 {/* Rating */}
                 <div className="flex items-center gap-1 mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-accent text-accent" />
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ 
+                        delay: index * 0.1 + i * 0.08,
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 15
+                      }}
+                      whileHover={{ scale: 1.3, rotate: 15 }}
+                      className="cursor-default"
+                    >
+                      <Star className="w-4 h-4 fill-accent text-accent drop-shadow-[0_0_4px_hsl(var(--accent)/0.5)] transition-all duration-200 hover:drop-shadow-[0_0_10px_hsl(var(--accent))]" />
+                    </motion.div>
                   ))}
                 </div>
 
