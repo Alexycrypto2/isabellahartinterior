@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -9,11 +10,19 @@ import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { trackBlogView } from "@/lib/analytics";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, error } = useBlogPostBySlug(slug || '');
   const { data: allPosts } = usePublishedBlogPosts();
+
+  // Track blog view
+  useEffect(() => {
+    if (post) {
+      trackBlogView(post.id, post.title);
+    }
+  }, [post]);
 
   if (isLoading) {
     return (

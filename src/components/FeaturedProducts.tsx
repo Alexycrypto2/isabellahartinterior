@@ -5,6 +5,7 @@ import PinterestSaveButton from "@/components/PinterestSaveButton";
 import StarRating from "@/components/StarRating";
 import { useActiveProducts, Product } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { trackProductClick } from "@/lib/analytics";
 
 const FeaturedProducts = () => {
   const { data: products, isLoading } = useActiveProducts();
@@ -160,6 +161,7 @@ const FeaturedProducts = () => {
                         target="_blank" 
                         rel="noopener noreferrer nofollow"
                         className="flex items-center gap-1"
+                        onClick={() => trackProductClick(product.id, product.name)}
                       >
                         Shop on Amazon
                         <ExternalLink className="w-3 h-3" />
