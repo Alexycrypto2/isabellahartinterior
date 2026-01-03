@@ -1,4 +1,26 @@
+import { useSiteSetting } from '@/hooks/useSiteSettings';
+import { useSocialSettings } from '@/hooks/useSocialSettings';
+
 const Contact = () => {
+  const { data: contactSetting } = useSiteSetting('contact');
+  const { data: socialSettings } = useSocialSettings();
+  
+  const contact = (contactSetting?.value || {}) as Record<string, string>;
+  const email = contact.email || 'hello@archstudio.com';
+  const phone = contact.phone || '+1 (234) 567-8900';
+  const address = contact.address || '123 Design Avenue\nNew York, NY 10001';
+
+  // Get social links
+  const socialLinks = [
+    { name: 'Instagram', url: socialSettings?.instagram },
+    { name: 'LinkedIn', url: socialSettings?.linkedin },
+    { name: 'Facebook', url: socialSettings?.facebook },
+    { name: 'Pinterest', url: socialSettings?.pinterest },
+    { name: 'Twitter', url: socialSettings?.twitter },
+    { name: 'YouTube', url: socialSettings?.youtube },
+    { name: 'TikTok', url: socialSettings?.tiktok },
+  ].filter(link => link.url);
+
   return (
     <section id="contact" className="py-32 bg-background">
       <div className="container mx-auto px-6">
@@ -15,46 +37,48 @@ const Contact = () => {
               <div className="space-y-8">
                 <div>
                   <h4 className="text-minimal text-muted-foreground mb-2">EMAIL</h4>
-                  <a href="mailto:hello@archstudio.com" className="text-xl hover:text-muted-foreground transition-colors duration-300">
-                    hello@archstudio.com
+                  <a href={`mailto:${email}`} className="text-xl hover:text-muted-foreground transition-colors duration-300">
+                    {email}
                   </a>
                 </div>
                 
                 <div>
                   <h4 className="text-minimal text-muted-foreground mb-2">PHONE</h4>
-                  <a href="tel:+1234567890" className="text-xl hover:text-muted-foreground transition-colors duration-300">
-                    +1 (234) 567-8900
+                  <a href={`tel:${phone.replace(/\D/g, '')}`} className="text-xl hover:text-muted-foreground transition-colors duration-300">
+                    {phone}
                   </a>
                 </div>
                 
                 <div>
                   <h4 className="text-minimal text-muted-foreground mb-2">STUDIO</h4>
-                  <address className="text-xl not-italic">
-                    123 Design Avenue
-                    <br />
-                    New York, NY 10001
+                  <address className="text-xl not-italic whitespace-pre-line">
+                    {address}
                   </address>
                 </div>
               </div>
             </div>
             
             <div className="space-y-8">
-              <div>
-                <h4 className="text-minimal text-muted-foreground mb-6">FOLLOW US</h4>
-                <div className="space-y-4">
-                  <a href="#" className="block text-xl hover:text-muted-foreground transition-colors duration-300">
-                    Instagram
-                  </a>
-                  <a href="#" className="block text-xl hover:text-muted-foreground transition-colors duration-300">
-                    LinkedIn
-                  </a>
-                  <a href="#" className="block text-xl hover:text-muted-foreground transition-colors duration-300">
-                    Behance
-                  </a>
+              {socialLinks.length > 0 && (
+                <div>
+                  <h4 className="text-minimal text-muted-foreground mb-6">FOLLOW US</h4>
+                  <div className="space-y-4">
+                    {socialLinks.map((link) => (
+                      <a 
+                        key={link.name}
+                        href={link.url} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-xl hover:text-muted-foreground transition-colors duration-300"
+                      >
+                        {link.name}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
               
-              <div className="pt-12 border-t border-border">
+              <div className={`${socialLinks.length > 0 ? 'pt-12 border-t border-border' : ''}`}>
                 <p className="text-muted-foreground">
                   We approach each project with curiosity, rigor, and a commitment to excellence. 
                   Our process begins with listening, understanding your vision, and translating 
