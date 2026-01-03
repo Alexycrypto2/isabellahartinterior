@@ -12,6 +12,7 @@ import StarRating from "@/components/StarRating";
 import shopHero from "@/assets/shop-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
+import { trackProductClick } from "@/lib/analytics";
 import {
   Select,
   SelectContent,
@@ -350,6 +351,7 @@ const Shop = () => {
                           target="_blank"
                           rel="noopener noreferrer nofollow"
                           className="text-accent hover:text-accent/80 transition-colors"
+                          onClick={() => trackProductClick(product.id, product.name)}
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>

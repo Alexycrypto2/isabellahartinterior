@@ -11,6 +11,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 import Index from "./pages/Index";
 
 // Lazy load non-critical pages
@@ -86,6 +87,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
+              <AnalyticsTracker />
               <AnimatedRoutes />
               <Chatbot />
               <EmailCapturePopup />
