@@ -1,14 +1,39 @@
-import { memo, useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import heroImage from "@/assets/hero-luxury.jpg";
+import { memo, useState, useEffect, useMemo, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Star, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// Import all hero images
+import heroLuxury from "@/assets/hero-luxury.jpg";
+import heroBedroom from "@/assets/hero-bedroom.jpg";
+import heroDining from "@/assets/hero-dining.jpg";
+import heroReading from "@/assets/hero-reading.jpg";
+
+const heroImages = [heroLuxury, heroBedroom, heroDining, heroReading];
 
 const Hero = memo(() => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [currentWord, setCurrentWord] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  // Random image on mount (changes on refresh)
+  const selectedImage = useMemo(() => {
+    const randomIndex = Math.floor(Math.random() * heroImages.length);
+    return heroImages[randomIndex];
+  }, []);
+  
+  // Parallax effect
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   
   const rotatingWords = ["Modern", "Cozy", "Stylish", "Elegant"];
   
@@ -20,27 +45,30 @@ const Hero = memo(() => {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-secondary">
-      {/* Background Image with loading state */}
+    <section ref={sectionRef} className="relative min-h-screen flex items-center overflow-hidden bg-secondary">
+      {/* Background Image with Parallax */}
       {!imageError && (
-        <motion.img 
-          src={heroImage}
-          alt="Beautiful home decor interior"
-          width={1920}
-          height={1080}
-          loading="eager"
-          decoding="async"
-          fetchPriority="high"
-          sizes="100vw"
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageError(true)}
-          initial={{ scale: 1.1 }}
-          animate={{ scale: imageLoaded ? 1 : 1.1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
+        <motion.div 
+          className="absolute inset-0 w-full h-[120%] -top-[10%]"
+          style={{ y: imageY, scale: imageScale }}
+        >
+          <motion.img 
+            src={selectedImage}
+            alt="Beautiful home decor interior"
+            width={1920}
+            height={1080}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            sizes="100vw"
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+            initial={{ scale: 1.15, opacity: 0 }}
+            animate={{ scale: imageLoaded ? 1 : 1.15, opacity: imageLoaded ? 1 : 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="w-full h-full object-cover object-center"
+          />
+        </motion.div>
       )}
       
       {/* Premium Dark Overlay for Text Readability */}
@@ -48,14 +76,21 @@ const Hero = memo(() => {
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
       
       {/* Decorative Elements */}
-      <div className="absolute top-20 right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse hidden lg:block" />
-      <div className="absolute bottom-40 left-10 w-64 h-64 bg-primary/5 rounded-full blur-2xl animate-pulse hidden lg:block" />
+      <motion.div 
+        style={{ opacity }}
+        className="absolute top-20 right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse hidden lg:block" 
+      />
+      <motion.div 
+        style={{ opacity }}
+        className="absolute bottom-40 left-10 w-64 h-64 bg-primary/5 rounded-full blur-2xl animate-pulse hidden lg:block" 
+      />
       
       {/* Floating Badge - Top Right */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
+        style={{ opacity }}
         className="absolute top-32 right-8 lg:right-20 hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl"
       >
         <div className="flex -space-x-1">
@@ -69,8 +104,11 @@ const Hero = memo(() => {
         </div>
       </motion.div>
       
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 py-32">
+      {/* Content with Parallax */}
+      <motion.div 
+        style={{ y: contentY, opacity }}
+        className="relative z-10 container mx-auto px-6 py-32"
+      >
         <div className="max-w-3xl">
           {/* Top Badge */}
           <motion.div
@@ -93,7 +131,7 @@ const Hero = memo(() => {
           >
             <h1 
               className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium leading-[1.05] mb-4"
-              style={{ textShadow: '0 4px 30px rgba(0,0,0,0.5)' }}
+              style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
             >
               <span className="text-white">Discover</span>
               <br />
@@ -105,7 +143,7 @@ const Hero = memo(() => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
                   className="italic text-amber-400"
-                  style={{ textShadow: '0 4px 30px rgba(0,0,0,0.3)' }}
+                  style={{ textShadow: "0 4px 30px rgba(0,0,0,0.3)" }}
                 >
                   {rotatingWords[currentWord]}
                 </motion.span>
@@ -114,7 +152,7 @@ const Hero = memo(() => {
             </h1>
             <h2 
               className="font-display text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8"
-              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.4)' }}
+              style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
             >
               All Under $100
             </h2>
@@ -126,7 +164,7 @@ const Hero = memo(() => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
             className="text-lg md:text-xl text-white/85 font-light max-w-xl mb-10 leading-relaxed"
-            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
+            style={{ textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}
           >
             Handpicked, high-rated pieces from Amazon — expertly curated 
             for spaces that feel like home. New collections every week.
@@ -204,20 +242,21 @@ const Hero = memo(() => {
             As an Amazon Associate, I earn from qualifying purchases.
           </motion.p>
         </div>
-      </div>
+      </motion.div>
       
       {/* Scroll Indicator */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.6 }}
+        style={{ opacity }}
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:block"
       >
         <motion.div 
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           className="flex flex-col items-center gap-2 text-white/60 cursor-pointer hover:text-white/80 transition-colors"
-          onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
+          onClick={() => window.scrollBy({ top: window.innerHeight, behavior: "smooth" })}
         >
           <span className="text-xs font-medium tracking-[0.2em] uppercase">Explore</span>
           <ChevronDown className="w-5 h-5" />
@@ -225,8 +264,14 @@ const Hero = memo(() => {
       </motion.div>
       
       {/* Decorative Corner Elements */}
-      <div className="absolute bottom-0 right-0 w-1/3 h-32 bg-gradient-to-l from-amber-500/10 to-transparent hidden lg:block" />
-      <div className="absolute top-0 left-0 w-px h-40 bg-gradient-to-b from-white/30 to-transparent ml-6 mt-24 hidden lg:block" />
+      <motion.div 
+        style={{ opacity }}
+        className="absolute bottom-0 right-0 w-1/3 h-32 bg-gradient-to-l from-amber-500/10 to-transparent hidden lg:block" 
+      />
+      <motion.div 
+        style={{ opacity }}
+        className="absolute top-0 left-0 w-px h-40 bg-gradient-to-b from-white/30 to-transparent ml-6 mt-24 hidden lg:block" 
+      />
     </section>
   );
 });
