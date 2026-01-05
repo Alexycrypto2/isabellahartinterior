@@ -1,27 +1,35 @@
-import { memo, useState, useEffect, useMemo, useRef } from "react";
+import { memo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Star, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// Import all hero images
-import heroLuxury from "@/assets/hero-luxury.jpg";
-import heroBedroom from "@/assets/hero-bedroom.jpg";
-import heroDining from "@/assets/hero-dining.jpg";
-import heroReading from "@/assets/hero-reading.jpg";
-
-const heroImages = [heroLuxury, heroBedroom, heroDining, heroReading];
+// Get random image path - we'll lazy load the actual image
+const heroImagePaths = [
+  () => import("@/assets/hero-luxury.jpg"),
+  () => import("@/assets/hero-bedroom.jpg"),
+  () => import("@/assets/hero-dining.jpg"),
+  () => import("@/assets/hero-reading.jpg"),
+];
 
 const Hero = memo(() => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>("");
   const [currentWord, setCurrentWord] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   
-  // Random image on mount (changes on refresh)
-  const selectedImage = useMemo(() => {
-    const randomIndex = Math.floor(Math.random() * heroImages.length);
-    return heroImages[randomIndex];
+  // Load random image on mount
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * heroImagePaths.length);
+    heroImagePaths[randomIndex]().then((module) => {
+      // Preload the image
+      const img = new Image();
+      img.src = module.default;
+      img.onload = () => {
+        setImageSrc(module.default);
+        setImageLoaded(true);
+      };
+    });
   }, []);
   
   // Parallax effect
@@ -46,30 +54,28 @@ const Hero = memo(() => {
 
   return (
     <section ref={sectionRef} className="relative min-h-screen flex items-center overflow-hidden bg-secondary">
+      {/* Placeholder gradient while image loads */}
+      <div className="absolute inset-0 bg-gradient-to-br from-secondary via-muted to-secondary" />
+      
       {/* Background Image with Parallax */}
-      {!imageError && (
-        <motion.div 
-          className="absolute inset-0 w-full h-[120%] -top-[10%]"
-          style={{ y: imageY, scale: imageScale }}
-        >
+      <motion.div 
+        className="absolute inset-0 w-full h-[120%] -top-[10%]"
+        style={{ y: imageY, scale: imageScale }}
+      >
+        {imageSrc && (
           <motion.img 
-            src={selectedImage}
+            src={imageSrc}
             alt="Beautiful home decor interior"
             width={1920}
             height={1080}
-            loading="eager"
             decoding="async"
-            fetchPriority="high"
-            sizes="100vw"
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-            initial={{ scale: 1.15, opacity: 0 }}
-            animate={{ scale: imageLoaded ? 1 : 1.15, opacity: imageLoaded ? 1 : 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: imageLoaded ? 1 : 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="w-full h-full object-cover object-center"
           />
-        </motion.div>
-      )}
+        )}
+      </motion.div>
       
       {/* Premium Dark Overlay for Text Readability */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
