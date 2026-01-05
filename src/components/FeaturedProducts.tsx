@@ -6,6 +6,7 @@ import StarRating from "@/components/StarRating";
 import { useActiveProducts, Product } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackProductClick } from "@/lib/analytics";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const FeaturedProducts = () => {
   const { data: products, isLoading } = useActiveProducts();
@@ -81,16 +82,14 @@ const FeaturedProducts = () => {
               >
                 {/* Image Container */}
                 <div className="relative aspect-square overflow-hidden">
-                  <img 
-                    src={product.image_url || '/placeholder.svg'} 
-                    alt={product.name}
-                    width={400}
-                    height={400}
-                    decoding="async"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
+                  <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
+                    <OptimizedImage 
+                      src={product.image_url || '/placeholder.svg'} 
+                      alt={product.name}
+                      width={400}
+                      height={400}
+                    />
+                  </div>
                   
                   {/* Badge */}
                     {product.badge && (

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { Skeleton } from "@/components/ui/skeleton";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const BlogPreview = memo(() => {
   const { data: posts, isLoading } = usePublishedBlogPosts();
@@ -49,17 +50,16 @@ const BlogPreview = memo(() => {
               {recentPosts.map((post) => (
                 <article key={post.id} className="group">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
-                    <Link to={`/blog/${post.slug}`}>
+                    <Link to={`/blog/${post.slug}`} className="block w-full h-full">
                       {post.image_url ? (
-                        <img 
-                          src={post.image_url} 
-                          alt={post.title}
-                          width={400}
-                          height={300}
-                          decoding="async"
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          loading="lazy"
-                        />
+                        <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
+                          <OptimizedImage 
+                            src={post.image_url} 
+                            alt={post.title}
+                            width={400}
+                            height={300}
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">
                           <span className="text-muted-foreground">No image</span>
