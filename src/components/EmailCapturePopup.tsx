@@ -5,11 +5,9 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscribeNewsletter } from "@/hooks/useNewsletterSubscribers";
+import { useNewsletterSettings, DEFAULT_NEWSLETTER_SETTINGS } from "@/hooks/useNewsletterSettings";
 
-const POPUP_DELAY = 30000; // 30 seconds - more patient
-const SCROLL_THRESHOLD = 0.6; // Show after 60% scroll
 const STORAGE_KEY = "cozy-nest-newsletter-shown";
-const STORAGE_EXPIRY_DAYS = 7; // Don't show again for 7 days
 
 export const EmailCapturePopup = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,29 +16,40 @@ export const EmailCapturePopup = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
   const subscribeMutation = useSubscribeNewsletter();
+  const { data: settings, isLoading: settingsLoading } = useNewsletterSettings();
 
-  const shouldShowPopup = useCallback(() => {
+  const shouldShowPopup = useCallback((expiryDays: number) => {
     const storedData = localStorage.getItem(STORAGE_KEY);
     if (storedData) {
       const { timestamp, subscribed } = JSON.parse(storedData);
       if (subscribed) return false; // Never show again if subscribed
       const daysSinceShown = (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
-      if (daysSinceShown < STORAGE_EXPIRY_DAYS) return false;
+      if (daysSinceShown < expiryDays) return false;
     }
     return true;
   }, []);
 
   useEffect(() => {
-    if (!shouldShowPopup()) return;
+    // Wait for settings to load
+    if (settingsLoading) return;
+    
+    const config = settings || DEFAULT_NEWSLETTER_SETTINGS;
+    
+    // Check if popup is disabled
+    if (!config.enabled) return;
+    
+    if (!shouldShowPopup(config.expiry_days)) return;
 
     let hasShown = false;
+    const scrollThreshold = config.scroll_threshold / 100;
+    const delayMs = config.delay_seconds * 1000;
     let timeoutId: NodeJS.Timeout;
 
     // Combined trigger: scroll threshold OR time delay
     const handleScroll = () => {
       if (hasShown) return;
       const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-      if (scrollPercent >= SCROLL_THRESHOLD) {
+      if (scrollPercent >= scrollThreshold) {
         hasShown = true;
         setIsOpen(true);
         window.removeEventListener("scroll", handleScroll);
@@ -55,7 +64,7 @@ export const EmailCapturePopup = () => {
         setIsOpen(true);
         window.removeEventListener("scroll", handleScroll);
       }
-    }, POPUP_DELAY);
+    }, delayMs);
 
     window.addEventListener("scroll", handleScroll, { passive: true });
 
@@ -63,7 +72,7 @@ export const EmailCapturePopup = () => {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(timeoutId);
     };
-  }, [shouldShowPopup]);
+  }, [shouldShowPopup, settings, settingsLoading]);
 
   const handleClose = () => {
     setIsOpen(false);
