@@ -6,10 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2 } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell } from 'lucide-react';
+import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
 const AdminSettings = () => {
   const { data: settings, isLoading } = useSiteSettings();
@@ -47,6 +50,12 @@ const AdminSettings = () => {
   const [socialYoutube, setSocialYoutube] = useState('');
   const [socialTiktok, setSocialTiktok] = useState('');
   const [socialLinkedin, setSocialLinkedin] = useState('');
+
+  // Newsletter popup settings
+  const [newsletterEnabled, setNewsletterEnabled] = useState(DEFAULT_NEWSLETTER_SETTINGS.enabled);
+  const [newsletterDelay, setNewsletterDelay] = useState(DEFAULT_NEWSLETTER_SETTINGS.delay_seconds);
+  const [newsletterScroll, setNewsletterScroll] = useState(DEFAULT_NEWSLETTER_SETTINGS.scroll_threshold);
+  const [newsletterExpiry, setNewsletterExpiry] = useState(DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -97,6 +106,13 @@ const AdminSettings = () => {
       setSocialYoutube(social.youtube || '');
       setSocialTiktok(social.tiktok || '');
       setSocialLinkedin(social.linkedin || '');
+
+      // Newsletter popup
+      const newsletter = getSetting('newsletter_popup') as Record<string, any>;
+      setNewsletterEnabled(newsletter.enabled ?? DEFAULT_NEWSLETTER_SETTINGS.enabled);
+      setNewsletterDelay(newsletter.delay_seconds ?? DEFAULT_NEWSLETTER_SETTINGS.delay_seconds);
+      setNewsletterScroll(newsletter.scroll_threshold ?? DEFAULT_NEWSLETTER_SETTINGS.scroll_threshold);
+      setNewsletterExpiry(newsletter.expiry_days ?? DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
     }
   }, [settings]);
 
@@ -234,6 +250,23 @@ const AdminSettings = () => {
     }
   };
 
+  const saveNewsletterSettings = async () => {
+    try {
+      await updateMutation.mutateAsync({
+        key: 'newsletter_popup',
+        value: {
+          enabled: newsletterEnabled,
+          delay_seconds: newsletterDelay,
+          scroll_threshold: newsletterScroll,
+          expiry_days: newsletterExpiry,
+        },
+      });
+      toast({ title: 'Saved', description: 'Newsletter popup settings updated successfully.' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -255,7 +288,7 @@ const AdminSettings = () => {
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid grid-cols-6 w-full max-w-3xl">
+          <TabsList className="grid grid-cols-7 w-full max-w-4xl">
             <TabsTrigger value="hero" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               Hero
@@ -275,6 +308,10 @@ const AdminSettings = () => {
             <TabsTrigger value="social" className="flex items-center gap-2">
               <Share2 className="h-4 w-4" />
               Social
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Newsletter
             </TabsTrigger>
             <TabsTrigger value="footer" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -456,6 +493,111 @@ const AdminSettings = () => {
                 <Button onClick={saveSocialMedia} disabled={updateMutation.isPending}>
                   <Save className="mr-2 h-4 w-4" />
                   Save Social Media Links
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Newsletter Popup Section */}
+          <TabsContent value="newsletter">
+            <Card>
+              <CardHeader>
+                <CardTitle>Newsletter Popup Settings</CardTitle>
+                <CardDescription>Control when and how the newsletter signup popup appears to visitors</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                {/* Enable/Disable */}
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label className="text-base">Enable Newsletter Popup</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Show the email signup popup to visitors
+                    </p>
+                  </div>
+                  <Switch 
+                    checked={newsletterEnabled} 
+                    onCheckedChange={setNewsletterEnabled}
+                  />
+                </div>
+
+                {/* Delay */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Time Delay</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Show popup after this many seconds on page
+                      </p>
+                    </div>
+                    <span className="text-lg font-medium tabular-nums">{newsletterDelay}s</span>
+                  </div>
+                  <Slider
+                    value={[newsletterDelay]}
+                    onValueChange={([val]) => setNewsletterDelay(val)}
+                    min={10}
+                    max={120}
+                    step={5}
+                    disabled={!newsletterEnabled}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>10s</span>
+                    <span>120s</span>
+                  </div>
+                </div>
+
+                {/* Scroll Threshold */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Scroll Threshold</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Or show when visitor scrolls this percentage of the page
+                      </p>
+                    </div>
+                    <span className="text-lg font-medium tabular-nums">{newsletterScroll}%</span>
+                  </div>
+                  <Slider
+                    value={[newsletterScroll]}
+                    onValueChange={([val]) => setNewsletterScroll(val)}
+                    min={20}
+                    max={90}
+                    step={5}
+                    disabled={!newsletterEnabled}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>20%</span>
+                    <span>90%</span>
+                  </div>
+                </div>
+
+                {/* Don't Show Again Period */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Don't Show Again For</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Days before showing the popup again after dismissal
+                      </p>
+                    </div>
+                    <span className="text-lg font-medium tabular-nums">{newsletterExpiry} days</span>
+                  </div>
+                  <Slider
+                    value={[newsletterExpiry]}
+                    onValueChange={([val]) => setNewsletterExpiry(val)}
+                    min={1}
+                    max={30}
+                    step={1}
+                    disabled={!newsletterEnabled}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>1 day</span>
+                    <span>30 days</span>
+                  </div>
+                </div>
+
+                <Button onClick={saveNewsletterSettings} disabled={updateMutation.isPending}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Newsletter Settings
                 </Button>
               </CardContent>
             </Card>
