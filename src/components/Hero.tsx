@@ -1,15 +1,14 @@
-import { memo, useState, useEffect, useRef, useCallback } from "react";
+import { memo, useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Star, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// Get random image path - we'll lazy load the actual image
+// Fashion hero images
 const heroImagePaths = [
-  () => import("@/assets/hero-luxury.jpg"),
-  () => import("@/assets/hero-bedroom.jpg"),
-  () => import("@/assets/hero-dining.jpg"),
-  () => import("@/assets/hero-reading.jpg"),
+  () => import("@/assets/hero-fashion-1.jpg"),
+  () => import("@/assets/hero-fashion-2.jpg"),
+  () => import("@/assets/hero-fashion-3.jpg"),
 ];
 
 const Hero = memo(() => {
@@ -22,7 +21,6 @@ const Hero = memo(() => {
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * heroImagePaths.length);
     heroImagePaths[randomIndex]().then((module) => {
-      // Preload the image
       const img = new Image();
       img.src = module.default;
       img.onload = () => {
@@ -43,7 +41,7 @@ const Hero = memo(() => {
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   
-  const rotatingWords = ["Modern", "Cozy", "Stylish", "Elegant"];
+  const rotatingWords = ["Timeless", "Elegant", "Refined", "Modern"];
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -65,7 +63,7 @@ const Hero = memo(() => {
         {imageSrc && (
           <motion.img 
             src={imageSrc}
-            alt="Beautiful home decor interior"
+            alt="Glamify luxury women's fashion"
             width={1920}
             height={1080}
             decoding="async"
@@ -101,12 +99,12 @@ const Hero = memo(() => {
       >
         <div className="flex -space-x-1">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+            <Star key={i} className="w-4 h-4 fill-accent text-accent" />
           ))}
         </div>
         <div className="text-sm">
-          <span className="font-semibold text-gray-900">4.9</span>
-          <span className="text-gray-600 ml-1">• 2.5k+ Reviews</span>
+          <span className="font-semibold text-foreground">4.9</span>
+          <span className="text-muted-foreground ml-1">• 15k+ Reviews</span>
         </div>
       </motion.div>
       
@@ -123,8 +121,8 @@ const Hero = memo(() => {
             transition={{ duration: 0.6 }}
           >
             <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md text-white text-sm font-medium mb-8 border border-white/25 shadow-lg">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              Top-Rated Finds on Amazon
+              <Sparkles className="w-4 h-4 text-accent" />
+              New Spring Collection
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             </span>
           </motion.div>
@@ -139,7 +137,7 @@ const Hero = memo(() => {
               className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium leading-[1.05] mb-4"
               style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
             >
-              <span className="text-white">Discover</span>
+              <span className="text-white">Embrace</span>
               <br />
               <span className="relative inline-block">
                 <motion.span
@@ -148,19 +146,19 @@ const Hero = memo(() => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="italic text-amber-400"
+                  className="italic text-accent"
                   style={{ textShadow: "0 4px 30px rgba(0,0,0,0.3)" }}
                 >
                   {rotatingWords[currentWord]}
                 </motion.span>
               </span>{" "}
-              <span className="text-white">Living</span>
+              <span className="text-white">Style</span>
             </h1>
             <h2 
               className="font-display text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8"
               style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
             >
-              All Under $100
+              Luxury Made Accessible
             </h2>
           </motion.div>
           
@@ -172,8 +170,8 @@ const Hero = memo(() => {
             className="text-lg md:text-xl text-white/85 font-light max-w-xl mb-10 leading-relaxed"
             style={{ textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}
           >
-            Handpicked, high-rated pieces from Amazon — expertly curated 
-            for spaces that feel like home. New collections every week.
+            Curated collections of sophisticated fashion pieces designed for 
+            the modern woman. Timeless elegance meets contemporary style.
           </motion.p>
           
           {/* CTA Buttons */}
@@ -186,7 +184,7 @@ const Hero = memo(() => {
             <Link to="/shop">
               <Button 
                 size="lg" 
-                className="group relative rounded-full px-8 py-6 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold tracking-wide transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-amber-500/30 overflow-hidden"
+                className="group relative rounded-full px-8 py-6 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold tracking-wide transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-accent/30 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center">
                   Shop Collection
@@ -200,7 +198,7 @@ const Hero = memo(() => {
                 variant="outline" 
                 className="rounded-full px-8 py-6 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:border-white/60 font-semibold tracking-wide backdrop-blur-md transition-all duration-300"
               >
-                Get Inspired
+                Style Guide
               </Button>
             </Link>
           </motion.div>
@@ -222,11 +220,11 @@ const Hero = memo(() => {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-4 h-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className="font-medium">Trusted Brands</span>
+              <span className="font-medium">Premium Quality</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
@@ -237,16 +235,6 @@ const Hero = memo(() => {
               <span className="font-medium">Curated Weekly</span>
             </div>
           </motion.div>
-          
-          {/* Amazon Affiliate Disclosure */}
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 1 }}
-            className="text-xs text-white/50 mt-8"
-          >
-            As an Amazon Associate, I earn from qualifying purchases.
-          </motion.p>
         </div>
       </motion.div>
       
@@ -272,7 +260,7 @@ const Hero = memo(() => {
       {/* Decorative Corner Elements */}
       <motion.div 
         style={{ opacity }}
-        className="absolute bottom-0 right-0 w-1/3 h-32 bg-gradient-to-l from-amber-500/10 to-transparent hidden lg:block" 
+        className="absolute bottom-0 right-0 w-1/3 h-32 bg-gradient-to-l from-accent/10 to-transparent hidden lg:block" 
       />
       <motion.div 
         style={{ opacity }}
