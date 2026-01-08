@@ -1,9 +1,9 @@
-import productLamp from "@/assets/product-lamp.jpg";
-import productVase from "@/assets/product-vase.jpg";
-import productBlanket from "@/assets/product-blanket.jpg";
-import productMirror from "@/assets/product-mirror.jpg";
-import productShelf from "@/assets/product-shelf.jpg";
-import productPillows from "@/assets/product-pillows.jpg";
+import productHandbag from "@/assets/product-handbag.jpg";
+import productJewelry from "@/assets/product-jewelry.jpg";
+import productScarf from "@/assets/product-scarf.jpg";
+import productDress from "@/assets/product-dress.jpg";
+import productSweater from "@/assets/product-sweater.jpg";
+import productHeels from "@/assets/product-heels.jpg";
 
 export interface Product {
   id: string;
@@ -21,84 +21,84 @@ export interface Product {
 
 export const categories = [
   { id: "all", name: "All Products", icon: "✨" },
-  { id: "lighting", name: "Lighting", icon: "💡" },
-  { id: "decor", name: "Decor & Accents", icon: "🌿" },
-  { id: "textiles", name: "Textiles", icon: "🧶" },
-  { id: "furniture", name: "Furniture", icon: "🪑" },
-  { id: "storage", name: "Storage", icon: "📦" },
+  { id: "clothing", name: "Clothing", icon: "👗" },
+  { id: "accessories", name: "Accessories", icon: "👜" },
+  { id: "jewelry", name: "Jewelry", icon: "💎" },
+  { id: "shoes", name: "Shoes", icon: "👠" },
+  { id: "knitwear", name: "Knitwear", icon: "🧶" },
 ];
 
 export const products: Product[] = [
   {
-    id: "rattan-pendant-lamp",
-    name: "Boho Rattan Pendant Light",
-    description: "Hand-woven rattan pendant lamp that adds warmth and texture to any room. Perfect for dining areas or living rooms.",
-    price: "$89.99",
-    originalPrice: "$129.99",
-    category: "lighting",
-    image: productLamp,
-    affiliateUrl: "https://amazon.com",
-    rating: 4.8,
-    reviews: 2341,
+    id: "taupe-leather-handbag",
+    name: "Taupe Leather Chain Bag",
+    description: "Elegant structured handbag in premium taupe leather with gold chain strap. Perfect for day-to-evening transitions.",
+    price: "$189.00",
+    originalPrice: "$249.00",
+    category: "accessories",
+    image: productHandbag,
+    affiliateUrl: "https://glamify.com",
+    rating: 4.9,
+    reviews: 2847,
     badge: "Bestseller"
   },
   {
-    id: "ceramic-vase-pampas",
-    name: "Ceramic Vase with Dried Pampas",
-    description: "Elegant two-tone ceramic vase with beautiful dried pampas grass arrangement. Instant boho-chic vibes.",
-    price: "$45.99",
-    category: "decor",
-    image: productVase,
-    affiliateUrl: "https://amazon.com",
-    rating: 4.7,
-    reviews: 1856,
-    badge: "Top Pick"
+    id: "gold-jewelry-set",
+    name: "Minimalist Gold Jewelry Set",
+    description: "Delicate 18k gold-plated necklace and hoop earrings set. Timeless pieces that elevate any outfit.",
+    price: "$79.00",
+    category: "jewelry",
+    image: productJewelry,
+    affiliateUrl: "https://glamify.com",
+    rating: 4.8,
+    reviews: 1956,
+    badge: "Editor's Pick"
   },
   {
-    id: "chunky-knit-blanket",
-    name: "Luxury Chunky Knit Throw",
-    description: "Ultra-soft cable knit throw blanket in cream. Perfect for cozy evenings and adding texture to your sofa.",
-    price: "$59.99",
-    originalPrice: "$79.99",
-    category: "textiles",
-    image: productBlanket,
-    affiliateUrl: "https://amazon.com",
-    rating: 4.9,
-    reviews: 3124,
+    id: "silk-ombre-scarf",
+    name: "Silk Ombré Scarf",
+    description: "Luxurious silk scarf in cream and gold gradient. Versatile styling for neck, hair, or bag accessory.",
+    price: "$65.00",
+    originalPrice: "$89.00",
+    category: "accessories",
+    image: productScarf,
+    affiliateUrl: "https://glamify.com",
+    rating: 4.7,
+    reviews: 1234,
     badge: "Sale"
   },
   {
-    id: "gold-round-mirror",
-    name: "Gold Frame Round Wall Mirror",
-    description: "Minimalist round mirror with elegant gold frame. Opens up any space and adds a touch of sophistication.",
-    price: "$78.99",
-    category: "decor",
-    image: productMirror,
-    affiliateUrl: "https://amazon.com",
-    rating: 4.6,
-    reviews: 987
+    id: "black-satin-dress",
+    name: "Black Satin Evening Dress",
+    description: "Elegant V-neck satin dress with A-line silhouette. Perfect for special occasions and evening events.",
+    price: "$245.00",
+    category: "clothing",
+    image: productDress,
+    affiliateUrl: "https://glamify.com",
+    rating: 4.9,
+    reviews: 892
   },
   {
-    id: "floating-wall-shelf",
-    name: "Natural Wood Floating Shelves Set",
-    description: "Set of 2 solid wood floating shelves. Perfect for displaying plants, books, and decorative items.",
-    price: "$42.99",
-    category: "storage",
-    image: productShelf,
-    affiliateUrl: "https://amazon.com",
-    rating: 4.7,
+    id: "cream-cashmere-sweater",
+    name: "Cream Cashmere Sweater",
+    description: "Ultra-soft pure cashmere crewneck in cream. Luxurious comfort meets effortless sophistication.",
+    price: "$195.00",
+    category: "knitwear",
+    image: productSweater,
+    affiliateUrl: "https://glamify.com",
+    rating: 4.8,
     reviews: 2156
   },
   {
-    id: "linen-pillow-set",
-    name: "Linen Throw Pillow Covers (Set of 4)",
-    description: "Premium linen pillow covers in cream and sage green. Breathable, soft, and perfect for any season.",
-    price: "$34.99",
-    originalPrice: "$49.99",
-    category: "textiles",
-    image: productPillows,
-    affiliateUrl: "https://amazon.com",
-    rating: 4.8,
+    id: "nude-leather-heels",
+    name: "Nude Leather Pointed Heels",
+    description: "Classic pointed-toe pumps in nude leather. Versatile wardrobe essential with 3-inch heel.",
+    price: "$165.00",
+    originalPrice: "$210.00",
+    category: "shoes",
+    image: productHeels,
+    affiliateUrl: "https://glamify.com",
+    rating: 4.7,
     reviews: 1543,
     badge: "Sale"
   }
