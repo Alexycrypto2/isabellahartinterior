@@ -55,7 +55,7 @@ const Shop = () => {
     return [allCategory, ...dbCategories.map(c => ({ 
       id: c.slug, 
       name: c.name, 
-      icon: c.icon || "📦",
+      icon: c.icon || "👗",
       slug: c.slug 
     }))];
   }, [dbCategories]);
@@ -129,7 +129,7 @@ const Shop = () => {
         <div className="absolute inset-0 z-0">
           <img 
             src={shopHero} 
-            alt="Stylish home decor collection" 
+            alt="Glamify luxury fashion collection" 
             className="w-full h-full object-cover"
           />
           {/* Stronger overlay for better text visibility */}
@@ -139,16 +139,16 @@ const Shop = () => {
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center py-12">
             <span className="inline-block px-4 py-1.5 bg-primary text-primary-foreground rounded-full font-medium text-sm mb-6">
-              Top-Rated Products on Amazon
+              New Season Collection
             </span>
             <h1 className="font-display text-5xl md:text-7xl font-semibold text-foreground mb-6">
-              Curated Decor
+              The Edit
               <br />
-              <span className="italic text-foreground/90">All Under $100</span>
+              <span className="italic text-foreground/90">Curated for You</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Handpicked, top-rated pieces from Amazon. Every product is rated 4+ stars. 
-              Click any item to shop directly.
+              Discover our handpicked selection of luxury fashion essentials. 
+              From timeless classics to trending pieces — all top-rated and ready to elevate your style.
             </p>
             
             {/* Search Bar */}
@@ -259,7 +259,7 @@ const Shop = () => {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-square overflow-hidden">
+                    <div className="relative aspect-[3/4] overflow-hidden">
                       <img 
                         src={product.image_url || '/placeholder.svg'} 
                         alt={product.name}
@@ -282,7 +282,7 @@ const Shop = () => {
                       <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
                           imageUrl={product.image_url || ''}
-                          description={`${product.name} - ${product.price}`}
+                          description={`${product.name} - ${product.price} | Glamify`}
                           url={window.location.origin + `/shop?product=${product.id}`}
                           price={product.price}
                           isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
@@ -391,8 +391,8 @@ const Shop = () => {
       <section className="py-8 bg-muted/30">
         <div className="container mx-auto px-6 text-center">
           <p className="text-sm text-muted-foreground">
-            💡 <strong>Tip:</strong> Prices and availability may change. Click through to Amazon for the most current info.
-            As an Amazon Associate, I earn from qualifying purchases.
+            💫 <strong>Style Tip:</strong> Prices and availability may change. Click through for the most current info.
+            As an affiliate, we earn from qualifying purchases.
           </p>
         </div>
       </section>

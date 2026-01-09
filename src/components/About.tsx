@@ -5,41 +5,41 @@ const About = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-20 items-center">
             <div>
-              <h2 className="text-minimal text-muted-foreground mb-4">ABOUT</h2>
+              <h2 className="text-minimal text-muted-foreground mb-4">ABOUT GLAMIFY</h2>
               <h3 className="text-4xl md:text-6xl font-light text-architectural mb-12">
-                Design Philosophy
+                Our Philosophy
               </h3>
               
               <div className="space-y-8">
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  We believe architecture should enhance human experience while respecting 
-                  the natural environment. Our practice focuses on creating spaces that 
-                  are both functional and poetic.
+                  At Glamify, we believe that true style transcends trends. Our curated 
+                  collection focuses on timeless pieces that empower women to express 
+                  their authentic selves with confidence and grace.
                 </p>
                 
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Founded in 2015, our studio has completed over 200 projects across 
-                  residential, commercial, and cultural sectors. Each project begins 
-                  with careful listening and ends with thoughtful execution.
+                  Founded with a passion for minimalist luxury, we've helped thousands of 
+                  women build capsule wardrobes that work harder and last longer. Every 
+                  piece we recommend is chosen for its quality, versatility, and enduring appeal.
                 </p>
               </div>
             </div>
             
             <div className="space-y-12">
               <div>
-                <h4 className="text-minimal text-muted-foreground mb-6">APPROACH</h4>
+                <h4 className="text-minimal text-muted-foreground mb-6">OUR VALUES</h4>
                 <div className="space-y-6">
                   <div className="border-l-2 border-architectural pl-6">
-                    <h5 className="text-lg font-medium mb-2">Research</h5>
-                    <p className="text-muted-foreground">Deep understanding of context, culture, and climate</p>
+                    <h5 className="text-lg font-medium mb-2">Quality Over Quantity</h5>
+                    <p className="text-muted-foreground">Investment pieces that stand the test of time</p>
                   </div>
                   <div className="border-l-2 border-architectural pl-6">
-                    <h5 className="text-lg font-medium mb-2">Collaboration</h5>
-                    <p className="text-muted-foreground">Close partnership with clients, engineers, and craftspeople</p>
+                    <h5 className="text-lg font-medium mb-2">Timeless Elegance</h5>
+                    <p className="text-muted-foreground">Classic designs that transcend seasonal trends</p>
                   </div>
                   <div className="border-l-2 border-architectural pl-6">
-                    <h5 className="text-lg font-medium mb-2">Innovation</h5>
-                    <p className="text-muted-foreground">Sustainable materials and forward-thinking design solutions</p>
+                    <h5 className="text-lg font-medium mb-2">Effortless Style</h5>
+                    <p className="text-muted-foreground">Pieces that mix, match, and elevate any look</p>
                   </div>
                 </div>
               </div>
@@ -47,12 +47,12 @@ const About = () => {
               <div className="pt-8 border-t border-border">
                 <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <h4 className="text-minimal text-muted-foreground mb-2">FOUNDED</h4>
-                    <p className="text-xl">2015</p>
+                    <h4 className="text-minimal text-muted-foreground mb-2">HAPPY CLIENTS</h4>
+                    <p className="text-xl">50,000+</p>
                   </div>
                   <div>
-                    <h4 className="text-minimal text-muted-foreground mb-2">PROJECTS</h4>
-                    <p className="text-xl">200+</p>
+                    <h4 className="text-minimal text-muted-foreground mb-2">CURATED PIECES</h4>
+                    <p className="text-xl">500+</p>
                   </div>
                 </div>
               </div>

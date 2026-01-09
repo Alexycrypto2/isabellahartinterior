@@ -30,7 +30,7 @@ const Contact = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    toast.success("Message sent! I'll get back to you soon 💌");
+    toast.success("Message sent! We'll get back to you soon 💌");
     setFormData({ name: "", email: "", subject: "", message: "" });
     setIsLoading(false);
   };
@@ -46,11 +46,11 @@ const Contact = () => {
           <div className="max-w-3xl mx-auto text-center">
             <span className="text-label text-primary mb-4 block">Get In Touch</span>
             <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
-              Let's Chat!
+              Let's Connect
             </h1>
             <p className="text-xl text-muted-foreground">
-              Have a question, collaboration idea, or just want to say hi? 
-              I'd love to hear from you!
+              Have a styling question, want to collaborate, or just want to say hello? 
+              We'd love to hear from you!
             </p>
           </div>
         </div>
@@ -69,8 +69,8 @@ const Contact = () => {
                     Ways to Connect
                   </h2>
                   <p className="text-muted-foreground mb-8">
-                    Whether you have a question about a product, want to collaborate, 
-                    or just want to share your home styling wins – I'm here for it all!
+                    Whether you need styling advice, want to collaborate on a project, 
+                    or just want to share your latest outfit win — we're here for it all!
                   </p>
                 </div>
 
@@ -80,12 +80,12 @@ const Contact = () => {
                       <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium mb-1">Email Me</h3>
+                      <h3 className="font-medium mb-1">Email Us</h3>
                       <a 
-                        href="mailto:hello@cozynestdecor.com" 
+                        href="mailto:hello@glamify.com" 
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        hello@cozynestdecor.com
+                        hello@glamify.com
                       </a>
                     </div>
                   </div>
@@ -99,12 +99,12 @@ const Contact = () => {
                     <div>
                       <h3 className="font-medium mb-1">Follow on Pinterest</h3>
                       <a 
-                        href="https://pinterest.com/cozynestdecor" 
+                        href="https://pinterest.com/glamify" 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        @cozynestdecor
+                        @glamify
                       </a>
                     </div>
                   </div>
@@ -116,12 +116,12 @@ const Contact = () => {
                     <div>
                       <h3 className="font-medium mb-1">Instagram</h3>
                       <a 
-                        href="https://instagram.com/cozynestdecor" 
+                        href="https://instagram.com/glamify" 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        @cozynestdecor
+                        @glamify
                       </a>
                     </div>
                   </div>
@@ -134,22 +134,22 @@ const Contact = () => {
                     <div className="flex items-start gap-3">
                       <MessageSquare className="w-4 h-4 text-primary mt-0.5" />
                       <div>
-                        <p className="font-medium">How do I purchase products?</p>
-                        <p className="text-muted-foreground">Click the "View" button on any product to be taken directly to Amazon.</p>
+                        <p className="font-medium">How do I shop the products?</p>
+                        <p className="text-muted-foreground">Click any product to be taken directly to our trusted retail partners.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <MessageSquare className="w-4 h-4 text-primary mt-0.5" />
                       <div>
-                        <p className="font-medium">Do you offer styling services?</p>
-                        <p className="text-muted-foreground">Not yet, but check out my blog for free styling tips!</p>
+                        <p className="font-medium">Do you offer personal styling?</p>
+                        <p className="text-muted-foreground">Coming soon! In the meantime, check out our blog for free styling tips.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <MessageSquare className="w-4 h-4 text-primary mt-0.5" />
                       <div>
                         <p className="font-medium">Want to collaborate?</p>
-                        <p className="text-muted-foreground">I'd love to hear from brands! Send me an email with details.</p>
+                        <p className="text-muted-foreground">We'd love to hear from brands! Send us an email with details.</p>
                       </div>
                     </div>
                   </div>
@@ -213,7 +213,7 @@ const Contact = () => {
                       </label>
                       <Textarea
                         id="message"
-                        placeholder="Tell me what's on your mind..."
+                        placeholder="Tell us what's on your mind..."
                         rows={6}
                         value={formData.message}
                         onChange={(e) => setFormData({...formData, message: e.target.value})}
