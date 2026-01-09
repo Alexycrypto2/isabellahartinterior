@@ -36,7 +36,7 @@ const FeaturedProducts = () => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
-                  <Skeleton className="aspect-square" />
+                  <Skeleton className="aspect-[3/4]" />
                   <div className="p-6 space-y-3">
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-6 w-full" />
@@ -63,12 +63,12 @@ const FeaturedProducts = () => {
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-label text-accent mb-3 block">Bestsellers on Amazon</span>
+            <span className="text-label text-accent mb-3 block">Editor's Picks</span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
-              Trending Right Now
+              Trending Now
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Top-rated pieces from Amazon our community is loving. Updated weekly with fresh finds.
+              Curated pieces our community is loving. Timeless style meets modern elegance.
             </p>
           </div>
           
@@ -81,13 +81,13 @@ const FeaturedProducts = () => {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Image Container */}
-                <div className="relative aspect-square overflow-hidden">
+                <div className="relative aspect-[3/4] overflow-hidden">
                   <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
                     <OptimizedImage 
                       src={product.image_url || '/placeholder.svg'} 
                       alt={product.name}
                       width={400}
-                      height={400}
+                      height={533}
                     />
                   </div>
                   
@@ -106,7 +106,7 @@ const FeaturedProducts = () => {
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <PinterestSaveButton
                       imageUrl={product.image_url || ''}
-                      description={`${product.name} - ${product.price}`}
+                      description={`${product.name} - ${product.price} | Glamify`}
                       url={window.location.origin + `/shop?product=${product.id}`}
                       price={product.price}
                       isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
@@ -162,7 +162,7 @@ const FeaturedProducts = () => {
                         className="flex items-center gap-1"
                         onClick={() => trackProductClick(product.id, product.name)}
                       >
-                        Shop on Amazon
+                        Shop Now
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </Button>

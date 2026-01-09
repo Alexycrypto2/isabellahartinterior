@@ -2,23 +2,23 @@ const Services = () => {
   const services = [
     {
       number: "01",
-      title: "RESIDENTIAL",
-      description: "Crafting homes that reflect individual lifestyles while maintaining architectural integrity"
+      title: "PERSONAL STYLING",
+      description: "Expert guidance to discover your signature style and build a wardrobe you love"
     },
     {
       number: "02", 
-      title: "COMMERCIAL",
-      description: "Designing functional spaces that enhance business environments and user experiences"
+      title: "WARDROBE EDIT",
+      description: "Curated recommendations to maximize your existing pieces and fill strategic gaps"
     },
     {
       number: "03",
-      title: "RENOVATION",
-      description: "Transforming existing structures with contemporary sensibilities and sustainable practices"
+      title: "CAPSULE BUILDING",
+      description: "Create a versatile, minimal wardrobe of quality pieces that work effortlessly together"
     },
     {
       number: "04",
-      title: "CONSULTATION",
-      description: "Providing expert guidance on design direction, planning, and architectural solutions"
+      title: "OCCASION STYLING",
+      description: "Perfect looks for weddings, events, travel, and life's special moments"
     }
   ];
 
@@ -27,9 +27,9 @@ const Services = () => {
       <div className="container mx-auto px-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-20">
-            <h2 className="text-minimal text-muted-foreground mb-4">SERVICES</h2>
+            <h2 className="text-minimal text-muted-foreground mb-4">STYLE SERVICES</h2>
             <h3 className="text-4xl md:text-6xl font-light text-architectural">
-              What We Do
+              How We Help
             </h3>
           </div>
           
