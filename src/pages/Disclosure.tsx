@@ -17,7 +17,7 @@ const Disclosure = () => {
               
               <div className="prose prose-lg max-w-none text-muted-foreground space-y-6">
                 <p className="text-lg leading-relaxed">
-                  <strong className="text-foreground">RoomRefine</strong> is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
+                  <strong className="text-foreground">Glamify</strong> is a participant in affiliate advertising programs designed to provide a means for sites to earn advertising fees by advertising and linking to partner retailers.
                 </p>
                 
                 <h2 className="font-display text-2xl font-medium text-foreground mt-10 mb-4">
@@ -25,7 +25,7 @@ const Disclosure = () => {
                 </h2>
                 
                 <p>
-                  When you click on product links on our website and make a purchase on Amazon, we may earn a small commission at no additional cost to you. This helps us keep creating free content, curating products, and maintaining this website.
+                  When you click on product links on our website and make a purchase through our partner retailers, we may earn a small commission at no additional cost to you. This helps us keep creating free content, curating fashion finds, and maintaining this website.
                 </p>
                 
                 <h2 className="font-display text-2xl font-medium text-foreground mt-10 mb-4">
@@ -34,7 +34,7 @@ const Disclosure = () => {
                 
                 <ul className="space-y-3 list-disc pl-6">
                   <li>
-                    <strong className="text-foreground">We only recommend products we believe in.</strong> Every item on RoomRefine is handpicked based on quality, design, value, and customer reviews.
+                    <strong className="text-foreground">We only recommend products we believe in.</strong> Every item on Glamify is handpicked based on quality, style, value, and customer reviews.
                   </li>
                   <li>
                     <strong className="text-foreground">Our opinions are our own.</strong> Affiliate commissions do not influence our product selections or recommendations.
