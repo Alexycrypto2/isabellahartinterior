@@ -1,201 +1,222 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
-import project1 from "@/assets/project-1.jpg";
-import project2 from "@/assets/project-2.jpg";
-import project3 from "@/assets/project-3.jpg";
+import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
+import { motion } from "framer-motion";
+import lookbook1 from "@/assets/lookbook-1.jpg";
+import lookbook2 from "@/assets/lookbook-2.jpg";
+import lookbook3 from "@/assets/lookbook-3.jpg";
+import lookbook4 from "@/assets/lookbook-4.jpg";
+import lookbook5 from "@/assets/lookbook-5.jpg";
+import lookbook6 from "@/assets/lookbook-6.jpg";
 
 const Work = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
-  const projects = [
+  
+  const lookbooks = [
     {
-      image: project1,
-      title: "MINIMAL RESIDENCE",
-      location: "NEW YORK, 2024",
-      category: "RESIDENTIAL",
-      description: "A contemporary home focusing on light, space, and material honesty. The design emphasizes clean lines and natural materials.",
-      area: "450 SQM",
-      year: "2024"
+      image: lookbook1,
+      title: "WINTER LUXE",
+      collection: "SEASONAL 2024",
+      category: "OUTERWEAR",
+      description: "Elegant cream coats and layered knits for the discerning winter wardrobe. Investment pieces that transcend seasons.",
+      pieces: "12 LOOKS",
+      season: "WINTER"
     },
     {
-      image: project2,
-      title: "CORPORATE HEADQUARTERS",
-      location: "LONDON, 2023",
-      category: "COMMERCIAL",
-      description: "Modern office space emphasizing collaboration and natural elements. Features flexible workspaces and sustainable design principles.",
-      area: "1200 SQM",
-      year: "2023"
+      image: lookbook2,
+      title: "POWER DRESSING",
+      collection: "WORKWEAR EDIT",
+      category: "PROFESSIONAL",
+      description: "Sharp tailoring meets modern femininity. Blazers, trousers, and elevated separates for commanding the room.",
+      pieces: "18 LOOKS",
+      season: "ALL YEAR"
     },
     {
-      image: project3,
-      title: "CULTURAL CENTER",
-      location: "TOKYO, 2023",
-      category: "CULTURAL",
-      description: "Public architecture that bridges tradition with contemporary design. A space for community gathering and cultural exchange.",
-      area: "800 SQM",
-      year: "2023"
+      image: lookbook3,
+      title: "GOLDEN HOUR",
+      collection: "EVENING WEAR",
+      category: "EVENING",
+      description: "Champagne satin, delicate jewelry, and timeless elegance for life's most memorable celebrations.",
+      pieces: "8 LOOKS",
+      season: "SPECIAL"
     },
     {
-      image: project1,
-      title: "URBAN LOFT",
-      location: "BERLIN, 2024",
-      category: "RESIDENTIAL",
-      description: "Industrial heritage meets contemporary living. Raw materials balanced with refined details.",
-      area: "180 SQM",
-      year: "2024"
+      image: lookbook4,
+      title: "WEEKEND EASE",
+      collection: "CASUAL LUXE",
+      category: "CASUAL",
+      description: "Elevated everyday essentials. Cozy knits paired with designer accessories for effortless sophistication.",
+      pieces: "15 LOOKS",
+      season: "ALL YEAR"
     },
     {
-      image: project2,
-      title: "GALLERY SPACE",
-      location: "PARIS, 2022",
-      category: "CULTURAL",
-      description: "Minimalist gallery designed to showcase art without distraction. Pure white spaces with carefully controlled lighting.",
-      area: "600 SQM",
-      year: "2022"
+      image: lookbook5,
+      title: "OFFICE POLISH",
+      collection: "CORPORATE CHIC",
+      category: "PROFESSIONAL",
+      description: "Silk blouses, tailored skirts, and refined accessories. The formula for polished perfection.",
+      pieces: "10 LOOKS",
+      season: "ALL YEAR"
     },
     {
-      image: project3,
-      title: "BOUTIQUE HOTEL",
-      location: "MILAN, 2023",
-      category: "HOSPITALITY",
-      description: "Luxury hospitality redefined through architectural restraint. Every detail carefully considered for guest experience.",
-      area: "2400 SQM",
-      year: "2023"
+      image: lookbook6,
+      title: "AUTUMN LAYERS",
+      collection: "FALL ESSENTIALS",
+      category: "OUTERWEAR",
+      description: "Chunky knits and leather accents for cozy-meets-chic autumn dressing. Texture play at its finest.",
+      pieces: "14 LOOKS",
+      season: "FALL"
     }
   ];
 
-  const categories = ["ALL", "RESIDENTIAL", "COMMERCIAL", "CULTURAL", "HOSPITALITY"];
+  const categories = ["ALL", "OUTERWEAR", "PROFESSIONAL", "EVENING", "CASUAL"];
 
-  const filteredProjects = activeCategory === "ALL" 
-    ? projects 
-    : projects.filter(project => project.category === activeCategory);
+  const filteredLookbooks = activeCategory === "ALL" 
+    ? lookbooks 
+    : lookbooks.filter(look => look.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      {/* Hero Section */}
-      <section className="pt-32 pb-20">
-        <div className="container mx-auto px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-12">
-              <h1 className="text-6xl md:text-8xl font-light text-architectural mb-8">
-                OUR WORK
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl">
-                A curated selection of our architectural projects, each telling a unique story 
-                through thoughtful design and meticulous attention to detail.
-              </p>
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        
+        {/* Hero Section */}
+        <section className="pt-32 pb-20">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto text-center">
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-label text-primary mb-4 block"
+              >
+                Style Portfolio
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="font-display text-5xl md:text-7xl font-medium text-display mb-6"
+              >
+                Our <span className="italic">Lookbooks</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-xl text-muted-foreground max-w-2xl mx-auto"
+              >
+                Curated collections showcasing our styling philosophy. Each lookbook tells a story of elegance, quality, and timeless appeal.
+              </motion.p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Filter Categories */}
-      <section className="pb-16">
-        <div className="container mx-auto px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-wrap gap-8 justify-center md:justify-start">
+        {/* Filter Categories */}
+        <section className="pb-16">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-wrap gap-4 justify-center">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`text-minimal transition-colors duration-300 relative group ${
+                  className={`px-6 py-3 text-sm tracking-wider rounded-full transition-all duration-300 ${
                     activeCategory === category 
-                      ? "text-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground" 
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
                   {category}
-                  <span className={`absolute bottom-0 left-0 w-full h-px bg-foreground transition-transform duration-300 origin-left ${
-                    activeCategory === category 
-                      ? "scale-x-100" 
-                      : "scale-x-0 group-hover:scale-x-100"
-                  }`}></span>
                 </button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Projects Grid */}
-      <section className="pb-32">
-        <div className="container mx-auto px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-16 lg:gap-20">
-              {filteredProjects.map((project, index) => (
-                <div key={index} className="group cursor-pointer">
-                  <div className="relative overflow-hidden mb-8">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-[60vh] object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
-                    {/* Project Category Badge */}
-                    <div className="absolute top-6 left-6 bg-background/90 backdrop-blur-sm px-4 py-2">
-                      <span className="text-minimal text-foreground">
-                        {project.category}
-                      </span>
+        {/* Lookbooks Grid */}
+        <section className="pb-24">
+          <div className="container mx-auto px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+                {filteredLookbooks.map((lookbook, index) => (
+                  <motion.article
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group cursor-pointer"
+                  >
+                    <div className="relative overflow-hidden rounded-lg mb-6">
+                      <img 
+                        src={lookbook.image} 
+                        alt={lookbook.title}
+                        className="w-full aspect-[3/4] object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Category Badge */}
+                      <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <span className="text-xs font-medium text-foreground tracking-wider">
+                          {lookbook.category}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-2xl lg:text-3xl font-light text-architectural mb-2 group-hover:text-muted-foreground transition-colors duration-500">
-                        {project.title}
-                      </h3>
-                      <p className="text-minimal text-muted-foreground">
-                        {project.location}
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-display text-2xl font-medium text-foreground mb-1 group-hover:text-primary transition-colors">
+                          {lookbook.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground tracking-wider">
+                          {lookbook.collection}
+                        </p>
+                      </div>
+                      
+                      <p className="text-muted-foreground leading-relaxed">
+                        {lookbook.description}
                       </p>
-                    </div>
-                    
-                    <p className="text-muted-foreground leading-relaxed">
-                      {project.description}
-                    </p>
-                    
-                    <div className="flex gap-8 pt-4 border-t border-border">
-                      <div>
-                        <p className="text-minimal text-muted-foreground mb-1">AREA</p>
-                        <p className="text-foreground">{project.area}</p>
-                      </div>
-                      <div>
-                        <p className="text-minimal text-muted-foreground mb-1">YEAR</p>
-                        <p className="text-foreground">{project.year}</p>
+                      
+                      <div className="flex gap-8 pt-4 border-t border-border">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1 tracking-wider">PIECES</p>
+                          <p className="text-foreground font-medium">{lookbook.pieces}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1 tracking-wider">SEASON</p>
+                          <p className="text-foreground font-medium">{lookbook.season}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  </motion.article>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Call to Action */}
-      <section className="py-32 bg-muted">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl md:text-6xl font-light text-architectural mb-8">
-              Ready to Start
-              <br />
-              Your Project?
-            </h2>
-            <p className="text-xl text-muted-foreground mb-12">
-              Let's discuss how we can bring your architectural vision to life
-            </p>
-            <a 
-              href="#contact" 
-              className="inline-block text-minimal text-foreground hover:text-muted-foreground transition-colors duration-300 relative group"
-            >
-              GET IN TOUCH
-              <span className="absolute bottom-0 left-0 w-full h-px bg-foreground group-hover:bg-muted-foreground transition-colors duration-300"></span>
-            </a>
+        {/* CTA Section */}
+        <section className="py-24 bg-muted/50">
+          <div className="container mx-auto px-6">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="font-display text-3xl md:text-4xl font-medium text-display mb-6">
+                Want to Recreate These Looks?
+              </h2>
+              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+                Shop our curated collection to find the pieces featured in our lookbooks.
+              </p>
+              <a 
+                href="/shop" 
+                className="inline-flex items-center px-8 py-4 bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity font-medium"
+              >
+                Shop the Collection
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 
