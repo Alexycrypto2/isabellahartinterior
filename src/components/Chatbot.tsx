@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Sparkles, ShoppingBag, Heart, Shirt } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Lightbulb, Home, DollarSign, Sofa } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -9,10 +9,10 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/home-decor-c
 
 // Quick suggestion buttons
 const quickSuggestions = [
-  { icon: Shirt, label: "Capsule wardrobe tips", query: "How do I build a capsule wardrobe?" },
-  { icon: ShoppingBag, label: "Investment pieces", query: "What are the best investment pieces for a classic wardrobe?" },
-  { icon: Sparkles, label: "Style for my body", query: "How do I dress for my body type?" },
-  { icon: Heart, label: "Accessorizing tips", query: "How can I accessorize like a stylist?" },
+  { icon: Home, label: "Small space tips", query: "How do I decorate my small living room?" },
+  { icon: DollarSign, label: "Budget decorating", query: "What are some budget-friendly decorating ideas?" },
+  { icon: Lightbulb, label: "Lighting ideas", query: "What's the best lighting for creating a cozy atmosphere?" },
+  { icon: Sofa, label: "Living room help", query: "How can I style my living room like a designer?" },
 ];
 
 // Parse markdown links and convert to clickable HTML
@@ -190,16 +190,16 @@ export const Chatbot = () => {
           >
             {/* Header */}
             <div className="bg-primary text-primary-foreground p-4">
-              <h3 className="font-display text-lg font-semibold">Glamify Style Assistant</h3>
-              <p className="text-sm opacity-90">Your personal fashion guide</p>
+              <h3 className="font-display text-lg font-semibold">Build Better Assistant</h3>
+              <p className="text-sm opacity-90">Your trusted home decor guide</p>
             </div>
 
             {/* Messages */}
             <div className="h-80 overflow-y-auto p-4 space-y-4 bg-muted/30">
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground py-4">
-                  <Sparkles className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm mb-4">Hi! I'm your Glamify style assistant. How can I help you today?</p>
+                  <MessageCircle className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm mb-4">Hi! I'm your Build Better design assistant. How can I help you today?</p>
                   
                   {/* Quick Suggestion Buttons */}
                   <div className="grid grid-cols-2 gap-2 mt-4">
@@ -253,7 +253,7 @@ export const Chatbot = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me about style..."
+                  placeholder="Type your question..."
                   className="flex-1 px-4 py-2 rounded-full border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   disabled={isLoading}
                 />

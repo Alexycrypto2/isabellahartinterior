@@ -18,12 +18,12 @@ const BlogPreview = memo(() => {
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
             <div>
-              <span className="text-label text-primary mb-3 block">Style Journal</span>
+              <span className="text-label text-primary mb-3 block">Inspiration & Shop the Look</span>
               <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
-                Fashion Insights
+                Style Your Space
               </h2>
               <p className="text-muted-foreground text-lg max-w-xl">
-                Get inspired with styling guides, trend reports, and wardrobe tips from our editors.
+                Get inspired with our styling guides — each post includes shoppable Amazon links.
               </p>
             </div>
             <Link to="/blog" className="mt-6 md:mt-0">
@@ -72,7 +72,7 @@ const BlogPreview = memo(() => {
                       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
                           imageUrl={post.image_url}
-                          description={`${post.title} | Style Tips from Glamify`}
+                          description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
                           url={window.location.origin + `/blog/${post.slug}`}
                         />
                       </div>

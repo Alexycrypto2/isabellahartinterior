@@ -9,7 +9,7 @@ interface ShopTheLookProps {
   title?: string;
 }
 
-const ShopTheLook = ({ productIds, title = "Shop the Look" }: ShopTheLookProps) => {
+const ShopTheLook = ({ productIds, title = "Shop the Look on Amazon" }: ShopTheLookProps) => {
   const relatedProducts = productIds
     .map(id => products.find(p => p.id === id))
     .filter((p): p is Product => p !== undefined);
@@ -27,7 +27,7 @@ const ShopTheLook = ({ productIds, title = "Shop the Look" }: ShopTheLookProps) 
           </h2>
         </div>
         <p className="text-muted-foreground mb-8">
-          Love this look? Get the pieces featured in this article — all curated by our style editors.
+          Love this look? Get the pieces featured in this article — all top-rated on Amazon.
         </p>
 
         {/* Products Grid */}
@@ -38,7 +38,7 @@ const ShopTheLook = ({ productIds, title = "Shop the Look" }: ShopTheLookProps) 
               className="bg-background rounded-xl overflow-hidden border border-border group hover:shadow-lg transition-shadow"
             >
               {/* Image */}
-              <div className="relative aspect-[3/4] overflow-hidden">
+              <div className="relative aspect-square overflow-hidden">
                 <img 
                   src={product.image}
                   alt={product.name}
@@ -113,7 +113,7 @@ const ShopTheLook = ({ productIds, title = "Shop the Look" }: ShopTheLookProps) 
 
         {/* Disclosure */}
         <p className="text-xs text-muted-foreground text-center mt-6">
-          As an affiliate, we earn from qualifying purchases. Prices may vary.
+          As an Amazon Associate, I earn from qualifying purchases. Prices may vary.
         </p>
       </div>
     </section>

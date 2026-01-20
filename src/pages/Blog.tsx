@@ -26,16 +26,16 @@ const Blog = () => {
         <Navigation />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-muted/50 to-background">
+      <section className="pt-32 pb-16 bg-muted/30">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="text-label text-accent mb-4 block tracking-[0.3em]">FASHION JOURNAL</span>
+            <span className="text-label text-accent mb-4 block">Inspiration & Tips</span>
             <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
-              The Style Edit
+              Style Your Space
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Discover the latest trends, styling secrets, and wardrobe inspiration 
-              from our expert fashion editors.
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Get inspired with styling guides, decorating tips, and ideas to transform 
+              every room in your home.
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ const Blog = () => {
                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <PinterestSaveButton
                             imageUrl={post.image_url}
-                            description={`${post.title} | Fashion Tips from Glamify`}
+                            description={`${post.title} | Home Styling Tips from RoomRefine`}
                             url={window.location.origin + `/blog/${post.slug}`}
                           />
                         </div>

@@ -1,6 +1,6 @@
-import blogCapsuleWardrobe from "@/assets/blog-capsule-wardrobe.jpg";
-import blogAccessoriesGuide from "@/assets/blog-accessories-guide.jpg";
-import blogSeasonalTrends from "@/assets/blog-seasonal-trends.jpg";
+import blogBedroom from "@/assets/blog-bedroom-styling.jpg";
+import blogLivingRoom from "@/assets/blog-living-room-tips.jpg";
+import blogEntryway from "@/assets/blog-entryway.jpg";
 
 export interface BlogPost {
   id: string;
@@ -12,201 +12,282 @@ export interface BlogPost {
   readTime: string;
   category: string;
   image: string;
-  relatedProducts: string[];
+  relatedProducts: string[]; // Product IDs for "Shop the Look" section
 }
 
 export const blogPosts: BlogPost[] = [
   {
-    id: "capsule-wardrobe-essentials",
-    title: "The Ultimate Capsule Wardrobe Guide for the Modern Woman",
-    excerpt: "Build a versatile, sophisticated wardrobe with these timeless pieces that work for every occasion.",
+    id: "cozy-bedroom-styling-guide",
+    title: "The Ultimate Guide to Creating a Cozy Bedroom Retreat",
+    excerpt: "Transform your bedroom into a peaceful sanctuary with these simple yet effective styling tips that won't break the bank.",
     content: `
-# The Ultimate Capsule Wardrobe Guide for the Modern Woman
+# The Ultimate Guide to Creating a Cozy Bedroom Retreat
 
-A capsule wardrobe is the foundation of effortless style. By curating a collection of versatile, high-quality pieces, you can create countless elegant outfits while simplifying your daily routine.
+Your bedroom should be your personal sanctuary – a place where you can unwind, recharge, and escape from the chaos of everyday life. Creating a cozy bedroom doesn't require a complete renovation or an unlimited budget. With thoughtful choices and a few key pieces, you can transform any bedroom into a warm, inviting retreat.
 
-## The Philosophy Behind Capsule Wardrobes
+## Start with the Foundation: Your Bedding
 
-The concept is simple: invest in fewer, better pieces that work seamlessly together. Quality over quantity, timelessness over trends.
+The bed is the centerpiece of any bedroom, and investing in quality bedding makes all the difference.
 
-### The Essential Foundation Pieces
+### Layer Your Bedding
+- **Base layer**: Start with crisp, breathable sheets in a neutral tone
+- **Middle layer**: Add a lightweight quilt or coverlet
+- **Top layer**: Finish with a chunky knit throw or textured blanket
+- **Pillows**: Mix sizes and textures – euro shams, sleeping pillows, and decorative accent pillows
 
-**Clothing Essentials:**
-- **The Perfect White Blouse**: A crisp, well-fitted white shirt in silk or cotton
-- **Tailored Trousers**: Classic black or navy in a flattering cut
-- **The Cashmere Knit**: A cream or neutral cashmere sweater
-- **The Little Black Dress**: Versatile enough for work and evening
-- **A Structured Blazer**: Sharp tailoring in black or camel
+### Choose Warm, Natural Fabrics
+Linen, cotton, and wool create that lived-in, cozy aesthetic we all love. They also regulate temperature better than synthetic materials.
 
-### Building Your Color Palette
+## Lighting Sets the Mood
 
-Stick to a cohesive neutral base:
-- Cream, ivory, and white
-- Black and charcoal
-- Camel, taupe, and nude
-- Navy as an accent
+Harsh overhead lighting is the enemy of cozy. Instead, create layers of warm, ambient light.
 
-Add personality with one or two accent colors that complement your skin tone.
+### Lighting Tips:
+- Use warm-toned bulbs (2700K-3000K)
+- Add bedside table lamps with soft shades
+- Consider a statement pendant or chandelier
+- Include candles for ultimate ambiance
 
-## Investment Pieces Worth the Splurge
+## Add Texture Everywhere
 
-Some items deserve a higher investment:
-- A quality leather handbag
-- Well-made leather shoes
-- Cashmere knitwear
-- A timeless trench coat
+Texture is the secret ingredient to making any space feel inviting and curated.
 
-## Styling Tips for Maximum Versatility
+### Ways to Add Texture:
+- Woven baskets for storage and decor
+- Rattan or wood furniture pieces
+- Chunky knit blankets and pillows
+- Natural fiber rugs
+- Dried flowers and pampas grass
 
-1. **Layer strategically**: A blazer transforms any outfit
-2. **Accessorize thoughtfully**: Quality jewelry elevates basics
-3. **Perfect the fit**: Tailoring is the secret to looking polished
-4. **Care for your pieces**: Proper maintenance extends longevity
+## Don't Forget the Details
+
+It's the small touches that make a room feel complete and personal.
+
+### Finishing Touches:
+- A small tray for jewelry and everyday items
+- Fresh or dried flowers on the nightstand
+- A few carefully chosen books
+- A scented candle that brings you joy
+- Personal photos in simple frames
+
+## Color Palette Matters
+
+Stick to warm, neutral tones with occasional pops of earthy colors like terracotta, sage green, or dusty rose. This creates a cohesive, calming atmosphere.
 
 ## The Bottom Line
 
-A capsule wardrobe isn't about restriction—it's about freedom. When everything in your closet works together beautifully, getting dressed becomes a joy rather than a chore.
+Creating a cozy bedroom is about intention – choosing pieces that bring you comfort and joy, and arranging them in a way that feels natural and inviting. Start with one or two changes and build from there. Your perfect retreat awaits!
     `,
-    author: "Isabelle Laurent",
+    author: "Emma Rose",
     date: "2024-12-15",
     readTime: "6 min read",
-    category: "STYLE GUIDE",
-    image: blogCapsuleWardrobe,
-    relatedProducts: ["cream-cashmere-sweater", "black-satin-dress", "taupe-leather-handbag"]
+    category: "BEDROOM",
+    image: blogBedroom,
+    relatedProducts: ["chunky-knit-blanket", "linen-pillow-set", "rattan-pendant-lamp"]
   },
   {
-    id: "accessory-styling-guide",
-    title: "The Art of Accessorizing: Elevate Any Outfit",
-    excerpt: "Master the art of accessorizing with these expert tips on choosing and styling jewelry, bags, and scarves.",
+    id: "living-room-styling-tips",
+    title: "10 Living Room Styling Tips That Interior Designers Swear By",
+    excerpt: "Professional interior designers share their secrets for creating a stunning living room that's both beautiful and functional.",
     content: `
-# The Art of Accessorizing: Elevate Any Outfit
+# 10 Living Room Styling Tips That Interior Designers Swear By
 
-Accessories are the finishing touches that transform a good outfit into a great one. Learn how to curate and style your accessories like a fashion editor.
+The living room is the heart of your home – it's where you relax, entertain, and spend quality time with loved ones. Getting the styling right can feel overwhelming, but these professional tips will help you create a space that's both stunning and livable.
 
-## The Power of Accessories
+## 1. Start with a Focal Point
 
-The right accessories can:
-- Elevate simple outfits to sophisticated looks
-- Express personal style
-- Transition outfits from day to evening
-- Add interest and dimension
+Every great living room needs a focal point. This could be:
+- A beautiful fireplace
+- A statement piece of artwork
+- A stunning view through large windows
+- An accent wall with texture or color
 
-## Essential Accessories Every Woman Needs
+Arrange your furniture to complement this focal point, drawing the eye naturally to the star of the room.
 
-### Jewelry Fundamentals
-- **Classic studs**: Pearl or diamond studs for everyday elegance
-- **Gold hoops**: Versatile and universally flattering
-- **Delicate necklaces**: Layering pieces in gold or silver
-- **Statement earrings**: For special occasions
+## 2. Layer Your Lighting
 
-### The Perfect Handbag Collection
-- **Structured tote**: For work and daily carry
-- **Crossbody bag**: Weekend and hands-free days
-- **Evening clutch**: Elegant occasions
-- **Quality leather shoulder bag**: The everyday hero
+Just like in the bedroom, lighting is crucial. Create depth with:
+- **Ambient lighting**: Overhead fixtures or recessed lights
+- **Task lighting**: Reading lamps or desk lamps
+- **Accent lighting**: Candles, string lights, or picture lights
 
-### Scarves and Silk
-- **Silk scarf**: Endless styling possibilities
-- **Cashmere wrap**: Travel and layering essential
+## 3. Mix Textures and Materials
 
-## Styling Rules That Work
+A room with only one texture feels flat and unfinished. Combine:
+- Smooth leather or velvet with chunky knits
+- Glass or metal with natural wood
+- Soft textiles with hard surfaces
 
-### The Rule of Three
-Limit visible jewelry to three pieces for a polished look.
+## 4. Don't Push All Furniture Against Walls
 
-### Metal Mixing
-Modern styling embraces mixing gold and silver—the key is intentionality.
+This is one of the biggest mistakes people make. Pull your sofa away from the wall to create a more intimate, cozy conversation area. This also makes the room feel larger and more intentional.
 
-### Proportion Play
-Balance statement pieces with minimal accompaniments.
+## 5. Invest in Quality Basics
 
-## Conclusion
+Splurge on pieces you'll use every day:
+- A comfortable, well-made sofa
+- A durable, stylish rug
+- Quality coffee and side tables
 
-Accessorizing is an art that develops with practice. Start with quality basics and build from there.
+Save money on decorative accessories that can be easily updated.
+
+## 6. Add Greenery
+
+Plants bring life and freshness to any space. If you're not a plant parent, try:
+- Dried arrangements and pampas grass
+- High-quality faux plants
+- Fresh cut branches in a statement vase
+
+## 7. Create Zones
+
+In an open-plan space, use rugs, furniture arrangement, and lighting to define different areas for lounging, reading, or conversation.
+
+## 8. Style Your Coffee Table
+
+A well-styled coffee table adds instant polish:
+- Start with a tray to corral items
+- Add a stack of coffee table books
+- Include something organic (plant, flowers, bowl of fruit)
+- Finish with a candle or small decorative object
+
+## 9. Don't Forget the Fifth Wall
+
+The ceiling is often overlooked but can add so much character through:
+- Statement light fixtures
+- Paint color or wallpaper
+- Exposed beams or architectural details
+
+## 10. Edit Ruthlessly
+
+The secret to a beautiful room is knowing when to stop. Remove anything that doesn't serve a purpose or bring you joy. White space is important – not every surface needs something on it.
+
+## Final Thoughts
+
+Creating a beautiful living room takes time. Start with the foundational pieces, then layer in accessories and decor over time. Trust your instincts and choose pieces that speak to you!
     `,
-    author: "Victoria Chen",
+    author: "James Chen",
     date: "2024-12-10",
     readTime: "8 min read",
-    category: "ACCESSORIES",
-    image: blogAccessoriesGuide,
-    relatedProducts: ["gold-jewelry-set", "taupe-leather-handbag", "silk-ombre-scarf"]
+    category: "LIVING ROOM",
+    image: blogLivingRoom,
+    relatedProducts: ["ceramic-vase-pampas", "chunky-knit-blanket", "gold-round-mirror", "linen-pillow-set"]
   },
   {
-    id: "seasonal-style-transitions",
-    title: "Seasonal Style: Transitioning Your Wardrobe with Elegance",
-    excerpt: "Navigate seasonal changes with grace using these expert tips for updating your wardrobe throughout the year.",
+    id: "entryway-organization-ideas",
+    title: "Small Entryway Organization Ideas That Make a Big Impact",
+    excerpt: "Maximize your small entryway with these clever organization solutions and styling tips that create a welcoming first impression.",
     content: `
-# Seasonal Style: Transitioning Your Wardrobe with Elegance
+# Small Entryway Organization Ideas That Make a Big Impact
 
-Mastering seasonal transitions is key to maintaining a cohesive, functional wardrobe year-round. Here's how to navigate changing seasons with style and practicality.
+Your entryway is the first thing guests see when they enter your home – and the last thing you see before leaving. Even if your entryway is tiny (or practically non-existent), there are ways to make it functional and beautiful.
 
-## The Art of Layering
+## Why Your Entryway Matters
 
-Layering is your secret weapon for transitional dressing.
+A well-organized entryway:
+- Creates a great first impression
+- Reduces daily stress and chaos
+- Keeps clutter from spreading to other rooms
+- Sets the tone for your entire home
 
-### Building Layers
-1. **Base layer**: Lightweight, breathable fabrics
-2. **Middle layer**: Knits, cardigans, light blazers
-3. **Outer layer**: Coats, jackets, wraps
+## Essential Elements of a Functional Entryway
 
-### Key Transitional Pieces
-- Lightweight trench coat
-- Cashmere cardigan
-- Versatile blazer
-- Silk blouse
+### 1. A Place for Keys and Small Items
 
-## Fabric Choices for Each Season
+Nothing is more frustrating than searching for your keys when you're running late. Solutions include:
+- A small dish or bowl on a console table
+- A wall-mounted key hook
+- A small tray for everyday essentials
 
-### Spring/Summer Transitions
-- Linen blends
-- Light cotton
-- Silk and satin
-- Breathable wool blends
+### 2. Shoe Storage
 
-### Fall/Winter Transitions
-- Cashmere and merino wool
-- Leather and suede
-- Heavier silks
-- Quality outerwear fabrics
+Shoes by the door are inevitable. Keep them tidy with:
+- A bench with hidden storage
+- A slim shoe rack or cabinet
+- Baskets or bins under a console table
 
-## Color Transitions
+### 3. Coat and Bag Storage
 
-### Moving into Warmer Months
-Transition from:
-- Dark neutrals to cream and ivory
-- Heavy black to soft grey
-- Burgundy to blush
+Whether you have a closet or not, you need hooks:
+- Wall-mounted coat hooks at varying heights
+- An over-the-door hook system
+- A small coat rack if space allows
 
-### Moving into Cooler Months
-Transition from:
-- Bright whites to cream and ecru
-- Pastels to rich jewel tones
-- Light neutrals to deeper shades
+### 4. A Landing Zone for Mail
 
-## Practical Tips
+Prevent mail pile-up with:
+- A wall-mounted mail organizer
+- Small baskets on a shelf
+- A dedicated "in" and "out" system
 
-1. **Store off-season pieces properly**: Invest in proper storage
-2. **Maintain versatile basics**: These work year-round
-3. **Plan ahead**: Shop end-of-season sales for next year
-4. **Quality over quantity**: Better pieces last through seasons
+## Small Space Solutions
 
-## The Investment Approach
+### Vertical Storage
+When floor space is limited, go up:
+- Floating shelves
+- Wall-mounted organizers
+- Over-the-door storage
 
-Focus spending on:
-- Quality outerwear
-- Timeless knitwear
-- Versatile leather pieces
-- Classic footwear
+### Multi-Functional Furniture
+Choose pieces that do double duty:
+- A storage ottoman for seating and storage
+- A console table with drawers and shelves
+- A mirror with hidden storage
+
+### Light Colors and Mirrors
+Make your space feel larger with:
+- Light-colored walls and furniture
+- A large mirror to reflect light
+- Glass or lucite furniture pieces
+
+## Styling Your Entryway
+
+Once the practical elements are in place, add personality:
+
+### Console Table Styling
+- Start with a lamp for warm lighting
+- Add a small plant or vase with greenery
+- Include a decorative bowl or tray
+- Finish with a piece of art above
+
+### Wall Decor
+- A gallery wall of family photos
+- A statement mirror
+- A single piece of oversized art
+- Floating shelves with curated objects
+
+## Seasonal Updates
+
+Keep your entryway fresh by updating with the seasons:
+- **Spring/Summer**: Fresh flowers, lighter textiles
+- **Fall**: Pumpkins, warm candles, cozy throws
+- **Winter**: Evergreen branches, festive touches
+
+## The 5-Minute Daily Reset
+
+The key to maintaining an organized entryway is a quick daily reset:
+1. Hang up coats and bags
+2. Put shoes in their place
+3. Sort mail and recycle junk
+4. Wipe down surfaces
+5. Fluff any textiles
+
+## Budget-Friendly Ideas
+
+You don't need to spend a lot:
+- DIY a key hook from a piece of driftwood
+- Repurpose baskets and containers you already own
+- Shop secondhand for console tables and benches
+- Use command hooks for a no-drill solution
 
 ## Conclusion
 
-Seasonal dressing doesn't require a complete wardrobe overhaul. With strategic pieces and thoughtful layering, you can maintain elegance through every season.
+Even the smallest entryway can be transformed into a functional, beautiful space that welcomes you home every day. Start with the essentials, add your personal style, and maintain it with a simple daily routine. Your future self will thank you!
     `,
-    author: "Alexandra Park",
+    author: "Sophie Miller",
     date: "2024-12-05",
     readTime: "7 min read",
-    category: "SEASONAL",
-    image: blogSeasonalTrends,
-    relatedProducts: ["cream-cashmere-sweater", "nude-leather-heels", "silk-ombre-scarf"]
+    category: "ORGANIZATION",
+    image: blogEntryway,
+    relatedProducts: ["floating-wall-shelf", "gold-round-mirror", "ceramic-vase-pampas"]
   }
 ];

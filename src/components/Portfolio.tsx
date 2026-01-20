@@ -1,26 +1,26 @@
-import lookbook1 from "@/assets/lookbook-1.jpg";
-import lookbook2 from "@/assets/lookbook-2.jpg";
-import lookbook3 from "@/assets/lookbook-3.jpg";
+import project1 from "@/assets/project-1.jpg";
+import project2 from "@/assets/project-2.jpg";
+import project3 from "@/assets/project-3.jpg";
 
 const Portfolio = () => {
-  const looks = [
+  const projects = [
     {
-      image: lookbook1,
-      title: "THE TIMELESS COAT",
-      location: "WINTER COLLECTION",
-      description: "An oversized cream wool coat that transitions seamlessly from day to night"
+      image: project1,
+      title: "MINIMAL RESIDENCE",
+      location: "NEW YORK, 2024",
+      description: "A contemporary home focusing on light, space, and material honesty"
     },
     {
-      image: lookbook2,
-      title: "POWER TAILORING",
-      location: "WORKWEAR ESSENTIALS",
-      description: "Sharp lines and confident silhouettes for the modern professional woman"
+      image: project2,
+      title: "CORPORATE HEADQUARTERS",
+      location: "LONDON, 2023",
+      description: "Modern office space emphasizing collaboration and natural elements"
     },
     {
-      image: lookbook3,
-      title: "EVENING ELEGANCE",
-      location: "BLACK TIE EDIT",
-      description: "Champagne satin and delicate diamonds for life's most memorable moments"
+      image: project3,
+      title: "CULTURAL CENTER",
+      location: "TOKYO, 2023",
+      description: "Public architecture that bridges tradition with contemporary design"
     }
   ];
 
@@ -29,19 +29,19 @@ const Portfolio = () => {
       <div className="container mx-auto px-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-20">
-            <h2 className="text-minimal text-muted-foreground mb-4">STYLE LOOKBOOK</h2>
+            <h2 className="text-minimal text-muted-foreground mb-4">SELECTED WORK</h2>
             <h3 className="text-4xl md:text-6xl font-light text-architectural">
-              Featured Looks
+              Our Projects
             </h3>
           </div>
           
           <div className="space-y-32">
-            {looks.map((look, index) => (
+            {projects.map((project, index) => (
               <div key={index} className="group">
-                <div className="relative overflow-hidden rounded-lg">
+                <div className="relative overflow-hidden">
                   <img 
-                    src={look.image} 
-                    alt={look.title}
+                    src={project.image} 
+                    alt={project.title}
                     className="w-full h-[70vh] object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -50,16 +50,16 @@ const Portfolio = () => {
                 <div className="mt-8 grid md:grid-cols-3 gap-8">
                   <div>
                     <h4 className="text-2xl font-light text-architectural mb-2">
-                      {look.title}
+                      {project.title}
                     </h4>
                     <p className="text-minimal text-muted-foreground">
-                      {look.location}
+                      {project.location}
                     </p>
                   </div>
                   
                   <div className="md:col-span-2">
                     <p className="text-muted-foreground leading-relaxed">
-                      {look.description}
+                      {project.description}
                     </p>
                   </div>
                 </div>
