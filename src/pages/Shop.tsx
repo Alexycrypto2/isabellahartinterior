@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
@@ -37,13 +38,21 @@ interface QuickViewProduct {
 }
 
 const Shop = () => {
+  const [searchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<QuickViewProduct | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  
+
+  // Read category from URL params (e.g. /shop?category=furniture)
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setActiveCategory(categoryParam);
+    }
+  }, [searchParams]);
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { data: products, isLoading } = useActiveProducts();
   const { data: dbCategories } = useProductCategories();
