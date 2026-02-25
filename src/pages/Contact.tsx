@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Mail, MessageSquare, Send, Instagram, Phone, MapPin } from "lucide-react";
 import { useSiteSetting } from "@/hooks/useSiteSettings";
 import { useSocialSettings } from "@/hooks/useSocialSettings";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const { data: contactSetting } = useSiteSetting('contact');
@@ -37,12 +38,26 @@ const Contact = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Message sent! I'll get back to you soon 💌");
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsLoading(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Message sent! I'll get back to you soon 💌");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error: any) {
+      console.error("Contact form error:", error);
+      toast.error("Failed to send message. Please try again or email us directly.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import ShopTheLook from "@/components/ShopTheLook";
+import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -80,11 +81,33 @@ const BlogPost = () => {
 
   const relatedPosts = allPosts?.filter(p => p.id !== post.id).slice(0, 3) || [];
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.image_url || undefined,
+    datePublished: post.created_at,
+    dateModified: post.updated_at,
+    author: {
+      "@type": "Person",
+      name: post.author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "RoomRefine",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": window.location.href,
+    },
+  };
+
   return (
     <PageTransition>
       <div className="min-h-screen">
         <Navigation />
-      
+        <JsonLd data={articleJsonLd} />
       {/* Hero Section */}
       <section className="pt-32 pb-8">
         <div className="container mx-auto px-6">
