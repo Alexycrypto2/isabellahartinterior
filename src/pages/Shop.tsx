@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
 import { trackProductClick } from "@/lib/analytics";
 import { useSiteSetting } from "@/hooks/useSiteSettings";
+import { resolveImageUrl } from "@/lib/imageResolver";
 import {
   Select,
   SelectContent,
@@ -123,7 +124,7 @@ const Shop = () => {
       price: product.price,
       originalPrice: product.original_price || undefined,
       category: product.category,
-      image: product.image_url || '/placeholder.svg',
+      image: resolveImageUrl(product.image_url),
       affiliateUrl: product.affiliate_url,
       rating: product.rating || 0,
       reviews: product.reviews || 0,
@@ -144,7 +145,7 @@ const Shop = () => {
         "@type": "Product",
         name: product.name,
         description: product.description,
-        image: product.image_url || undefined,
+        image: resolveImageUrl(product.image_url),
         offers: {
           "@type": "Offer",
           price: product.price.replace('$', ''),
@@ -304,7 +305,7 @@ const Shop = () => {
                     {/* Image Container */}
                     <div className="relative aspect-square overflow-hidden">
                       <img 
-                        src={product.image_url || '/placeholder.svg'} 
+                        src={resolveImageUrl(product.image_url)} 
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
@@ -324,7 +325,7 @@ const Shop = () => {
                       {/* Action Buttons */}
                       <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
-                          imageUrl={product.image_url || ''}
+                          imageUrl={resolveImageUrl(product.image_url)}
                           description={`${product.name} - ${product.price}`}
                           url={window.location.origin + `/shop?product=${product.id}`}
                           price={product.price}

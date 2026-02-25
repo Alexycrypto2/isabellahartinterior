@@ -8,6 +8,7 @@ import Newsletter from "@/components/Newsletter";
 import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { useCategories } from "@/hooks/useCategories";
 import { Skeleton } from "@/components/ui/skeleton";
+import { resolveImageUrl } from "@/lib/imageResolver";
 
 const Blog = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
@@ -93,7 +94,7 @@ const Blog = () => {
                       <Link to={`/blog/${post.slug}`}>
                         {post.image_url ? (
                           <img 
-                            src={post.image_url} 
+                            src={resolveImageUrl(post.image_url)} 
                             alt={post.title}
                             className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
                             loading="lazy"
@@ -116,7 +117,7 @@ const Blog = () => {
                       {post.image_url && (
                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <PinterestSaveButton
-                            imageUrl={post.image_url}
+                            imageUrl={resolveImageUrl(post.image_url)}
                             description={`${post.title} | Home Styling Tips from RoomRefine`}
                             url={window.location.origin + `/blog/${post.slug}`}
                           />
