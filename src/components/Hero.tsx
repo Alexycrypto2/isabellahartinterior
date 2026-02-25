@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Star, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSiteSetting } from "@/hooks/useSiteSettings";
 
 // Get random image path - we'll lazy load the actual image
 const heroImagePaths = [
@@ -13,6 +14,9 @@ const heroImagePaths = [
 ];
 
 const Hero = memo(() => {
+  const { data: heroSetting } = useSiteSetting('hero');
+  const hero = (heroSetting?.value || {}) as Record<string, string>;
+  
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>("");
   const [currentWord, setCurrentWord] = useState(0);
@@ -139,7 +143,7 @@ const Hero = memo(() => {
               className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium leading-[1.05] mb-4"
               style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
             >
-              <span className="text-white">Discover</span>
+              <span className="text-white">{hero.title ? hero.title.split(' ')[0] || 'Discover' : 'Discover'}</span>
               <br />
               <span className="relative inline-block">
                 <motion.span
@@ -154,13 +158,13 @@ const Hero = memo(() => {
                   {rotatingWords[currentWord]}
                 </motion.span>
               </span>{" "}
-              <span className="text-white">Living</span>
+              <span className="text-white">{hero.title ? hero.title.split(' ').slice(1).join(' ') || 'Living' : 'Living'}</span>
             </h1>
             <h2 
               className="font-display text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8"
               style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
             >
-              All Under $100
+              {hero.subtitle || 'All Under $100'}
             </h2>
           </motion.div>
           
