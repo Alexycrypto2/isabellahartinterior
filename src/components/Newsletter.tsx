@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Mail, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NewsletterProps {
   variant?: "default" | "compact";
@@ -25,15 +26,31 @@ const Newsletter = ({ variant = "default", className = "" }: NewsletterProps) =>
 
     setIsSubmitting(true);
     
-    // Simulate submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .insert({ email: email.trim() });
+
+    if (error) {
+      if (error.code === "23505") {
+        toast({
+          title: "You're already subscribed!",
+          description: "This email is already on our list.",
+        });
+      } else {
+        toast({
+          title: "Something went wrong",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Welcome to RoomRefine!",
+        description: "You'll receive our best decor finds in your inbox.",
+      });
+      setEmail("");
+    }
     
-    toast({
-      title: "Welcome to RoomRefine!",
-      description: "You'll receive our best decor finds in your inbox.",
-    });
-    
-    setEmail("");
     setIsSubmitting(false);
   };
 
