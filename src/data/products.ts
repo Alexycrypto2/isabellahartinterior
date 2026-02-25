@@ -12,6 +12,15 @@ import productMacrame from "@/assets/product-macrame.jpg";
 import productBaskets from "@/assets/product-baskets.jpg";
 import productArmchair from "@/assets/product-armchair.jpg";
 import productWallArt from "@/assets/product-wall-art.jpg";
+import productBedFrame from "@/assets/product-bed-frame.jpg";
+import productCoffeeTable from "@/assets/product-coffee-table.jpg";
+import productFloorLamp from "@/assets/product-floor-lamp.jpg";
+import productBookshelf from "@/assets/product-bookshelf.jpg";
+import productOttoman from "@/assets/product-ottoman.jpg";
+import productDiningChairs from "@/assets/product-dining-chairs.jpg";
+import productCurtains from "@/assets/product-curtains.jpg";
+import productPlanters from "@/assets/product-planters.jpg";
+import productCoatRack from "@/assets/product-coat-rack.jpg";
 
 export interface Product {
   id: string;
@@ -37,6 +46,7 @@ export const categories = [
 ];
 
 export const products: Product[] = [
+  // === LIGHTING ===
   {
     id: "rattan-pendant-lamp",
     name: "Boho Rattan Pendant Light",
@@ -62,6 +72,21 @@ export const products: Product[] = [
     reviews: 1289,
     badge: "New"
   },
+  {
+    id: "brass-floor-lamp",
+    name: "Mid-Century Brass Floor Lamp",
+    description: "Stunning brass floor lamp with frosted globe shade. An elegant statement piece that adds warm ambient lighting to any corner.",
+    price: "$119.99",
+    originalPrice: "$159.99",
+    category: "lighting",
+    image: productFloorLamp,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.8,
+    reviews: 1567,
+    badge: "Sale"
+  },
+
+  // === DECOR & ACCENTS ===
   {
     id: "ceramic-vase-pampas",
     name: "Ceramic Vase with Dried Pampas",
@@ -122,6 +147,20 @@ export const products: Product[] = [
     badge: "Bestseller"
   },
   {
+    id: "ceramic-planter-set",
+    name: "Ceramic Planter Set (3-Pack)",
+    description: "Two-tone ceramic planters in white and terracotta. Three sizes for your favorite indoor plants.",
+    price: "$36.99",
+    category: "decor",
+    image: productPlanters,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.7,
+    reviews: 2234,
+    badge: "Top Pick"
+  },
+
+  // === TEXTILES ===
+  {
     id: "chunky-knit-blanket",
     name: "Luxury Chunky Knit Throw",
     description: "Ultra-soft cable knit throw blanket in cream. Perfect for cozy evenings and adding texture to your sofa.",
@@ -159,6 +198,20 @@ export const products: Product[] = [
     reviews: 1678
   },
   {
+    id: "sheer-linen-curtains",
+    name: "Sheer Linen Curtain Panels (Pair)",
+    description: "Soft white sheer linen curtains that filter natural light beautifully. Instantly brighten and soften any room.",
+    price: "$44.99",
+    category: "textiles",
+    image: productCurtains,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.7,
+    reviews: 1890,
+    badge: "New"
+  },
+
+  // === FURNITURE ===
+  {
     id: "velvet-accent-chair",
     name: "Sage Velvet Accent Armchair",
     description: "Mid-century modern velvet armchair in sage green with solid wood legs. A cozy statement piece for any room.",
@@ -184,6 +237,69 @@ export const products: Product[] = [
     badge: "Top Pick"
   },
   {
+    id: "upholstered-bed-frame",
+    name: "Tufted Linen Platform Bed Frame",
+    description: "Modern upholstered platform bed with tufted cream linen headboard. Sturdy construction with a clean, elegant look.",
+    price: "$329.99",
+    originalPrice: "$449.99",
+    category: "furniture",
+    image: productBedFrame,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.8,
+    reviews: 2456,
+    badge: "Bestseller"
+  },
+  {
+    id: "walnut-coffee-table",
+    name: "Walnut Coffee Table with Shelf",
+    description: "Modern walnut coffee table with open storage shelf. Warm wood tones and clean lines complement any living room.",
+    price: "$159.99",
+    category: "furniture",
+    image: productCoffeeTable,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.7,
+    reviews: 1123
+  },
+  {
+    id: "mid-century-dining-chairs",
+    name: "Mid-Century Dining Chairs (Set of 2)",
+    description: "Classic mid-century dining chairs with cream upholstered seats and warm wood frames. Comfortable and stylish.",
+    price: "$139.99",
+    originalPrice: "$179.99",
+    category: "furniture",
+    image: productDiningChairs,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.6,
+    reviews: 1087,
+    badge: "Sale"
+  },
+  {
+    id: "velvet-ottoman-pouf",
+    name: "Velvet Tufted Ottoman Pouf",
+    description: "Round tufted velvet ottoman in terracotta. Versatile as extra seating, a footrest, or a decorative accent.",
+    price: "$69.99",
+    category: "furniture",
+    image: productOttoman,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.5,
+    reviews: 756
+  },
+  {
+    id: "oak-bookshelf",
+    name: "5-Tier Oak Bookshelf",
+    description: "Open oak bookshelf with 5 spacious tiers. Display books, plants, and decor with a clean, modern look.",
+    price: "$199.99",
+    originalPrice: "$259.99",
+    category: "furniture",
+    image: productBookshelf,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.7,
+    reviews: 1432,
+    badge: "Sale"
+  },
+
+  // === STORAGE ===
+  {
     id: "floating-wall-shelf",
     name: "Natural Wood Floating Shelves Set",
     description: "Set of 2 solid wood floating shelves. Perfect for displaying plants, books, and decorative items.",
@@ -205,5 +321,16 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 1987,
     badge: "Top Pick"
+  },
+  {
+    id: "wooden-coat-rack",
+    name: "Wooden Coat Rack Stand",
+    description: "Freestanding wooden coat rack with multiple hooks. Perfect for entryways — hold coats, bags, and hats in style.",
+    price: "$55.99",
+    category: "storage",
+    image: productCoatRack,
+    affiliateUrl: "https://amazon.com",
+    rating: 4.6,
+    reviews: 934
   },
 ];
