@@ -10,10 +10,11 @@ import ProductQuickView from "@/components/ProductQuickView";
 import { useActiveProducts, useProductCategories, Product } from "@/hooks/useProducts";
 import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
 import StarRating from "@/components/StarRating";
-import shopHero from "@/assets/shop-hero.jpg";
+import shopHeroDefault from "@/assets/shop-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
 import { trackProductClick } from "@/lib/analytics";
+import { useSiteSetting } from "@/hooks/useSiteSettings";
 import {
   Select,
   SelectContent,
@@ -45,6 +46,10 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<QuickViewProduct | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  
+  const { data: shopHeroSetting } = useSiteSetting('shop_hero');
+  const shopHeroData = (shopHeroSetting?.value || {}) as Record<string, string>;
+  const shopHeroImage = shopHeroData.image_url || shopHeroDefault;
 
   // Read category from URL params (e.g. /shop?category=furniture)
   useEffect(() => {
@@ -137,7 +142,7 @@ const Shop = () => {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={shopHero} 
+            src={shopHeroImage} 
             alt="Stylish home decor collection" 
             className="w-full h-full object-cover"
           />
@@ -151,9 +156,9 @@ const Shop = () => {
               Top-Rated Products on Amazon
             </span>
             <h1 className="font-display text-5xl md:text-7xl font-semibold text-foreground mb-6">
-              Curated Decor
+              {shopHeroData.title || 'Curated Decor'}
               <br />
-              <span className="italic text-foreground/90">All Under $100</span>
+              <span className="italic text-foreground/90">{shopHeroData.subtitle || 'All Under $100'}</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Handpicked, top-rated pieces from Amazon. Every product is rated 4+ stars. 

@@ -3,8 +3,12 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Newsletter from "@/components/Newsletter";
 import { Heart, Sparkles, Home, Users } from "lucide-react";
+import { useSiteSetting } from "@/hooks/useSiteSettings";
 
 const About = () => {
+  const { data: aboutSetting } = useSiteSetting('about');
+  const about = (aboutSetting?.value || {}) as Record<string, string>;
+
   return (
     <PageTransition>
       <div className="min-h-screen">
@@ -15,12 +19,22 @@ const About = () => {
           <div className="max-w-4xl mx-auto text-center">
             <span className="text-label text-accent mb-4 block">Our Story</span>
             <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
-              Welcome to
-              <br />
-              <span className="italic">RoomRefine</span>
+              {about.title ? (
+                <>
+                  {about.title.split(' ').slice(0, -1).join(' ')}
+                  <br />
+                  <span className="italic">{about.title.split(' ').slice(-1)[0]}</span>
+                </>
+              ) : (
+                <>
+                  Welcome to
+                  <br />
+                  <span className="italic">RoomRefine</span>
+                </>
+              )}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Helping you create spaces that feel like home, one beautiful find at a time.
+              {about.description || 'Helping you create spaces that feel like home, one beautiful find at a time.'}
             </p>
           </div>
         </div>
