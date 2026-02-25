@@ -8,6 +8,7 @@ import ProductSearch from "@/components/ProductSearch";
 import { ProductGridSkeleton } from "@/components/ProductSkeleton";
 import ProductQuickView from "@/components/ProductQuickView";
 import { useActiveProducts, useProductCategories, Product } from "@/hooks/useProducts";
+import JsonLd from "@/components/JsonLd";
 import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import shopHeroDefault from "@/assets/shop-hero.jpg";
@@ -132,11 +133,39 @@ const Shop = () => {
     setIsQuickViewOpen(true);
   };
 
+  const productsJsonLd = filteredAndSortedProducts.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "RoomRefine Curated Home Decor",
+    itemListElement: filteredAndSortedProducts.slice(0, 20).map((product, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Product",
+        name: product.name,
+        description: product.description,
+        image: product.image_url || undefined,
+        offers: {
+          "@type": "Offer",
+          price: product.price.replace('$', ''),
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          url: product.affiliate_url,
+        },
+        aggregateRating: product.rating ? {
+          "@type": "AggregateRating",
+          ratingValue: product.rating,
+          reviewCount: product.reviews || 0,
+        } : undefined,
+      },
+    })),
+  } : null;
+
   return (
     <PageTransition>
       <div className="min-h-screen">
         <Navigation />
-      
+        {productsJsonLd && <JsonLd data={productsJsonLd} />}
       {/* Hero Section with Image */}
       <section className="relative pt-24 pb-20 overflow-hidden min-h-[50vh] flex items-center">
         {/* Background Image */}
