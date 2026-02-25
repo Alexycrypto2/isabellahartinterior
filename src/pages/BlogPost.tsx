@@ -12,6 +12,7 @@ import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackBlogView } from "@/lib/analytics";
+import { resolveImageUrl } from "@/lib/imageResolver";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -86,7 +87,7 @@ const BlogPost = () => {
     "@type": "Article",
     headline: post.title,
     description: post.excerpt,
-    image: post.image_url || undefined,
+    image: resolveImageUrl(post.image_url),
     datePublished: post.created_at,
     dateModified: post.updated_at,
     author: {
@@ -151,14 +152,14 @@ const BlogPost = () => {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto relative">
               <img 
-                src={post.image_url} 
+                src={resolveImageUrl(post.image_url)} 
                 alt={post.title}
                 className="w-full aspect-video object-cover rounded-2xl"
               />
               {/* Pinterest Save Button */}
               <div className="absolute top-4 right-4">
                 <PinterestSaveButton
-                  imageUrl={post.image_url}
+                  imageUrl={resolveImageUrl(post.image_url)}
                   description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
                   url={window.location.href}
                   size="medium"
@@ -193,7 +194,7 @@ const BlogPost = () => {
                     <div className="rounded-2xl overflow-hidden mb-4">
                       {relatedPost.image_url ? (
                         <img 
-                          src={relatedPost.image_url} 
+                          src={resolveImageUrl(relatedPost.image_url)} 
                           alt={relatedPost.title}
                           className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"

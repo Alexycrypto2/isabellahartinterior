@@ -6,6 +6,7 @@ import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { Skeleton } from "@/components/ui/skeleton";
 import OptimizedImage from "@/components/OptimizedImage";
+import { resolveImageUrl } from "@/lib/imageResolver";
 
 const BlogPreview = memo(() => {
   const { data: posts, isLoading } = usePublishedBlogPosts();
@@ -54,7 +55,7 @@ const BlogPreview = memo(() => {
                       {post.image_url ? (
                         <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
                           <OptimizedImage 
-                            src={post.image_url} 
+                            src={resolveImageUrl(post.image_url)} 
                             alt={post.title}
                             width={400}
                             height={300}
@@ -71,7 +72,7 @@ const BlogPreview = memo(() => {
                     {post.image_url && (
                       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
-                          imageUrl={post.image_url}
+                          imageUrl={resolveImageUrl(post.image_url)}
                           description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
                           url={window.location.origin + `/blog/${post.slug}`}
                         />

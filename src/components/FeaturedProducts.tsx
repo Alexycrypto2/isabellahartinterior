@@ -7,6 +7,7 @@ import { useActiveProducts, Product } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackProductClick } from "@/lib/analytics";
 import OptimizedImage from "@/components/OptimizedImage";
+import { resolveImageUrl } from "@/lib/imageResolver";
 
 const FeaturedProducts = () => {
   const { data: products, isLoading } = useActiveProducts();
@@ -84,7 +85,7 @@ const FeaturedProducts = () => {
                 <div className="relative aspect-square overflow-hidden">
                   <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
                     <OptimizedImage 
-                      src={product.image_url || '/placeholder.svg'} 
+                      src={resolveImageUrl(product.image_url)} 
                       alt={product.name}
                       width={400}
                       height={400}
@@ -105,7 +106,7 @@ const FeaturedProducts = () => {
                   {/* Pinterest Save Button */}
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <PinterestSaveButton
-                      imageUrl={product.image_url || ''}
+                      imageUrl={resolveImageUrl(product.image_url)}
                       description={`${product.name} - ${product.price}`}
                       url={window.location.origin + `/shop?product=${product.id}`}
                       price={product.price}
