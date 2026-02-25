@@ -71,11 +71,19 @@ function mapPriority(val: string): string {
 
 const products = [
   { id: "rattan-pendant-lamp", name: "Boho Rattan Pendant Light", category: "lighting", price: "$89.99", description: "Hand-woven rattan pendant lamp that adds warmth and texture to any room. Perfect for dining areas or living rooms." },
+  { id: "brass-table-lamp", name: "Brass Table Lamp with Linen Shade", category: "lighting", price: "$67.99", description: "Elegant brass table lamp with a warm linen shade. Perfect for bedside tables or home offices." },
   { id: "ceramic-vase-pampas", name: "Ceramic Vase with Dried Pampas", category: "decor", price: "$45.99", description: "Elegant two-tone ceramic vase with beautiful dried pampas grass arrangement. Instant boho-chic vibes." },
-  { id: "chunky-knit-blanket", name: "Luxury Chunky Knit Throw", category: "textiles", price: "$59.99", description: "Ultra-soft cable knit throw blanket in cream. Perfect for cozy evenings and adding texture to your sofa." },
   { id: "gold-round-mirror", name: "Gold Frame Round Wall Mirror", category: "decor", price: "$78.99", description: "Minimalist round mirror with elegant gold frame. Opens up any space and adds a touch of sophistication." },
-  { id: "floating-wall-shelf", name: "Natural Wood Floating Shelves Set", category: "storage", price: "$42.99", description: "Set of 2 solid wood floating shelves. Perfect for displaying plants, books, and decorative items." },
+  { id: "botanical-wall-art", name: "Botanical Print Set (3 Frames)", category: "decor", price: "$39.99", description: "Set of 3 minimalist botanical line art prints in gold frames. Perfect for gallery walls or living room decor." },
+  { id: "macrame-wall-hanging", name: "Macramé Wall Hanging", category: "decor", price: "$32.99", description: "Handcrafted cream cotton macramé wall hanging with intricate knotwork. A stunning boho statement piece." },
+  { id: "scented-candle-set", name: "Ceramic Soy Candle Set (3-Pack)", category: "decor", price: "$28.99", description: "Hand-poured soy candles in minimalist ceramic jars. Scents include eucalyptus, lavender, and vanilla." },
+  { id: "chunky-knit-blanket", name: "Luxury Chunky Knit Throw", category: "textiles", price: "$59.99", description: "Ultra-soft cable knit throw blanket in cream. Perfect for cozy evenings and adding texture to your sofa." },
   { id: "linen-pillow-set", name: "Linen Throw Pillow Covers (Set of 4)", category: "textiles", price: "$34.99", description: "Premium linen pillow covers in cream and sage green. Breathable, soft, and perfect for any season." },
+  { id: "jute-area-rug", name: "Handwoven Jute Area Rug", category: "textiles", price: "$54.99", description: "Natural jute round rug with delicate fringe detail. Adds warmth and boho charm to any room." },
+  { id: "velvet-accent-chair", name: "Sage Velvet Accent Armchair", category: "furniture", price: "$189.99", description: "Mid-century modern velvet armchair in sage green with solid wood legs. A cozy statement piece for any room." },
+  { id: "hairpin-side-table", name: "Wood & Hairpin Side Table", category: "furniture", price: "$49.99", description: "Solid wood round side table with black hairpin legs. Scandinavian-inspired design, perfect as a nightstand or accent table." },
+  { id: "floating-wall-shelf", name: "Natural Wood Floating Shelves Set", category: "storage", price: "$42.99", description: "Set of 2 solid wood floating shelves. Perfect for displaying plants, books, and decorative items." },
+  { id: "rattan-storage-baskets", name: "Woven Rattan Basket Set (3-Pack)", category: "storage", price: "$46.99", description: "Set of 3 nesting woven rattan baskets with lids. Stylish storage for blankets, toys, or laundry." },
 ];
 
 serve(async (req) => {
