@@ -40,7 +40,7 @@ const testimonials = [
 
 const SocialProof = memo(() => {
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-muted/30 dark:bg-muted/20">
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
@@ -57,7 +57,7 @@ const SocialProof = memo(() => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id}
-                className="bg-card p-8 rounded-sm border border-border relative"
+                className="bg-card dark:bg-card/80 p-8 rounded-sm border border-border relative"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Quote Icon */}

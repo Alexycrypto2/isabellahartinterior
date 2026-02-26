@@ -137,7 +137,7 @@ export const EmailCapturePopup = () => {
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[420px] z-50"
         >
-          <div className="bg-background rounded-2xl shadow-2xl overflow-hidden border border-border">
+          <div className="bg-background rounded-2xl shadow-2xl overflow-hidden border border-border dark:border-border/60">
             {/* Close Button */}
             <button
               onClick={handleClose}

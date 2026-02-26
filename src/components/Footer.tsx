@@ -8,7 +8,7 @@ const Footer = () => {
   const hasSocialLinks = socialLinks && Object.values(socialLinks).some(link => link);
 
   return (
-    <footer className="bg-muted py-16">
+    <footer className="bg-muted dark:bg-muted/50 py-16">
       <div className="container mx-auto px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-12">

@@ -18,7 +18,7 @@ const Categories = memo(() => {
   };
 
   return (
-    <section className="py-24 bg-muted/30">
+    <section className="py-24 bg-muted/30 dark:bg-muted/20">
       <div className="container mx-auto px-6">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
@@ -67,7 +67,7 @@ const Categories = memo(() => {
                     to={`/shop?category=${category.slug}`}
                     className="group block"
                   >
-                    <div className="bg-card rounded-2xl p-6 md:p-8 text-center border border-border hover:border-accent/40 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <div className="bg-card rounded-2xl p-6 md:p-8 text-center border border-border hover:border-accent/40 hover:shadow-lg transition-all duration-300 relative overflow-hidden dark:bg-card/80">
                       {/* Hover gradient */}
                       <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
