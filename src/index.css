@@ -167,6 +167,11 @@
     font-family: 'Playfair Display', serif;
   }
   
+  /* Elegant Script Typography */
+  .font-script {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  
   .text-display {
     font-family: 'Playfair Display', serif;
     @apply tracking-tight leading-[1.1];
