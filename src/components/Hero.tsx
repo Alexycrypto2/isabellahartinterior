@@ -101,7 +101,7 @@ const Hero = memo(() => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
         style={{ opacity }}
-        className="absolute top-32 right-8 lg:right-20 hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl"
+        className="absolute top-32 right-8 lg:right-20 hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-2xl"
       >
         <div className="flex -space-x-1">
           {[...Array(5)].map((_, i) => (
@@ -109,8 +109,8 @@ const Hero = memo(() => {
           ))}
         </div>
         <div className="text-sm">
-          <span className="font-semibold text-gray-900">4.9</span>
-          <span className="text-gray-600 ml-1">• 2.5k+ Reviews</span>
+          <span className="font-semibold text-foreground">4.9</span>
+          <span className="text-muted-foreground ml-1">• 2.5k+ Reviews</span>
         </div>
       </motion.div>
       
