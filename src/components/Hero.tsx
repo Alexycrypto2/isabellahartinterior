@@ -161,10 +161,10 @@ const Hero = memo(() => {
               <span className="text-white">{hero.title ? hero.title.split(' ').slice(1).join(' ') || 'Living' : 'Living'}</span>
             </h1>
             <h2 
-              className="font-display text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8"
+              className="font-script text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8 tracking-wide"
               style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
             >
-              {hero.subtitle || 'All Under $100'}
+              {hero.subtitle || 'Transform your space with our handpicked collection of beautiful, affordable home décor pieces.'}
             </h2>
           </motion.div>
           
