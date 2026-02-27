@@ -19,7 +19,7 @@ const BlogPreview = memo(() => {
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
             <div>
-              <span className="text-label text-primary mb-3 block">Inspiration & Shop the Look</span>
+              <span className="text-label text-muted-foreground mb-3 block">Inspiration & Shop the Look</span>
               <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
                 Style Your Space
               </h2>
