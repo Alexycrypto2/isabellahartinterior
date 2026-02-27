@@ -18,6 +18,7 @@ import {
   Palette,
   Menu,
   MessageSquare,
+  Camera,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -124,6 +125,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           <Button variant={isActive('/admin/contact-submissions') ? 'secondary' : 'ghost'} className="w-full justify-start">
             <MessageSquare className="mr-2 h-4 w-4" />
             Contact Messages
+          </Button>
+        </Link>
+        <Link to="/admin/photo-submissions">
+          <Button variant={isActive('/admin/photo-submissions') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Camera className="mr-2 h-4 w-4" />
+            Photo Submissions
           </Button>
         </Link>
 
