@@ -45,7 +45,7 @@ const SocialProof = memo(() => {
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-label text-primary mb-4 block">Loved by 10,000+ Home Decor Shoppers</span>
+            <span className="text-label text-muted-foreground mb-4 block">Loved by 10,000+ Home Decor Shoppers</span>
             <h2 className="font-display text-4xl md:text-5xl font-medium text-display mb-4">
               What Our <span className="italic">Community</span> Says
             </h2>

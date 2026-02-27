@@ -29,8 +29,8 @@
     --muted: 40 8% 95%;
     --muted-foreground: 0 0% 40%;
     
-    /* Accent: Brushed Gold (restricted use) */
-    --accent: 40 52% 60%;
+    /* Accent: Brushed Gold (restricted use) — darkened for WCAG AA contrast */
+    --accent: 40 52% 33%;
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 72% 51%;
@@ -38,27 +38,27 @@
     
     --border: 40 10% 90%;
     --input: 40 8% 94%;
-    --ring: 40 52% 60%;
+    --ring: 40 52% 33%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 40 10% 97%;
     --sidebar-foreground: 0 0% 25%;
-    --sidebar-primary: 40 52% 60%;
+    --sidebar-primary: 40 52% 33%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 40 8% 94%;
     --sidebar-accent-foreground: 0 0% 25%;
     --sidebar-border: 40 10% 90%;
-    --sidebar-ring: 40 52% 60%;
+    --sidebar-ring: 40 52% 33%;
     
     /* Custom Design Tokens */
     --greige: 36 11% 82%;
     --greige-foreground: 0 0% 18%;
     --charcoal: 0 0% 18%;
     --warm-white: 45 14% 98%;
-    --gold: 40 52% 60%;
-    --gold-light: 40 45% 75%;
-    --gold-dark: 40 55% 45%;
+    --gold: 40 52% 33%;
+    --gold-light: 40 45% 55%;
+    --gold-dark: 40 55% 28%;
     
     /* Elegant Grays */
     --gray-warm: 40 6% 70%;
