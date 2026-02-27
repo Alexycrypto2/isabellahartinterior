@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Lightbulb, Home, DollarSign, Sofa, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Lightbulb, Home, DollarSign, Sofa, Bot, User, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -154,10 +154,20 @@ export const Chatbot = () => {
               <div className="w-9 h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center">
                 <Bot className="w-5 h-5" />
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-display text-lg font-semibold leading-tight">Design Assistant</h3>
                 <p className="text-xs opacity-80">Your home decor expert</p>
               </div>
+              {messages.length > 0 && (
+                <button
+                  onClick={() => setMessages([])}
+                  className="p-1.5 rounded-lg hover:bg-primary-foreground/20 transition-colors"
+                  aria-label="Clear chat"
+                  title="Clear chat"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {/* Messages */}
