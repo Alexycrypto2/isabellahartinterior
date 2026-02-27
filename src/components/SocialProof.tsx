@@ -4,6 +4,10 @@ import { motion } from "framer-motion";
 import avatarSarah from "@/assets/avatar-sarah.jpg";
 import avatarJessica from "@/assets/avatar-jessica.jpg";
 import avatarEmily from "@/assets/avatar-emily.jpg";
+import ugcLivingRoom from "@/assets/ugc-living-room.jpg";
+import ugcBedroom from "@/assets/ugc-bedroom.jpg";
+import ugcShelfStyling from "@/assets/ugc-shelf-styling.jpg";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const testimonials = [
   {
@@ -15,6 +19,7 @@ const testimonials = [
     avatar: avatarSarah,
     initials: "SM",
     purchasedItem: "Boho Rattan Pendant Light",
+    lifestyleImage: ugcLivingRoom,
   },
   {
     id: 2,
@@ -25,6 +30,7 @@ const testimonials = [
     avatar: avatarJessica,
     initials: "JL",
     purchasedItem: "Ceramic Decorative Vase Set",
+    lifestyleImage: ugcShelfStyling,
   },
   {
     id: 3,
@@ -35,6 +41,7 @@ const testimonials = [
     avatar: avatarEmily,
     initials: "ER",
     purchasedItem: "Chunky Knit Throw Blanket",
+    lifestyleImage: ugcBedroom,
   },
 ];
 
@@ -57,9 +64,21 @@ const SocialProof = memo(() => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id}
-                className="bg-card dark:bg-card/80 p-8 rounded-sm border border-border relative"
+                className="bg-card dark:bg-card/80 rounded-xl overflow-hidden border border-border relative"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
+                {/* Lifestyle Image */}
+                <div className="aspect-[4/3] relative overflow-hidden">
+                  <OptimizedImage
+                    src={testimonial.lifestyleImage}
+                    alt={`${testimonial.name}'s home styled with ${testimonial.purchasedItem}`}
+                    width={400}
+                    height={300}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+                </div>
+
+                <div className="p-8 relative">
                 {/* Quote Icon */}
                 <Quote className="w-8 h-8 text-primary/20 absolute top-6 right-6" />
                 
@@ -106,6 +125,7 @@ const SocialProof = memo(() => {
                     <p className="font-medium text-foreground">{testimonial.name}</p>
                     <p className="text-xs text-muted-foreground">Purchased: {testimonial.purchasedItem}</p>
                   </div>
+                </div>
                 </div>
               </div>
             ))}

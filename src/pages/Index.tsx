@@ -7,6 +7,7 @@ import PageTransition from "@/components/PageTransition";
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"));
 const Categories = lazy(() => import("@/components/Categories"));
 const SocialProof = lazy(() => import("@/components/SocialProof"));
+const CustomerGallery = lazy(() => import("@/components/CustomerGallery"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
 const Newsletter = lazy(() => import("@/components/Newsletter"));
 const Footer = lazy(() => import("@/components/Footer"));
@@ -40,6 +41,9 @@ const Index = () => {
           </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <SocialProof />
+          </Suspense>
+          <Suspense fallback={<SectionLoader />}>
+            <CustomerGallery />
           </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <BlogPreview />

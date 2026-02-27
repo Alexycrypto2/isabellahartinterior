@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
@@ -8,6 +8,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { trackProductClick } from "@/lib/analytics";
 import OptimizedImage from "@/components/OptimizedImage";
 import { resolveImageUrl } from "@/lib/imageResolver";
+
+import ugcLivingRoom from "@/assets/ugc-living-room.jpg";
+import ugcBedroom from "@/assets/ugc-bedroom.jpg";
+import ugcReadingNook from "@/assets/ugc-reading-nook.jpg";
+import ugcDining from "@/assets/ugc-dining.jpg";
+import ugcShelfStyling from "@/assets/ugc-shelf-styling.jpg";
+import ugcEntryway from "@/assets/ugc-entryway.jpg";
+
+// Map product index to a UGC customer photo
+const customerPhotos = [ugcLivingRoom, ugcBedroom, ugcShelfStyling, ugcReadingNook, ugcDining, ugcEntryway];
+const customerNames = ["Sarah M.", "Jessica L.", "Emily R.", "Amanda K.", "Rachel T.", "Nicole P."];
 
 const FeaturedProducts = () => {
   const { data: products, isLoading } = useActiveProducts();
@@ -130,6 +141,21 @@ const FeaturedProducts = () => {
                     {product.description}
                   </p>
                   
+                  {/* Customer Photo */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-accent/30 flex-shrink-0">
+                      <img 
+                        src={customerPhotos[index % customerPhotos.length]} 
+                        alt={`${customerNames[index % customerNames.length]}'s home`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Camera className="w-3 h-3" />
+                      Styled by {customerNames[index % customerNames.length]}
+                    </span>
+                  </div>
+
                   {/* Rating */}
                   <StarRating 
                     rating={product.rating || 0} 
