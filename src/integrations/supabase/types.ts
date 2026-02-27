@@ -191,6 +191,42 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_photo_submissions: {
+        Row: {
+          caption: string | null
+          created_at: string
+          email: string
+          id: string
+          instagram_handle: string | null
+          is_approved: boolean
+          name: string
+          photo_url: string
+          room_type: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          instagram_handle?: string | null
+          is_approved?: boolean
+          name: string
+          photo_url: string
+          room_type?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          instagram_handle?: string | null
+          is_approved?: boolean
+          name?: string
+          photo_url?: string
+          room_type?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string

@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Camera, Heart, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 import OptimizedImage from "@/components/OptimizedImage";
+import PhotoSubmissionForm from "@/components/PhotoSubmissionForm";
 
 import ugcLivingRoom from "@/assets/ugc-living-room.jpg";
 import ugcBedroom from "@/assets/ugc-bedroom.jpg";
@@ -114,9 +115,10 @@ const CustomerGallery = memo(() => {
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-10">
+          <div className="text-center mt-10 space-y-3">
+            <PhotoSubmissionForm />
             <p className="text-muted-foreground text-sm">
-              Tag <span className="font-semibold text-accent">@roomrefine</span> on Instagram to be featured
+              Or tag <span className="font-semibold text-accent">@roomrefine</span> on Instagram to be featured
             </p>
           </div>
         </div>
