@@ -39,14 +39,14 @@ const Contact = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert({
           name: formData.name,
           email: formData.email,
-          subject: formData.subject,
+          subject: formData.subject || null,
           message: formData.message,
-        },
-      });
+        });
 
       if (error) throw error;
 
