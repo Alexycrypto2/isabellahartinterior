@@ -97,7 +97,7 @@ const FeaturedProducts = () => {
                   <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
                     <OptimizedImage 
                       src={resolveImageUrl(product.image_url)} 
-                      alt={product.name}
+                      alt={`${product.name} - ${product.category} home decor, ${product.price}${product.badge ? `, ${product.badge}` : ''}`}
                       width={400}
                       height={400}
                     />

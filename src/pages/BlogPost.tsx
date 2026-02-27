@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import ShopTheLook from "@/components/ShopTheLook";
+import BlogCategoryLinks from "@/components/BlogCategoryLinks";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
@@ -153,7 +154,7 @@ const BlogPost = () => {
             <div className="max-w-4xl mx-auto relative">
               <img 
                 src={resolveImageUrl(post.image_url)} 
-                alt={post.title}
+                alt={`${post.title} - ${post.category} styling tips by ${post.author}`}
                 className="w-full aspect-video object-cover rounded-2xl"
               />
               {/* Pinterest Save Button */}
@@ -177,6 +178,10 @@ const BlogPost = () => {
             className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent prose-img:rounded-lg"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
+          {/* Internal Links to Product Categories */}
+          <div className="max-w-3xl mx-auto">
+            <BlogCategoryLinks category={post.category} />
+          </div>
         </div>
       </section>
 
@@ -195,7 +200,7 @@ const BlogPost = () => {
                       {relatedPost.image_url ? (
                         <img 
                           src={resolveImageUrl(relatedPost.image_url)} 
-                          alt={relatedPost.title}
+                          alt={`${relatedPost.title} - ${relatedPost.category} home decor tips`}
                           className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"
                         />
