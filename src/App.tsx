@@ -34,6 +34,7 @@ const AdminMedia = lazy(() => import("./pages/AdminMedia"));
 const AdminSubscribers = lazy(() => import("./pages/AdminSubscribers"));
 const AdminAppearance = lazy(() => import("./pages/AdminAppearance"));
 const AdminContactSubmissions = lazy(() => import("./pages/AdminContactSubmissions"));
+const AdminPhotoSubmissions = lazy(() => import("./pages/AdminPhotoSubmissions"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -72,6 +73,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/subscribers" element={<AdminSubscribers />} />
           <Route path="/admin/appearance" element={<AdminAppearance />} />
           <Route path="/admin/contact-submissions" element={<AdminContactSubmissions />} />
+          <Route path="/admin/photo-submissions" element={<AdminPhotoSubmissions />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
