@@ -188,7 +188,7 @@ const Shop = () => {
             <h1 className="font-display text-5xl md:text-7xl font-semibold text-foreground mb-6">
               {shopHeroData.title || 'Curated Decor'}
               <br />
-              <span className="italic text-foreground/90">{shopHeroData.subtitle || 'All Under $100'}</span>
+              <span className="font-script italic text-foreground/90 tracking-wide">{shopHeroData.subtitle || 'All Under $100'}</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Handpicked, top-rated pieces from Amazon. Every product is rated 4+ stars. 
