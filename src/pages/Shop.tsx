@@ -306,7 +306,7 @@ const Shop = () => {
                     <div className="relative aspect-square overflow-hidden">
                       <img 
                         src={resolveImageUrl(product.image_url)} 
-                        alt={product.name}
+                        alt={`${product.name} - ${product.category} home decor, ${product.price}${product.badge ? `, ${product.badge}` : ''}`}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
                       />
