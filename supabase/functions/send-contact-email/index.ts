@@ -46,7 +46,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const siteEmail = Deno.env.get("CONTACT_EMAIL") || "hello@homedecor.com";
+    const siteEmail = Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
 
     const { error: sendError } = await resend.emails.send({
       from: `RoomRefine Contact <onboarding@resend.dev>`,
