@@ -1,58 +1,19 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Lightbulb, Home, DollarSign, Sofa } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Lightbulb, Home, DollarSign, Sofa, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/home-decor-chat`;
 
-// Quick suggestion buttons
 const quickSuggestions = [
   { icon: Home, label: "Small space tips", query: "How do I decorate my small living room?" },
   { icon: DollarSign, label: "Budget decorating", query: "What are some budget-friendly decorating ideas?" },
   { icon: Lightbulb, label: "Lighting ideas", query: "What's the best lighting for creating a cozy atmosphere?" },
   { icon: Sofa, label: "Living room help", query: "How can I style my living room like a designer?" },
 ];
-
-// Parse markdown links and convert to clickable HTML
-const parseMessageContent = (content: string) => {
-  // Match markdown links: [text](url)
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  const parts: (string | JSX.Element)[] = [];
-  let lastIndex = 0;
-  let match;
-
-  while ((match = linkRegex.exec(content)) !== null) {
-    // Add text before the link
-    if (match.index > lastIndex) {
-      parts.push(content.slice(lastIndex, match.index));
-    }
-    
-    // Add the clickable link
-    const [, linkText, linkUrl] = match;
-    parts.push(
-      <a
-        key={match.index}
-        href={linkUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary underline hover:text-primary/80 font-medium"
-      >
-        {linkText}
-      </a>
-    );
-    
-    lastIndex = match.index + match[0].length;
-  }
-
-  // Add remaining text after last link
-  if (lastIndex < content.length) {
-    parts.push(content.slice(lastIndex));
-  }
-
-  return parts.length > 0 ? parts : content;
-};
 
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -186,32 +147,39 @@ export const Chatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-3rem)] bg-background border border-border rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-3rem)] bg-background border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="bg-primary text-primary-foreground p-4">
-              <h3 className="font-display text-lg font-semibold">Build Better Assistant</h3>
-              <p className="text-sm opacity-90">Your trusted home decor guide</p>
+            <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                <Bot className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-display text-lg font-semibold leading-tight">Design Assistant</h3>
+                <p className="text-xs opacity-80">Your home decor expert</p>
+              </div>
             </div>
 
             {/* Messages */}
-            <div className="h-80 overflow-y-auto p-4 space-y-4 bg-muted/30">
+            <div className="h-[360px] overflow-y-auto p-4 space-y-4 bg-muted/20">
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground py-4">
-                  <MessageCircle className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm mb-4">Hi! I'm your Build Better design assistant. How can I help you today?</p>
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Bot className="w-6 h-6 text-primary" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">Hi! I'm your design assistant.</p>
+                  <p className="text-xs text-muted-foreground mb-4">Ask me anything about home décor, styling tips, or product recommendations.</p>
                   
-                  {/* Quick Suggestion Buttons */}
                   <div className="grid grid-cols-2 gap-2 mt-4">
                     {quickSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
                         onClick={() => handleQuickSuggestion(suggestion.query)}
-                        className="flex items-center gap-2 p-2.5 text-xs text-left bg-background border border-border rounded-lg hover:bg-muted hover:border-primary/50 transition-colors"
+                        className="flex items-center gap-2 p-2.5 text-xs text-left bg-background border border-border rounded-xl hover:bg-accent hover:border-primary/30 transition-all duration-200"
                         disabled={isLoading}
                       >
                         <suggestion.icon className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="text-foreground">{suggestion.label}</span>
+                        <span className="text-foreground font-medium">{suggestion.label}</span>
                       </button>
                     ))}
                   </div>
@@ -220,25 +188,46 @@ export const Chatbot = () => {
               {messages.map((msg, i) => (
                 <div
                   key={i}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
+                  {msg.role === "assistant" && (
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                      <Bot className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                  )}
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2 ${
+                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-background border border-border rounded-bl-md"
+                        : "bg-background border border-border rounded-bl-md shadow-sm"
                     }`}
                   >
-                    <div className="text-sm whitespace-pre-wrap">
-                      {msg.role === "assistant" ? parseMessageContent(msg.content) : msg.content}
-                    </div>
+                    {msg.role === "assistant" ? (
+                      <div className="text-sm prose prose-sm prose-neutral dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-medium [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_strong]:font-semibold [&_code]:text-xs [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-sm">{msg.content}</p>
+                    )}
                   </div>
+                  {msg.role === "user" && (
+                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                      <User className="w-3.5 h-3.5 text-primary-foreground" />
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && messages[messages.length - 1]?.role === "user" && (
-                <div className="flex justify-start">
-                  <div className="bg-background border border-border rounded-2xl rounded-bl-md px-4 py-3">
-                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <div className="flex gap-2 justify-start">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <div className="bg-background border border-border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                    <div className="flex gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:0ms]" />
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:150ms]" />
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:300ms]" />
+                    </div>
                   </div>
                 </div>
               )}
@@ -246,22 +235,22 @@ export const Chatbot = () => {
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-border bg-background">
+            <div className="p-3 border-t border-border bg-background">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your question..."
-                  className="flex-1 px-4 py-2 rounded-full border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  onKeyDown={handleKeyPress}
+                  placeholder="Ask about home décor..."
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-input bg-muted/30 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-colors"
                   disabled={isLoading}
                 />
                 <Button
                   onClick={() => handleSend()}
                   disabled={!input.trim() || isLoading}
                   size="icon"
-                  className="rounded-full"
+                  className="rounded-xl h-10 w-10"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
