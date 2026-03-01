@@ -22,7 +22,7 @@ import {
 } from '@/hooks/useBlogPosts';
 import { useCategories } from '@/hooks/useCategories';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2 } from 'lucide-react';
+import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2, ShoppingBag } from 'lucide-react';
 import AiBlogWriter from '@/components/AiBlogWriter';
 
 const generateSlug = (title: string) => {
@@ -57,6 +57,7 @@ const AdminBlogEditor = () => {
   const [autoSlug, setAutoSlug] = useState(true);
   const [isAiWriterOpen, setIsAiWriterOpen] = useState(false);
   const [isAddingLinks, setIsAddingLinks] = useState(false);
+  const [isEmbeddingProducts, setIsEmbeddingProducts] = useState(false);
   
   // SEO fields
   const [metaTitle, setMetaTitle] = useState('');
@@ -232,6 +233,36 @@ const AdminBlogEditor = () => {
     }
   };
 
+  const handleEmbedProducts = async () => {
+    if (!content) {
+      toast({ title: 'No content', description: 'Write or generate content first before embedding products.', variant: 'destructive' });
+      return;
+    }
+    setIsEmbeddingProducts(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('add-internal-links', {
+        body: { content, currentSlug: slug, mode: 'products' },
+      });
+      if (error) throw error;
+      if (data.error) {
+        toast({ title: 'Error', description: data.error, variant: 'destructive' });
+        return;
+      }
+      setContent(data.content);
+      toast({
+        title: data.productsAdded > 0 ? `${data.productsAdded} products embedded!` : 'No products added',
+        description: data.productsAdded > 0
+          ? 'Product images and affiliate links have been inserted into your content.'
+          : 'No matching products found for this content.',
+      });
+    } catch (error) {
+      console.error('Product embed error:', error);
+      toast({ title: 'Error', description: 'Failed to embed products. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsEmbeddingProducts(false);
+    }
+  };
+
   if (isEditing && isLoadingPost) {
     return (
       <AdminLayout>
@@ -278,6 +309,16 @@ const AdminBlogEditor = () => {
             >
               <Link2 className="mr-2 h-4 w-4" />
               {isAddingLinks ? 'Adding Links...' : 'Add Internal Links'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full"
+              onClick={handleEmbedProducts}
+              disabled={isEmbeddingProducts || !content}
+            >
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              {isEmbeddingProducts ? 'Embedding...' : 'Embed Products'}
             </Button>
             <div className="flex items-center gap-2">
               <Switch
