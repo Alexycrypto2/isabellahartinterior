@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
@@ -128,9 +128,16 @@ serve(async (req) => {
     };
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
-      throw new Error("Service configuration error");
+
+    async function getCustomAiConfig() {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const sb = createClient(supabaseUrl, supabaseKey);
+        const { data } = await sb.from("site_settings").select("value").eq("key", "ai_api").single();
+        if (data?.value && (data.value as any).api_key) return data.value as { provider: string; api_key: string; model?: string };
+      } catch { /* no config */ }
+      return null;
     }
 
     console.log("Processing recommendation request:", JSON.stringify(mappedPrefs));
@@ -165,41 +172,84 @@ You MUST respond with valid JSON in this exact format:
 
 Please recommend the best products for me!`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
+    const messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage },
+    ];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+    // Try Lovable AI first
+    let response: Response | null = null;
+
+    if (LOVABLE_API_KEY) {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages, response_format: { type: "json_object" } }),
+      });
+
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "AI service is busy. Please try again in a moment." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI service quota reached. Please try again later." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        console.log("Lovable credits exhausted, trying fallback...");
+        response = null;
+      }
+    }
+
+    // Fallback to custom API key
+    if (!response || !response.ok) {
+      const customConfig = await getCustomAiConfig();
+      if (customConfig) {
+        const provider = customConfig.provider || "openai";
+        const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
+
+        if (provider === "anthropic") {
+          const anthropicResp = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+            body: JSON.stringify({ model, max_tokens: 2048, system: systemPrompt, messages: [{ role: "user", content: userMessage }] }),
+          });
+          if (!anthropicResp.ok) throw new Error("Fallback AI error");
+          const anthropicData = await anthropicResp.json();
+          const content = anthropicData.content?.[0]?.text;
+          const recommendations = JSON.parse(content);
+          const validProductIds = products.map(p => p.id);
+          if (recommendations.recommendations) {
+            recommendations.recommendations = recommendations.recommendations.filter(
+              (rec: { productId: string }) => validProductIds.includes(rec.productId)
+            );
+          }
+          return new Response(JSON.stringify(recommendations), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const url = provider === "google"
+          ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+          : "https://api.openai.com/v1/chat/completions";
+
+        response = await fetch(url, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages, response_format: { type: "json_object" } }),
+        });
+      } else if (!response || response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Add your own API key in Admin → Settings → AI API." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    }
+
+    if (!response!.ok) {
+      const errorText = await response!.text();
+      console.error("AI error:", response!.status, errorText);
       throw new Error("Failed to get AI recommendations");
     }
 
-    const data = await response.json();
+    const data = await response!.json();
     const content = data.choices?.[0]?.message?.content;
 
     let recommendations;
@@ -210,7 +260,6 @@ Please recommend the best products for me!`;
       throw new Error("Invalid response format");
     }
 
-    // Validate that recommended product IDs exist
     const validProductIds = products.map(p => p.id);
     if (recommendations.recommendations) {
       recommendations.recommendations = recommendations.recommendations.filter(
