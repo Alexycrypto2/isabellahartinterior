@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Heart, Star, MessageSquare, Send } from "lucide-react";
+import { ExternalLink, ShoppingCart, Star, MessageSquare, Send } from "lucide-react";
 import { Product } from "@/data/products";
-import { useWishlist } from "@/hooks/useWishlist";
+import { useCart } from "@/hooks/useCart";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import StarRating from "@/components/StarRating";
 import { useProductReviews, useSubmitReview } from "@/hooks/useProductReviews";
@@ -20,7 +20,7 @@ interface ProductQuickViewProps {
 }
 
 const ProductQuickView = ({ product, isOpen, onClose }: ProductQuickViewProps) => {
-  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isInCart, addToCart } = useCart();
   const { data: reviews, isLoading: reviewsLoading } = useProductReviews(product?.id || "");
   const submitReview = useSubmitReview();
   
@@ -31,7 +31,7 @@ const ProductQuickView = ({ product, isOpen, onClose }: ProductQuickViewProps) =
 
   if (!product) return null;
 
-  const inWishlist = isInWishlist(product.id);
+  const inCart = isInCart(product.id);
   const averageRating = reviews && reviews.length > 0
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : product.rating;
@@ -151,14 +151,15 @@ const ProductQuickView = ({ product, isOpen, onClose }: ProductQuickViewProps) =
                   variant="outline"
                   size="lg"
                   className="w-full rounded-full"
-                  onClick={() => toggleWishlist(product.id, product.name)}
+                  onClick={() => !inCart && addToCart(product.id, product.name)}
+                  disabled={inCart}
                 >
-                  <Heart
+                  <ShoppingCart
                     className={`mr-2 w-4 h-4 ${
-                      inWishlist ? "fill-accent text-accent" : ""
+                      inCart ? "text-accent" : ""
                     }`}
                   />
-                  {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                  {inCart ? "Already in Cart" : "Add to Cart"}
                 </Button>
               </div>
 

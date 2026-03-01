@@ -9,11 +9,11 @@ import { ProductGridSkeleton } from "@/components/ProductSkeleton";
 import ProductQuickView from "@/components/ProductQuickView";
 import { useActiveProducts, useProductCategories, Product } from "@/hooks/useProducts";
 import JsonLd from "@/components/JsonLd";
-import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
+import { ExternalLink, SlidersHorizontal, X, ShoppingCart, Eye } from "lucide-react";
 import ProductReviewForm from "@/components/ProductReviewForm";
 import shopHeroDefault from "@/assets/shop-hero.jpg";
 import { Button } from "@/components/ui/button";
-import { useWishlist } from "@/hooks/useWishlist";
+import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
 import { useSiteSetting } from "@/hooks/useSiteSettings";
 import { resolveImageUrl } from "@/lib/imageResolver";
@@ -65,7 +65,7 @@ const Shop = () => {
       setSearchQuery(searchParam);
     }
   }, [searchParams]);
-  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isInCart, addToCart } = useCart();
   const { data: products, isLoading } = useActiveProducts();
   const { data: dbCategories } = useProductCategories();
 
@@ -338,14 +338,14 @@ const Shop = () => {
                           isOnSale={product.badge === 'Sale'}
                         />
                         <button
-                          onClick={() => toggleWishlist(product.id, product.name)}
+                          onClick={() => addToCart(product.id, product.name)}
                           className="w-9 h-9 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-all shadow-md"
-                          aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                          aria-label={isInCart(product.id) ? "Already in cart" : "Add to cart"}
                         >
-                          <Heart 
+                          <ShoppingCart 
                             className={`w-4 h-4 ${
-                              isInWishlist(product.id) 
-                                ? "fill-accent text-accent"
+                              isInCart(product.id) 
+                                ? "text-accent"
                                 : "text-neutral-700"
                             }`} 
                           />
