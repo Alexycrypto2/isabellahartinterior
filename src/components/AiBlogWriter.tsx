@@ -26,6 +26,8 @@ import {
   CheckCircle2,
   Wand2,
   AlertTriangle,
+  Search,
+  TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,6 +50,26 @@ interface AiBlogWriterProps {
 }
 
 type Step = "input" | "generating-text" | "generating-image" | "done" | "error";
+
+const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+const analyzeKeywordDensity = (content: string, title: string, metaDesc: string, keywordsStr: string) => {
+  if (!keywordsStr.trim()) return [];
+  const plainContent = stripHtml(content).toLowerCase();
+  const fullText = `${title} ${metaDesc} ${plainContent}`.toLowerCase();
+  const totalWords = fullText.split(/\s+/).length;
+
+  return keywordsStr.split(",").map((kw) => kw.trim().toLowerCase()).filter(Boolean).map((keyword) => {
+    const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    const contentMatches = (plainContent.match(regex) || []).length;
+    const titleMatch = title.toLowerCase().includes(keyword);
+    const metaMatch = metaDesc.toLowerCase().includes(keyword);
+    const density = totalWords > 0 ? ((contentMatches / totalWords) * 100) : 0;
+    const rating: "excellent" | "good" | "low" | "high" =
+      density >= 0.5 && density <= 2.5 ? (density >= 1 && density <= 2 ? "excellent" : "good") : density > 2.5 ? "high" : "low";
+    return { keyword, count: contentMatches, density: +density.toFixed(2), titleMatch, metaMatch, rating };
+  });
+};
 
 const AiBlogWriter = ({
   isOpen,
@@ -384,6 +406,62 @@ const AiBlogWriter = ({
                 )}
               </div>
             </div>
+
+            {/* Keyword Density Checker */}
+            {keywords.trim() && (() => {
+              const analysis = analyzeKeywordDensity(generatedData.content, generatedData.title, generatedData.meta_description, keywords);
+              if (analysis.length === 0) return null;
+              return (
+                <div className="bg-muted/30 border border-border rounded-xl p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Search className="w-4 h-4 text-accent" />
+                    <p className="text-xs font-semibold text-foreground">Keyword Density Analysis</p>
+                  </div>
+                  <div className="space-y-2.5">
+                    {analysis.map((kw) => (
+                      <div key={kw.keyword} className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium capitalize">"{kw.keyword}"</span>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            kw.rating === "excellent" ? "bg-accent/15 text-accent" :
+                            kw.rating === "good" ? "bg-accent/10 text-accent" :
+                            kw.rating === "high" ? "bg-destructive/10 text-destructive" :
+                            "bg-muted text-muted-foreground"
+                          }`}>
+                            {kw.rating === "excellent" ? "Excellent" : kw.rating === "good" ? "Good" : kw.rating === "high" ? "Overused" : "Low"}
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              kw.rating === "excellent" || kw.rating === "good" ? "bg-accent" :
+                              kw.rating === "high" ? "bg-destructive" : "bg-muted-foreground/40"
+                            }`}
+                            style={{ width: `${Math.min((kw.density / 3) * 100, 100)}%` }}
+                          />
+                        </div>
+                        <div className="flex gap-3 text-[10px] text-muted-foreground">
+                          <span>{kw.count}× found</span>
+                          <span>{kw.density}% density</span>
+                          <span className={kw.titleMatch ? "text-accent" : ""}>
+                            {kw.titleMatch ? "✓ In title" : "✗ Not in title"}
+                          </span>
+                          <span className={kw.metaMatch ? "text-accent" : ""}>
+                            {kw.metaMatch ? "✓ In meta" : "✗ Not in meta"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-start gap-1.5 pt-1">
+                    <TrendingUp className="w-3 h-3 text-muted-foreground mt-0.5 shrink-0" />
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Ideal density: 1-2%. Below 0.5% may not rank; above 2.5% risks keyword stuffing penalties.
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="flex gap-3">
               <Button
