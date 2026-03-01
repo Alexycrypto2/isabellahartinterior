@@ -36,47 +36,26 @@ const Admin = () => {
   const { toast } = useToast();
 
   // AI status
-  const [aiStatus, setAiStatus] = useState<'checking' | 'active' | 'credits_low' | 'fallback_only' | 'no_ai'>('checking');
-  const [hasFallbackKey, setHasFallbackKey] = useState(false);
-  const [fallbackProvider, setFallbackProvider] = useState('');
+  const [aiStatus, setAiStatus] = useState<'checking' | 'active' | 'fallback_only' | 'no_ai'>('checking');
+  const [hasTextKey, setHasTextKey] = useState(false);
+  const [hasImageKey, setHasImageKey] = useState(false);
+  const [textProvider, setTextProvider] = useState('');
+  const [imageProvider, setImageProvider] = useState('');
 
   useEffect(() => {
     if (siteSettings) {
       const aiSetting = siteSettings.find(s => s.key === 'ai_api');
       const aiConfig = aiSetting?.value as Record<string, string> | undefined;
-      const hasKey = !!(aiConfig?.api_key);
-      setHasFallbackKey(hasKey);
-      setFallbackProvider(aiConfig?.provider || '');
+      const tKey = !!(aiConfig?.text_api_key || aiConfig?.api_key);
+      const iKey = !!(aiConfig?.image_api_key);
+      setHasTextKey(tKey);
+      setHasImageKey(iKey);
+      setTextProvider(aiConfig?.text_provider || aiConfig?.provider || '');
+      setImageProvider(aiConfig?.image_provider || '');
+      setAiStatus('active'); // Built-in AI assumed active
     }
   }, [siteSettings]);
-
-  useEffect(() => {
-    // Test AI connectivity with a lightweight check
-    const checkAiStatus = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('generate-blog-post', {
-          body: { topic: '__health_check__', _healthCheck: true },
-        });
-        // If we get any response without a 402 error, credits are available
-        if (error) {
-          const errorMsg = typeof error === 'object' && 'message' in error ? (error as any).message : String(error);
-          if (errorMsg.includes('402') || errorMsg.includes('credits')) {
-            setAiStatus(hasFallbackKey ? 'fallback_only' : 'no_ai');
-          } else {
-            setAiStatus('active');
-          }
-        } else {
-          setAiStatus('active');
-        }
-      } catch {
-        setAiStatus(hasFallbackKey ? 'fallback_only' : 'no_ai');
-      }
-    };
-    // Only check after we know about fallback key
-    if (siteSettings) {
-      setAiStatus('active'); // Default to active, actual check would be expensive
-    }
-  }, [siteSettings, hasFallbackKey]);
+  
 
   const handleDelete = async (id: string) => {
     try {
@@ -237,7 +216,7 @@ const Admin = () => {
             {/* AI Status Indicator */}
             <Card className="border-border">
               <CardContent className="p-4 md:p-6">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
                       <Bot className="h-5 w-5 md:h-6 md:w-6 text-accent" />
@@ -245,58 +224,68 @@ const Admin = () => {
                     <div>
                       <p className="font-medium text-sm md:text-base">AI Service Status</p>
                       <div className="flex items-center gap-2 mt-1">
-                        {aiStatus === 'active' && (
-                          <>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Built-in AI Active</span>
-                          </>
-                        )}
-                        {aiStatus === 'fallback_only' && (
-                          <>
-                            <div className="w-2 h-2 rounded-full bg-amber-500" />
-                            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Using Fallback API</span>
-                          </>
-                        )}
-                        {aiStatus === 'no_ai' && (
-                          <>
-                            <div className="w-2 h-2 rounded-full bg-destructive" />
-                            <span className="text-xs text-destructive font-medium">No AI Available</span>
-                          </>
-                        )}
-                        {aiStatus === 'checking' && (
-                          <>
-                            <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse" />
-                            <span className="text-xs text-muted-foreground">Checking...</span>
-                          </>
-                        )}
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Built-in AI Active</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    {hasFallbackKey ? (
-                      <Badge variant="secondary" className="text-xs gap-1">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Fallback: {fallbackProvider === 'openai' ? 'OpenAI' : fallbackProvider === 'google' ? 'Gemini' : fallbackProvider === 'anthropic' ? 'Claude' : 'Configured'}
-                      </Badge>
+                  <Link to="/admin/settings">
+                    <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
+                      <Settings className="h-3 w-3 mr-1" />
+                      Configure
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Text AI Status */}
+                  <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-medium text-muted-foreground">Text AI</span>
+                      <span className="text-[10px] text-muted-foreground">Blog, Chat, Recs</span>
+                    </div>
+                    {hasTextKey ? (
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        <span className="text-xs font-medium">
+                          Fallback: {textProvider === 'openai' ? 'OpenAI' : textProvider === 'google' ? 'Gemini' : textProvider === 'anthropic' ? 'Claude' : 'Configured'}
+                        </span>
+                      </div>
                     ) : (
-                      <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
-                        <AlertTriangle className="h-3 w-3" />
-                        No fallback key
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                        <span className="text-xs text-muted-foreground">No fallback key</span>
+                      </div>
                     )}
-                    <Link to="/admin/settings">
-                      <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                        <Settings className="h-3 w-3 mr-1" />
-                        Configure
-                      </Button>
-                    </Link>
+                  </div>
+
+                  {/* Image AI Status */}
+                  <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-medium text-muted-foreground">Image AI</span>
+                      <span className="text-[10px] text-muted-foreground">Blog Images</span>
+                    </div>
+                    {hasImageKey ? (
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        <span className="text-xs font-medium">
+                          Fallback: {imageProvider === 'openai' ? 'DALL·E' : imageProvider === 'google' ? 'Imagen' : 'Configured'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                        <span className="text-xs text-muted-foreground">No fallback key</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                {!hasFallbackKey && (
+
+                {(!hasTextKey || !hasImageKey) && (
                   <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border">
                     <p className="text-xs text-muted-foreground">
                       <Zap className="h-3 w-3 inline mr-1 text-amber-500" />
-                      Add a fallback API key in <Link to="/admin/settings" className="underline font-medium text-foreground">Settings → AI API</Link> to keep AI features running when built-in credits are exhausted.
+                      Add fallback API keys in <Link to="/admin/settings" className="underline font-medium text-foreground">Settings → AI API</Link> to keep AI features running when built-in credits are exhausted.
                     </p>
                   </div>
                 )}

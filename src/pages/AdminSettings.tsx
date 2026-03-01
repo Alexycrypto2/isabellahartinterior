@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
@@ -58,11 +58,17 @@ const AdminSettings = () => {
   const [newsletterScroll, setNewsletterScroll] = useState(DEFAULT_NEWSLETTER_SETTINGS.scroll_threshold);
   const [newsletterExpiry, setNewsletterExpiry] = useState(DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
 
-  // AI API settings
-  const [aiProvider, setAiProvider] = useState('openai');
-  const [aiApiKey, setAiApiKey] = useState('');
-  const [aiModel, setAiModel] = useState('');
-  const [showApiKey, setShowApiKey] = useState(false);
+  // AI API settings - Text
+  const [aiTextProvider, setAiTextProvider] = useState('openai');
+  const [aiTextKey, setAiTextKey] = useState('');
+  const [aiTextModel, setAiTextModel] = useState('');
+  const [showTextKey, setShowTextKey] = useState(false);
+
+  // AI API settings - Image
+  const [aiImageProvider, setAiImageProvider] = useState('openai');
+  const [aiImageKey, setAiImageKey] = useState('');
+  const [aiImageModel, setAiImageModel] = useState('');
+  const [showImageKey, setShowImageKey] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -122,10 +128,13 @@ const AdminSettings = () => {
       setNewsletterExpiry(newsletter.expiry_days ?? DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
 
       // AI API
-      const ai = getSetting('ai_api') as Record<string, string>;
-      setAiProvider(ai.provider || 'openai');
-      setAiApiKey(ai.api_key || '');
-      setAiModel(ai.model || '');
+      const ai = getSetting('ai_api') as Record<string, any>;
+      setAiTextProvider(ai.text_provider || ai.provider || 'openai');
+      setAiTextKey(ai.text_api_key || ai.api_key || '');
+      setAiTextModel(ai.text_model || ai.model || '');
+      setAiImageProvider(ai.image_provider || 'openai');
+      setAiImageKey(ai.image_api_key || '');
+      setAiImageModel(ai.image_model || '');
     }
   }, [settings]);
 
@@ -285,9 +294,16 @@ const AdminSettings = () => {
       await updateMutation.mutateAsync({
         key: 'ai_api',
         value: {
-          provider: aiProvider,
-          api_key: aiApiKey,
-          model: aiModel,
+          text_provider: aiTextProvider,
+          text_api_key: aiTextKey,
+          text_model: aiTextModel,
+          image_provider: aiImageProvider,
+          image_api_key: aiImageKey,
+          image_model: aiImageModel,
+          // Keep backward-compatible fields for edge functions
+          provider: aiTextProvider,
+          api_key: aiTextKey,
+          model: aiTextModel,
         },
       });
       toast({ title: 'Saved', description: 'AI API settings updated successfully.' });
@@ -296,11 +312,19 @@ const AdminSettings = () => {
     }
   };
 
-  const getDefaultModel = (provider: string) => {
+  const getDefaultTextModel = (provider: string) => {
     switch (provider) {
       case 'openai': return 'gpt-4o-mini';
       case 'google': return 'gemini-2.0-flash';
       case 'anthropic': return 'claude-sonnet-4-20250514';
+      default: return '';
+    }
+  };
+
+  const getDefaultImageModel = (provider: string) => {
+    switch (provider) {
+      case 'openai': return 'dall-e-3';
+      case 'google': return 'imagen-3.0-generate-002';
       default: return '';
     }
   };
@@ -699,86 +723,152 @@ const AdminSettings = () => {
 
           {/* AI API Section */}
           <TabsContent value="ai">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI API Configuration</CardTitle>
-                <CardDescription>
-                  Add your own AI API key as a fallback when built-in AI credits are exhausted. Your key is stored securely and only used by backend functions.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                  <p className="text-sm text-muted-foreground">
-                    <strong className="text-foreground">How it works:</strong> The site uses built-in AI credits first. If credits run out (402 error), it automatically falls back to your custom API key below.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">AI Provider</Label>
-                  <Select value={aiProvider} onValueChange={(val) => { setAiProvider(val); setAiModel(getDefaultModel(val)); }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select provider" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="openai">OpenAI</SelectItem>
-                      <SelectItem value="google">Google (Gemini)</SelectItem>
-                      <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">API Key</Label>
-                  <div className="relative">
-                    <Input
-                      type={showApiKey ? 'text' : 'password'}
-                      value={aiApiKey}
-                      onChange={(e) => setAiApiKey(e.target.value)}
-                      placeholder={aiProvider === 'openai' ? 'sk-...' : aiProvider === 'google' ? 'AIza...' : 'sk-ant-...'}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+            <div className="space-y-6">
+              {/* How it works */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI API Configuration</CardTitle>
+                  <CardDescription>
+                    Configure separate API keys for text generation (blog writing, chat, recommendations) and image generation. Built-in AI is used first; your keys are used as fallback.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">How it works:</strong> The site tries built-in AI credits first. If credits run out, it automatically falls back to your custom API keys below. Text and image generation use different APIs, so you can configure them separately.
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {aiProvider === 'openai' && 'Get your key from platform.openai.com/api-keys'}
-                    {aiProvider === 'google' && 'Get your key from aistudio.google.com/apikey'}
-                    {aiProvider === 'anthropic' && 'Get your key from console.anthropic.com/settings/keys'}
-                  </p>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Model (optional)</Label>
-                  <Input
-                    value={aiModel}
-                    onChange={(e) => setAiModel(e.target.value)}
-                    placeholder={getDefaultModel(aiProvider)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Leave blank to use the default model for this provider.
-                  </p>
-                </div>
-
-                {aiApiKey && (
-                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
-                    <span className="text-sm text-green-700 dark:text-green-400">Fallback API key configured</span>
+              {/* Text AI */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-accent" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Text AI (Blog, Chat, Recommendations)</CardTitle>
+                      <CardDescription>Used for blog writing, chatbot, and product recommendations</CardDescription>
+                    </div>
                   </div>
-                )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Provider</Label>
+                    <Select value={aiTextProvider} onValueChange={(val) => { setAiTextProvider(val); setAiTextModel(getDefaultTextModel(val)); }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openai">OpenAI (GPT)</SelectItem>
+                        <SelectItem value="google">Google (Gemini)</SelectItem>
+                        <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">API Key</Label>
+                    <div className="relative">
+                      <Input
+                        type={showTextKey ? 'text' : 'password'}
+                        value={aiTextKey}
+                        onChange={(e) => setAiTextKey(e.target.value)}
+                        placeholder={aiTextProvider === 'openai' ? 'sk-...' : aiTextProvider === 'google' ? 'AIza...' : 'sk-ant-...'}
+                        className="pr-10"
+                      />
+                      <button type="button" onClick={() => setShowTextKey(!showTextKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                        {showTextKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {aiTextProvider === 'openai' && 'Get your key from platform.openai.com/api-keys'}
+                      {aiTextProvider === 'google' && 'Get your key from aistudio.google.com/apikey'}
+                      {aiTextProvider === 'anthropic' && 'Get your key from console.anthropic.com/settings/keys'}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Model (optional)</Label>
+                    <Input value={aiTextModel} onChange={(e) => setAiTextModel(e.target.value)} placeholder={getDefaultTextModel(aiTextProvider)} />
+                    <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultTextModel(aiTextProvider)}</p>
+                  </div>
+                  {aiTextKey && (
+                    <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-sm text-emerald-700 dark:text-emerald-400">Text AI fallback configured</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                <div className="pt-2 border-t border-border">
-                  <Button onClick={saveAiSettings} disabled={updateMutation.isPending} className="rounded-full">
-                    <Save className="mr-2 h-4 w-4" />
-                    Save AI Settings
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Image AI */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <ImageIcon className="h-4 w-4 text-accent" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Image AI (Blog Featured Images)</CardTitle>
+                      <CardDescription>Used for generating blog post featured images</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Provider</Label>
+                    <Select value={aiImageProvider} onValueChange={(val) => { setAiImageProvider(val); setAiImageModel(getDefaultImageModel(val)); }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openai">OpenAI (DALL·E)</SelectItem>
+                        <SelectItem value="google">Google (Imagen)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">API Key</Label>
+                    <div className="relative">
+                      <Input
+                        type={showImageKey ? 'text' : 'password'}
+                        value={aiImageKey}
+                        onChange={(e) => setAiImageKey(e.target.value)}
+                        placeholder={aiImageProvider === 'openai' ? 'sk-...' : 'AIza...'}
+                        className="pr-10"
+                      />
+                      <button type="button" onClick={() => setShowImageKey(!showImageKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                        {showImageKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {aiImageProvider === 'openai' && 'Same OpenAI key works for DALL·E — platform.openai.com/api-keys'}
+                      {aiImageProvider === 'google' && 'Same Google key works for Imagen — aistudio.google.com/apikey'}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Model (optional)</Label>
+                    <Input value={aiImageModel} onChange={(e) => setAiImageModel(e.target.value)} placeholder={getDefaultImageModel(aiImageProvider)} />
+                    <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultImageModel(aiImageProvider)}</p>
+                  </div>
+                  {aiImageKey && (
+                    <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-sm text-emerald-700 dark:text-emerald-400">Image AI fallback configured</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Save */}
+              <div className="pt-2">
+                <Button onClick={saveAiSettings} disabled={updateMutation.isPending} className="rounded-full">
+                  <Save className="mr-2 h-4 w-4" />
+                  Save All AI Settings
+                </Button>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
