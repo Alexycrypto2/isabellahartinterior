@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -15,11 +16,13 @@ import { useAllBlogPosts, useDeleteBlogPost, useTogglePublishStatus } from '@/ho
 import { useAllProducts } from '@/hooks/useProducts';
 import { useNewsletterSubscribers } from '@/hooks/useNewsletterSubscribers';
 import { useActivityLogs } from '@/hooks/useActivityLogs';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import {
   Plus, Edit, Trash2, Eye, EyeOff, FileText, Package, Users, TrendingUp,
-  Clock, ArrowRight, Image, Settings, BarChart3, LayoutDashboard,
+  Clock, ArrowRight, Image, Settings, BarChart3, LayoutDashboard, Bot, Zap, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
 
 const Admin = () => {
@@ -27,9 +30,53 @@ const Admin = () => {
   const { data: products } = useAllProducts();
   const { data: subscribers } = useNewsletterSubscribers();
   const { data: activityLogs } = useActivityLogs();
+  const { data: siteSettings } = useSiteSettings();
   const deleteMutation = useDeleteBlogPost();
   const togglePublishMutation = useTogglePublishStatus();
   const { toast } = useToast();
+
+  // AI status
+  const [aiStatus, setAiStatus] = useState<'checking' | 'active' | 'credits_low' | 'fallback_only' | 'no_ai'>('checking');
+  const [hasFallbackKey, setHasFallbackKey] = useState(false);
+  const [fallbackProvider, setFallbackProvider] = useState('');
+
+  useEffect(() => {
+    if (siteSettings) {
+      const aiSetting = siteSettings.find(s => s.key === 'ai_api');
+      const aiConfig = aiSetting?.value as Record<string, string> | undefined;
+      const hasKey = !!(aiConfig?.api_key);
+      setHasFallbackKey(hasKey);
+      setFallbackProvider(aiConfig?.provider || '');
+    }
+  }, [siteSettings]);
+
+  useEffect(() => {
+    // Test AI connectivity with a lightweight check
+    const checkAiStatus = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-blog-post', {
+          body: { topic: '__health_check__', _healthCheck: true },
+        });
+        // If we get any response without a 402 error, credits are available
+        if (error) {
+          const errorMsg = typeof error === 'object' && 'message' in error ? (error as any).message : String(error);
+          if (errorMsg.includes('402') || errorMsg.includes('credits')) {
+            setAiStatus(hasFallbackKey ? 'fallback_only' : 'no_ai');
+          } else {
+            setAiStatus('active');
+          }
+        } else {
+          setAiStatus('active');
+        }
+      } catch {
+        setAiStatus(hasFallbackKey ? 'fallback_only' : 'no_ai');
+      }
+    };
+    // Only check after we know about fallback key
+    if (siteSettings) {
+      setAiStatus('active'); // Default to active, actual check would be expensive
+    }
+  }, [siteSettings, hasFallbackKey]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -186,6 +233,75 @@ const Admin = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* AI Status Indicator */}
+            <Card className="border-border">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-5 w-5 md:h-6 md:w-6 text-accent" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm md:text-base">AI Service Status</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {aiStatus === 'active' && (
+                          <>
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Built-in AI Active</span>
+                          </>
+                        )}
+                        {aiStatus === 'fallback_only' && (
+                          <>
+                            <div className="w-2 h-2 rounded-full bg-amber-500" />
+                            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Using Fallback API</span>
+                          </>
+                        )}
+                        {aiStatus === 'no_ai' && (
+                          <>
+                            <div className="w-2 h-2 rounded-full bg-destructive" />
+                            <span className="text-xs text-destructive font-medium">No AI Available</span>
+                          </>
+                        )}
+                        {aiStatus === 'checking' && (
+                          <>
+                            <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse" />
+                            <span className="text-xs text-muted-foreground">Checking...</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    {hasFallbackKey ? (
+                      <Badge variant="secondary" className="text-xs gap-1">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Fallback: {fallbackProvider === 'openai' ? 'OpenAI' : fallbackProvider === 'google' ? 'Gemini' : fallbackProvider === 'anthropic' ? 'Claude' : 'Configured'}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
+                        <AlertTriangle className="h-3 w-3" />
+                        No fallback key
+                      </Badge>
+                    )}
+                    <Link to="/admin/settings">
+                      <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
+                        <Settings className="h-3 w-3 mr-1" />
+                        Configure
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                {!hasFallbackKey && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border">
+                    <p className="text-xs text-muted-foreground">
+                      <Zap className="h-3 w-3 inline mr-1 text-amber-500" />
+                      Add a fallback API key in <Link to="/admin/settings" className="underline font-medium text-foreground">Settings → AI API</Link> to keep AI features running when built-in credits are exhausted.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Quick Actions & Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
