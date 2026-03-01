@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, Heart } from "lucide-react";
+import { useWishlist } from "@/hooks/useWishlist";
 import { Input } from "@/components/ui/input";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
@@ -11,6 +12,7 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -166,6 +168,14 @@ const Navigation = () => {
               </div>
             )}
           </div>
+          <Link to="/wishlist" className="relative h-9 w-9 inline-flex items-center justify-center hover:bg-muted rounded-md transition-colors" aria-label="Wishlist">
+            <Heart className={`h-4 w-4 ${wishlist.length > 0 ? "fill-accent text-accent" : ""}`} />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+                {wishlist.length}
+              </span>
+            )}
+          </Link>
           <ThemeToggle />
         </div>
 
@@ -178,6 +188,14 @@ const Navigation = () => {
           >
             <Search className="h-5 w-5" />
           </Button>
+          <Link to="/wishlist" className="relative h-10 w-10 inline-flex items-center justify-center hover:bg-muted rounded-md transition-colors" aria-label="Wishlist">
+            <Heart className={`h-5 w-5 ${wishlist.length > 0 ? "fill-accent text-accent" : ""}`} />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+                {wishlist.length}
+              </span>
+            )}
+          </Link>
           <Button
             variant="ghost"
             size="icon"
