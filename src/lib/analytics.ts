@@ -31,7 +31,7 @@ export const trackEvent = async (options: TrackEventOptions): Promise<void> => {
       entity_name: options.entityName || null,
       visitor_id: visitorId,
       referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
+      user_agent: navigator.userAgent?.substring(0, 500) || null,
     });
   } catch (error) {
     // Silently fail - don't break the app for analytics
