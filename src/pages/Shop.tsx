@@ -53,11 +53,15 @@ const Shop = () => {
   const shopHeroData = (shopHeroSetting?.value || {}) as Record<string, string>;
   const shopHeroImage = shopHeroData.image_url || shopHeroDefault;
 
-  // Read category from URL params (e.g. /shop?category=furniture)
+  // Read category and search from URL params
   useEffect(() => {
     const categoryParam = searchParams.get("category");
     if (categoryParam) {
       setActiveCategory(categoryParam);
+    }
+    const searchParam = searchParams.get("search");
+    if (searchParam) {
+      setSearchQuery(searchParam);
     }
   }, [searchParams]);
   const { isInWishlist, toggleWishlist } = useWishlist();
