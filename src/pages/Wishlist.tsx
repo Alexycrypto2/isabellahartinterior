@@ -7,7 +7,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
 import { Button } from "@/components/ui/button";
-import { Heart, ExternalLink, Trash2, ShoppingBag, Share2, Copy, Check } from "lucide-react";
+import { Heart, ExternalLink, Trash2, ShoppingBag, Share2, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import StarRating from "@/components/StarRating";
 import { trackProductClick } from "@/lib/analytics";
@@ -19,19 +19,30 @@ const Wishlist = () => {
   const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
 
-  // Check if viewing a shared wishlist
-  const sharedIds = searchParams.get("items");
-  const isSharedView = !!sharedIds;
-  const sharedProductIds = useMemo(() => 
-    sharedIds ? sharedIds.split(",").filter(Boolean) : [],
-    [sharedIds]
+  // Check if viewing a shared wishlist (uses slugs for clean URLs)
+  const sharedSlugs = searchParams.get("items");
+  const isSharedView = !!sharedSlugs;
+  const sharedSlugList = useMemo(() => 
+    sharedSlugs ? sharedSlugs.split(",").filter(Boolean) : [],
+    [sharedSlugs]
   );
+
+  // Resolve shared slugs to product IDs
+  const sharedProductIds = useMemo(() => {
+    if (!isSharedView || !products) return [];
+    return products
+      .filter((p) => sharedSlugList.includes(p.slug))
+      .map((p) => p.id);
+  }, [isSharedView, products, sharedSlugList]);
 
   const displayIds = isSharedView ? sharedProductIds : wishlist;
   const displayProducts = products?.filter((p) => displayIds.includes(p.id)) || [];
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/wishlist?items=${wishlist.join(",")}`;
+    // Build a clean URL using product slugs instead of UUIDs
+    const wishlistProducts = products?.filter((p) => wishlist.includes(p.id)) || [];
+    const slugs = wishlistProducts.map((p) => p.slug).join(",");
+    const shareUrl = `${window.location.origin}/wishlist?items=${slugs}`;
     
     if (navigator.share) {
       try {
@@ -41,7 +52,6 @@ const Wishlist = () => {
           url: shareUrl,
         });
       } catch {
-        // User cancelled or share failed, fall back to copy
         copyToClipboard(shareUrl);
       }
     } else {
@@ -91,7 +101,9 @@ const Wishlist = () => {
                   {isSharedView ? "Shared Wishlist" : "My Wishlist"}
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  {displayProducts.length > 0
+                  {isLoading
+                    ? "Loading..."
+                    : displayProducts.length > 0
                     ? `${displayProducts.length} item${displayProducts.length > 1 ? "s" : ""} ${isSharedView ? "shared" : "saved"}`
                     : isSharedView ? "This shared wishlist is empty" : "Your wishlist is empty"}
                 </p>
