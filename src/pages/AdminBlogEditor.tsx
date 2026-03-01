@@ -229,17 +229,15 @@ const AdminBlogEditor = () => {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            {!isEditing && (
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-full border-accent/30 text-accent hover:bg-accent/10"
-                onClick={() => setIsAiWriterOpen(true)}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                Write with AI
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full border-accent/30 text-accent hover:bg-accent/10"
+              onClick={() => setIsAiWriterOpen(true)}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              {isEditing ? 'Rewrite with AI' : 'Write with AI'}
+            </Button>
             <div className="flex items-center gap-2">
               <Switch
                 id="published"
