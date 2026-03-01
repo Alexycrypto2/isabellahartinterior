@@ -34,6 +34,9 @@ const StarRating = ({
     md: "w-4 h-4",
     lg: "w-5 h-5"
   };
+
+  // Bigger touch targets for interactive mode
+  const touchTargetClasses = interactive ? "p-1.5 -m-1.5" : "";
   
   const textSizeClasses = {
     sm: "text-xs",
@@ -58,6 +61,60 @@ const StarRating = ({
       setHoverRating(0);
     }
   };
+
+  const renderStar = (type: "full" | "half" | "empty", index: number, starNumber: number) => {
+    const baseClasses = `${interactive ? 'w-5 h-5 md:w-4 md:h-4' : sizeClasses[size]} transition-all duration-300`;
+    
+    if (type === "full") {
+      return (
+        <button
+          key={`full-${index}`}
+          type="button"
+          className={`${touchTargetClasses} inline-flex items-center justify-center ${interactive ? 'cursor-pointer' : ''}`}
+          onClick={() => handleStarClick(starNumber)}
+          onMouseEnter={() => handleStarHover(starNumber)}
+          aria-label={`Rate ${starNumber} stars`}
+        >
+          <Star className={`${baseClasses} fill-accent text-accent ${
+            animated ? 'hover:scale-125 hover:drop-shadow-[0_0_8px_hsl(var(--accent))]' : ''
+          }`} />
+        </button>
+      );
+    }
+    
+    if (type === "half") {
+      return (
+        <button
+          key="half"
+          type="button"
+          className={`${touchTargetClasses} inline-flex items-center justify-center relative ${interactive ? 'cursor-pointer' : ''}`}
+          onClick={() => handleStarClick(starNumber)}
+          onMouseEnter={() => handleStarHover(starNumber)}
+          aria-label={`Rate ${starNumber} stars`}
+        >
+          <Star className={`${baseClasses} text-accent/30`} />
+          <div className="absolute inset-0 overflow-hidden w-1/2 flex items-center justify-center">
+            <Star className={`${baseClasses} fill-accent text-accent`} />
+          </div>
+        </button>
+      );
+    }
+    
+    return (
+      <button
+        key={`empty-${index}`}
+        type="button"
+        className={`${touchTargetClasses} inline-flex items-center justify-center ${interactive ? 'cursor-pointer' : ''}`}
+        onClick={() => handleStarClick(starNumber)}
+        onMouseEnter={() => handleStarHover(starNumber)}
+        aria-label={`Rate ${starNumber} stars`}
+      >
+        <Star className={`${baseClasses} text-accent/30 ${
+          animated ? 'hover:scale-110 hover:text-accent/50' : ''
+        }`} />
+      </button>
+    );
+  };
   
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
@@ -65,46 +122,11 @@ const StarRating = ({
         className="flex items-center gap-0.5"
         onMouseLeave={handleMouseLeave}
       >
-        {/* Full stars */}
-        {Array.from({ length: fullStars }).map((_, i) => (
-          <Star 
-            key={`full-${i}`} 
-            className={`${sizeClasses[size]} fill-accent text-accent transition-all duration-300 ${
-              animated ? 'hover:scale-125 hover:drop-shadow-[0_0_8px_hsl(var(--accent))]' : ''
-            } ${interactive ? 'cursor-pointer' : ''}`}
-            style={animated ? { animationDelay: `${i * 50}ms` } : undefined}
-            onClick={() => handleStarClick(i + 1)}
-            onMouseEnter={() => handleStarHover(i + 1)}
-          />
-        ))}
-        
-        {/* Half star */}
-        {hasHalfStar && (
-          <div 
-            className={`relative ${interactive ? 'cursor-pointer' : ''}`}
-            onClick={() => handleStarClick(fullStars + 1)}
-            onMouseEnter={() => handleStarHover(fullStars + 1)}
-          >
-            <Star className={`${sizeClasses[size]} text-accent/30 transition-all duration-300`} />
-            <div className="absolute inset-0 overflow-hidden w-1/2">
-              <Star className={`${sizeClasses[size]} fill-accent text-accent transition-all duration-300 ${
-                animated ? 'hover:scale-125' : ''
-              }`} />
-            </div>
-          </div>
+        {Array.from({ length: fullStars }).map((_, i) => renderStar("full", i, i + 1))}
+        {hasHalfStar && renderStar("half", 0, fullStars + 1)}
+        {Array.from({ length: emptyStars }).map((_, i) => 
+          renderStar("empty", i, fullStars + (hasHalfStar ? 1 : 0) + i + 1)
         )}
-        
-        {/* Empty stars */}
-        {Array.from({ length: emptyStars }).map((_, i) => (
-          <Star 
-            key={`empty-${i}`} 
-            className={`${sizeClasses[size]} text-accent/30 transition-all duration-300 ${
-              animated ? 'hover:scale-110 hover:text-accent/50' : ''
-            } ${interactive ? 'cursor-pointer' : ''}`}
-            onClick={() => handleStarClick(fullStars + (hasHalfStar ? 1 : 0) + i + 1)}
-            onMouseEnter={() => handleStarHover(fullStars + (hasHalfStar ? 1 : 0) + i + 1)}
-          />
-        ))}
       </div>
       
       <span className={`${textSizeClasses[size]} font-medium text-foreground transition-all duration-300`}>
