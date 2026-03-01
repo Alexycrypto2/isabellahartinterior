@@ -28,6 +28,7 @@ import {
   AlertTriangle,
   Search,
   TrendingUp,
+  BookOpen,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -52,6 +53,42 @@ interface AiBlogWriterProps {
 type Step = "input" | "generating-text" | "generating-image" | "done" | "error";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+const countSyllables = (word: string): number => {
+  word = word.toLowerCase().replace(/[^a-z]/g, "");
+  if (word.length <= 3) return 1;
+  word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "").replace(/^y/, "");
+  const vowelGroups = word.match(/[aeiouy]{1,2}/g);
+  return vowelGroups ? vowelGroups.length : 1;
+};
+
+const analyzeReadability = (html: string) => {
+  const text = stripHtml(html);
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+  const words = text.split(/\s+/).filter((w) => w.length > 0);
+  const totalSentences = Math.max(sentences.length, 1);
+  const totalWords = Math.max(words.length, 1);
+  const totalSyllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
+
+  // Flesch Reading Ease: 206.835 - 1.015*(words/sentences) - 84.6*(syllables/words)
+  const fre = 206.835 - 1.015 * (totalWords / totalSentences) - 84.6 * (totalSyllables / totalWords);
+  const score = Math.max(0, Math.min(100, Math.round(fre)));
+
+  // Flesch-Kincaid Grade Level
+  const gradeLevel = 0.39 * (totalWords / totalSentences) + 11.8 * (totalSyllables / totalWords) - 15.59;
+  const grade = Math.max(1, Math.round(gradeLevel * 10) / 10);
+
+  const avgWordsPerSentence = +(totalWords / totalSentences).toFixed(1);
+  const avgSyllablesPerWord = +(totalSyllables / totalWords).toFixed(1);
+
+  let level: string, description: string, color: "accent" | "foreground" | "destructive";
+  if (score >= 70) { level = "Easy to Read"; description = "Accessible to most readers. Great for blogs!"; color = "accent"; }
+  else if (score >= 50) { level = "Fairly Easy"; description = "Good for general audience content."; color = "accent"; }
+  else if (score >= 30) { level = "Moderate"; description = "May be too complex for casual readers."; color = "foreground"; }
+  else { level = "Difficult"; description = "Consider simplifying for wider reach."; color = "destructive"; }
+
+  return { score, grade, level, description, color, avgWordsPerSentence, avgSyllablesPerWord, totalSentences, totalWords };
+};
 
 const analyzeSeoScore = (data: BlogPostData, keywordsStr: string) => {
   const plain = stripHtml(data.content);
@@ -504,6 +541,53 @@ const AiBlogWriter = ({
 
                   <p className="text-[10px] text-muted-foreground pt-1">
                     {seo.wordCount.toLocaleString()} words · Score based on {seo.checks.length} on-page SEO factors
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* Readability Score */}
+            {(() => {
+              const r = analyzeReadability(generatedData.content);
+              const colorClass = r.color === "accent" ? "text-accent" : r.color === "destructive" ? "text-destructive" : "text-foreground";
+              const bgClass = r.color === "accent" ? "bg-accent/15 text-accent" : r.color === "destructive" ? "bg-destructive/10 text-destructive" : "bg-muted text-foreground";
+              const barClass = r.color === "accent" ? "bg-accent" : r.color === "destructive" ? "bg-destructive" : "bg-foreground/50";
+              return (
+                <div className="border border-border rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-accent" />
+                      <p className="text-xs font-semibold text-foreground">Readability Score</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-2xl font-bold ${colorClass}`}>{r.score}</span>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${bgClass}`}>
+                        {r.level}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${barClass}`}
+                      style={{ width: `${r.score}%` }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{r.description}</p>
+
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                      <p className="text-lg font-bold text-foreground">{r.grade}</p>
+                      <p className="text-[10px] text-muted-foreground">Grade Level</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                      <p className="text-lg font-bold text-foreground">{r.avgWordsPerSentence}</p>
+                      <p className="text-[10px] text-muted-foreground">Words/Sentence</p>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground">
+                    {r.totalWords.toLocaleString()} words · {r.totalSentences} sentences · {r.avgSyllablesPerWord} syllables/word · Ideal: score 60-80 (Grade 6-8)
                   </p>
                 </div>
               );
