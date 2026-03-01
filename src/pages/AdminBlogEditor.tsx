@@ -22,7 +22,7 @@ import {
 } from '@/hooks/useBlogPosts';
 import { useCategories } from '@/hooks/useCategories';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles } from 'lucide-react';
+import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2 } from 'lucide-react';
 import AiBlogWriter from '@/components/AiBlogWriter';
 
 const generateSlug = (title: string) => {
@@ -56,6 +56,7 @@ const AdminBlogEditor = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
   const [isAiWriterOpen, setIsAiWriterOpen] = useState(false);
+  const [isAddingLinks, setIsAddingLinks] = useState(false);
   
   // SEO fields
   const [metaTitle, setMetaTitle] = useState('');
@@ -201,6 +202,36 @@ const AdminBlogEditor = () => {
     }
   };
 
+  const handleAddInternalLinks = async () => {
+    if (!content) {
+      toast({ title: 'No content', description: 'Write or generate content first before adding internal links.', variant: 'destructive' });
+      return;
+    }
+    setIsAddingLinks(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('add-internal-links', {
+        body: { content, currentSlug: slug },
+      });
+      if (error) throw error;
+      if (data.error) {
+        toast({ title: 'Error', description: data.error, variant: 'destructive' });
+        return;
+      }
+      setContent(data.content);
+      toast({
+        title: data.linksAdded > 0 ? `${data.linksAdded} internal links added!` : 'No new links needed',
+        description: data.linksAdded > 0
+          ? 'Internal links have been inserted into your content for better SEO.'
+          : data.message || 'The content already has sufficient internal links.',
+      });
+    } catch (error) {
+      console.error('Internal links error:', error);
+      toast({ title: 'Error', description: 'Failed to add internal links. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsAddingLinks(false);
+    }
+  };
+
   if (isEditing && isLoadingPost) {
     return (
       <AdminLayout>
@@ -237,6 +268,16 @@ const AdminBlogEditor = () => {
             >
               <Sparkles className="mr-2 h-4 w-4" />
               {isEditing ? 'Rewrite with AI' : 'Write with AI'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full"
+              onClick={handleAddInternalLinks}
+              disabled={isAddingLinks || !content}
+            >
+              <Link2 className="mr-2 h-4 w-4" />
+              {isAddingLinks ? 'Adding Links...' : 'Add Internal Links'}
             </Button>
             <div className="flex items-center gap-2">
               <Switch
