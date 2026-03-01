@@ -23,6 +23,7 @@ const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Disclosure = lazy(() => import("./pages/Disclosure"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminBlogEditor = lazy(() => import("./pages/AdminBlogEditor"));
@@ -54,6 +55,7 @@ const AnimatedRoutes = () => {
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Index />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/inspiration" element={<Inspiration />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
