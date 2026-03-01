@@ -19,31 +19,47 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are an expert SEO content writer for a premium home decor and interior design blog called "RoomRefine". 
+    const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "RoomRefine", a premium home decor and interior design brand.
 
-Your writing style is:
-- Professional yet warm and approachable
-- Detailed and actionable with practical tips
-- SEO-optimized with natural keyword integration
-- Uses proper HTML formatting for rich text editors
+Your mission is to write blog posts that RANK ON PAGE 1 OF GOOGLE. Every post must follow proven SEO frameworks.
 
-When generating a blog post, you MUST return a JSON response using the "generate_blog_post" tool.
+WRITING PRINCIPLES:
+- Write at a Grade 8 reading level for maximum accessibility
+- Use short paragraphs (2-3 sentences max) for mobile readability
+- Open with a compelling hook that addresses the reader's pain point
+- Include actionable, specific advice (not generic fluff)
+- Use power words: "proven", "essential", "stunning", "transform", "effortless"
+- Write in second person ("you") to create personal connection
+- Include internal linking suggestions as [LINK: anchor text] placeholders
 
-Guidelines:
-- Title: Catchy, under 60 characters, includes main keyword
-- Meta Title: SEO-optimized, under 60 characters
-- Meta Description: Compelling, under 160 characters, includes call-to-action
-- Excerpt: 1-2 sentences summarizing the post (plain text, no HTML)
-- Content: Well-structured HTML with h2, h3, p, ul/li tags. Include 800-1500 words.
-- Read Time: Estimate based on word count (e.g., "5 min read")
-- Image Prompt: A detailed prompt to generate a beautiful, photorealistic featured image for this blog post. Describe the scene, lighting, colors, and mood. Always specify "interior design photography" or "home decor photography" style.`;
+SEO STRUCTURE (MANDATORY):
+- Title: Include primary keyword near the beginning, under 60 chars, use numbers or power words
+- H2 headings: 4-6 per post, each containing secondary keywords naturally
+- H3 subheadings: Use under H2s for detailed breakdowns
+- First 100 words: Must contain the primary keyword naturally
+- Content: 1200-2000 words, comprehensive enough to be the definitive resource
+- Include a "Key Takeaways" or "Quick Tips" section with bullet points
+- End with a strong call-to-action paragraph
+- Use semantic HTML: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, <blockquote>
 
-    const userPrompt = `Write a blog post about: "${topic}"
+META SEO RULES:
+- Meta Title: Primary keyword + benefit/number, exactly 50-60 chars
+- Meta Description: Include keyword, a benefit, and a CTA. Exactly 140-155 chars
+- Slug: Short, keyword-rich, 3-5 words max
+
+IMAGE PROMPT RULES:
+- Describe a photorealistic interior design scene that matches the topic
+- Specify: room type, lighting (natural golden hour preferred), camera angle, color palette, styling details
+- Always include: "editorial interior design photography, high-end magazine quality, 4K, shallow depth of field"
+
+You MUST return structured data using the "generate_blog_post" tool.`;
+
+    const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
 ${tone ? `Tone: ${tone}` : ""}
 ${category ? `Category: ${category}` : ""}
-${keywords ? `Target keywords: ${keywords}` : ""}
+${keywords ? `Primary and secondary keywords to target: ${keywords}` : ""}
 
-Generate a complete, SEO-optimized blog post with all required fields.`;
+Remember: This post should be the BEST resource on this topic. Make it comprehensive, actionable, and optimized to outrank competitors.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -85,7 +101,7 @@ Generate a complete, SEO-optimized blog post with all required fields.`;
                     content: {
                       type: "string",
                       description:
-                        "Full blog post content in HTML with h2, h3, p, ul/li tags",
+                        "Full blog post in semantic HTML (h2, h3, p, ul/li, strong, em, blockquote). 1200-2000 words. Include Key Takeaways section and CTA.",
                     },
                     meta_title: {
                       type: "string",

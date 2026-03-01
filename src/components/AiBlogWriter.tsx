@@ -68,8 +68,10 @@ const AiBlogWriter = ({
     { value: "professional", label: "Professional & Authoritative" },
     { value: "warm", label: "Warm & Conversational" },
     { value: "luxurious", label: "Luxurious & Aspirational" },
-    { value: "practical", label: "Practical & How-To" },
+    { value: "practical", label: "Practical & How-To Guide" },
     { value: "inspirational", label: "Inspirational & Creative" },
+    { value: "listicle", label: "Listicle (Top 10, Best Of)" },
+    { value: "educational", label: "Educational & In-Depth" },
   ];
 
   const handleGenerate = async () => {
@@ -168,16 +170,16 @@ const AiBlogWriter = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto border-accent/20">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-display text-xl">
-            <div className="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
+          <DialogTitle className="flex items-center gap-3 font-display text-xl">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-md">
               <Sparkles className="w-4 h-4 text-accent-foreground" />
             </div>
             AI Blog Writer
           </DialogTitle>
-          <DialogDescription>
-            Generate a professional, SEO-optimized blog post with a matching featured image.
+          <DialogDescription className="text-sm leading-relaxed">
+            Generate a professional, SEO-optimized blog post designed to rank high on Google — with a matching AI-generated featured image.
           </DialogDescription>
         </DialogHeader>
 
@@ -325,11 +327,11 @@ const AiBlogWriter = ({
         {/* Done Step */}
         {step === "done" && generatedData && (
           <div className="space-y-4 pt-2">
-            <div className="bg-accent/5 border border-accent/20 rounded-xl p-4 space-y-3">
+            <div className="bg-accent/5 border border-accent/20 rounded-xl p-5 space-y-4">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-accent mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-accent mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold mb-1">Blog post ready!</p>
+                  <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Blog post ready</p>
                   <h3 className="font-display text-base font-medium leading-tight mb-2">
                     {generatedData.title}
                   </h3>
@@ -343,22 +345,41 @@ const AiBlogWriter = ({
                 <img
                   src={generatedData.image_url}
                   alt="AI generated featured"
-                  className="w-full h-40 object-cover rounded-lg"
+                  className="w-full h-44 object-cover rounded-lg shadow-sm"
                 />
               )}
 
+              {/* SEO Score Preview */}
+              <div className="bg-background/80 rounded-lg p-3 space-y-2">
+                <p className="text-xs font-semibold text-foreground">SEO Preview</p>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-primary truncate">
+                    {generatedData.meta_title || generatedData.title}
+                  </p>
+                  <p className="text-xs text-accent">
+                    roomrefine.com/blog/{generatedData.slug}
+                  </p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {generatedData.meta_description}
+                  </p>
+                </div>
+              </div>
+
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2.5 py-1 rounded-full font-medium">
                   <FileText className="w-3 h-3" />
                   {generatedData.read_time}
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2 py-1 rounded-full">
-                  SEO: {generatedData.meta_title.length}/60 chars
+                <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2.5 py-1 rounded-full font-medium">
+                  Title: {generatedData.meta_title.length}/60
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2.5 py-1 rounded-full font-medium">
+                  Desc: {generatedData.meta_description.length}/160
                 </span>
                 {generatedData.image_url && (
-                  <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-accent/10 text-accent px-2.5 py-1 rounded-full font-medium">
                     <ImageIcon className="w-3 h-3" />
-                    Featured image
+                    Featured image ✓
                   </span>
                 )}
               </div>
