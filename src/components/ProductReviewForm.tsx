@@ -3,13 +3,9 @@ import { MessageSquare, Send, ChevronDown, ChevronUp } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
-interface Review {
-  rating: number;
-  text: string;
-  date: string;
-}
+import { useSubmitReview } from "@/hooks/useProductReviews";
 
 interface ProductReviewFormProps {
   productId: string;
@@ -17,35 +13,13 @@ interface ProductReviewFormProps {
   productReviews: number;
 }
 
-const getStoredReview = (productId: string): Review | null => {
-  try {
-    const reviews = JSON.parse(localStorage.getItem("product_reviews") || "{}");
-    return reviews[productId] || null;
-  } catch {
-    return null;
-  }
-};
-
-const storeReview = (productId: string, review: Review) => {
-  try {
-    const reviews = JSON.parse(localStorage.getItem("product_reviews") || "{}");
-    reviews[productId] = review;
-    localStorage.setItem("product_reviews", JSON.stringify(reviews));
-    // Also update ratings
-    const ratings = JSON.parse(localStorage.getItem("product_ratings") || "{}");
-    ratings[productId] = review.rating;
-    localStorage.setItem("product_ratings", JSON.stringify(ratings));
-  } catch {
-    // ignore
-  }
-};
-
 const ProductReviewForm = ({ productId, productRating, productReviews }: ProductReviewFormProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const existingReview = getStoredReview(productId);
-  const [userRating, setUserRating] = useState(existingReview?.rating || 0);
-  const [reviewText, setReviewText] = useState(existingReview?.text || "");
-  const [submitted, setSubmitted] = useState(!!existingReview);
+  const [userRating, setUserRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewerName, setReviewerName] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const submitReview = useSubmitReview();
 
   const handleRatingChange = (rating: number) => {
     setUserRating(rating);
@@ -54,25 +28,39 @@ const ProductReviewForm = ({ productId, productRating, productReviews }: Product
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (userRating === 0) {
       toast.error("Please select a star rating first");
       return;
     }
-    const trimmed = reviewText.trim();
-    if (trimmed.length > 500) {
+    const name = reviewerName.trim();
+    if (!name) {
+      toast.error("Please enter your name");
+      return;
+    }
+    if (name.length > 100) {
+      toast.error("Name must be under 100 characters");
+      return;
+    }
+    const text = reviewText.trim();
+    if (text.length > 500) {
       toast.error("Review must be under 500 characters");
       return;
     }
-    const review: Review = {
-      rating: userRating,
-      text: trimmed,
-      date: new Date().toISOString(),
-    };
-    storeReview(productId, review);
-    setSubmitted(true);
-    setIsExpanded(false);
-    toast.success("Thanks for your review!");
+
+    try {
+      await submitReview.mutateAsync({
+        product_id: productId,
+        reviewer_name: name,
+        rating: userRating,
+        review_text: text || undefined,
+      });
+      setSubmitted(true);
+      setIsExpanded(false);
+      toast.success("Thanks for your review!");
+    } catch {
+      toast.error("Failed to submit review. Please try again.");
+    }
   };
 
   return (
@@ -83,7 +71,7 @@ const ProductReviewForm = ({ productId, productRating, productReviews }: Product
           rating={userRating || productRating || 0}
           reviews={productReviews}
           size="sm"
-          interactive
+          interactive={!submitted}
           onRatingChange={handleRatingChange}
           className="flex-1"
         />
@@ -94,7 +82,7 @@ const ProductReviewForm = ({ productId, productRating, productReviews }: Product
           aria-label={isExpanded ? "Close review form" : "Write a review"}
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{submitted ? "Edit" : "Review"}</span>
+          <span className="hidden sm:inline">{submitted ? "Done" : "Review"}</span>
           {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </button>
       </div>
@@ -104,8 +92,15 @@ const ProductReviewForm = ({ productId, productRating, productReviews }: Product
       </p>
 
       {/* Expandable review input */}
-      {isExpanded && (
+      {isExpanded && !submitted && (
         <div className="mt-3 space-y-2 animate-fade-in-up">
+          <Input
+            placeholder="Your name"
+            value={reviewerName}
+            onChange={(e) => setReviewerName(e.target.value)}
+            className="h-9 text-sm rounded-xl border-border bg-background"
+            maxLength={100}
+          />
           <Textarea
             placeholder="Share your thoughts about this product... (optional)"
             value={reviewText}
@@ -121,19 +116,13 @@ const ProductReviewForm = ({ productId, productRating, productReviews }: Product
               size="sm"
               className="rounded-full bg-accent text-accent-foreground hover:brightness-110 h-8 px-4 text-xs"
               onClick={handleSubmit}
+              disabled={submitReview.isPending}
             >
               <Send className="w-3 h-3 mr-1.5" />
-              {submitted ? "Update" : "Submit"}
+              {submitReview.isPending ? "Sending..." : "Submit"}
             </Button>
           </div>
         </div>
-      )}
-
-      {/* Show existing review text */}
-      {submitted && existingReview?.text && !isExpanded && (
-        <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">
-          "{existingReview.text}"
-        </p>
       )}
     </div>
   );
