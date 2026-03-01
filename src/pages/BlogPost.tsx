@@ -81,7 +81,13 @@ const BlogPost = () => {
     });
   };
 
-  const relatedPosts = allPosts?.filter(p => p.id !== post.id).slice(0, 3) || [];
+  const relatedPosts = (() => {
+    if (!allPosts) return [];
+    const others = allPosts.filter(p => p.id !== post.id);
+    const sameCategory = others.filter(p => p.category === post.category);
+    const differentCategory = others.filter(p => p.category !== post.category);
+    return [...sameCategory, ...differentCategory].slice(0, 3);
+  })();
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -190,9 +196,12 @@ const BlogPost = () => {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-6">
             <div className="max-w-7xl mx-auto">
-              <h2 className="font-display text-3xl font-medium text-center mb-10">
-                More Inspiration
+              <h2 className="font-display text-3xl font-medium text-center mb-3">
+                Related Posts
               </h2>
+              <p className="text-muted-foreground text-center mb-10">
+                More from <span className="font-medium text-foreground">{post.category}</span> and beyond
+              </p>
               <div className="grid md:grid-cols-3 gap-8">
                 {relatedPosts.map((relatedPost) => (
                   <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`} className="group">
