@@ -1,3 +1,5 @@
+import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -5,16 +7,73 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
 import { Button } from "@/components/ui/button";
-import { Heart, ExternalLink, Trash2, ShoppingBag } from "lucide-react";
+import { Heart, ExternalLink, Trash2, ShoppingBag, Share2, Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import StarRating from "@/components/StarRating";
 import { trackProductClick } from "@/lib/analytics";
+import { toast } from "sonner";
 
 const Wishlist = () => {
-  const { wishlist, removeFromWishlist } = useWishlist();
+  const { wishlist, removeFromWishlist, addToWishlist } = useWishlist();
   const { data: products, isLoading } = useActiveProducts();
+  const [searchParams] = useSearchParams();
+  const [copied, setCopied] = useState(false);
 
-  const wishlistProducts = products?.filter((p) => wishlist.includes(p.id)) || [];
+  // Check if viewing a shared wishlist
+  const sharedIds = searchParams.get("items");
+  const isSharedView = !!sharedIds;
+  const sharedProductIds = useMemo(() => 
+    sharedIds ? sharedIds.split(",").filter(Boolean) : [],
+    [sharedIds]
+  );
+
+  const displayIds = isSharedView ? sharedProductIds : wishlist;
+  const displayProducts = products?.filter((p) => displayIds.includes(p.id)) || [];
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/wishlist?items=${wishlist.join(",")}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "My RoomRefine Wishlist",
+          text: `Check out my curated home decor wishlist — ${wishlist.length} item${wishlist.length > 1 ? "s" : ""}!`,
+          url: shareUrl,
+        });
+      } catch {
+        // User cancelled or share failed, fall back to copy
+        copyToClipboard(shareUrl);
+      }
+    } else {
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Wishlist link copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy link");
+    }
+  };
+
+  const handleAddAllToWishlist = () => {
+    let added = 0;
+    sharedProductIds.forEach((id) => {
+      if (!wishlist.includes(id)) {
+        addToWishlist(id);
+        added++;
+      }
+    });
+    if (added > 0) {
+      toast.success(`Added ${added} item${added > 1 ? "s" : ""} to your wishlist!`);
+    } else {
+      toast.info("All items are already in your wishlist");
+    }
+  };
 
   return (
     <PageTransition>
@@ -24,27 +83,55 @@ const Wishlist = () => {
           <div className="container mx-auto px-6">
             <div className="max-w-5xl mx-auto">
               {/* Header */}
-              <div className="text-center mb-12">
+              <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 mb-4">
                   <Heart className="w-7 h-7 text-accent" />
                 </div>
                 <h1 className="font-display text-4xl md:text-5xl font-semibold mb-3">
-                  My Wishlist
+                  {isSharedView ? "Shared Wishlist" : "My Wishlist"}
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  {wishlistProducts.length > 0
-                    ? `${wishlistProducts.length} item${wishlistProducts.length > 1 ? "s" : ""} saved`
-                    : "Your wishlist is empty"}
+                  {displayProducts.length > 0
+                    ? `${displayProducts.length} item${displayProducts.length > 1 ? "s" : ""} ${isSharedView ? "shared" : "saved"}`
+                    : isSharedView ? "This shared wishlist is empty" : "Your wishlist is empty"}
                 </p>
               </div>
+
+              {/* Action Buttons */}
+              {displayProducts.length > 0 && (
+                <div className="flex justify-center gap-3 mb-8">
+                  {isSharedView ? (
+                    <Button
+                      onClick={handleAddAllToWishlist}
+                      className="rounded-full bg-accent text-accent-foreground hover:brightness-110"
+                    >
+                      <Heart className="w-4 h-4 mr-2" />
+                      Add All to My Wishlist
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleShare}
+                      variant="outline"
+                      className="rounded-full"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4 mr-2 text-green-500" />
+                      ) : (
+                        <Share2 className="w-4 h-4 mr-2" />
+                      )}
+                      {copied ? "Link Copied!" : "Share Wishlist"}
+                    </Button>
+                  )}
+                </div>
+              )}
 
               {isLoading ? (
                 <div className="flex justify-center py-20">
                   <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                 </div>
-              ) : wishlistProducts.length > 0 ? (
+              ) : displayProducts.length > 0 ? (
                 <div className="space-y-4">
-                  {wishlistProducts.map((product) => (
+                  {displayProducts.map((product) => (
                     <div
                       key={product.id}
                       className="flex items-center gap-4 md:gap-6 p-4 bg-card rounded-2xl border border-border group hover:shadow-md transition-shadow"
@@ -107,15 +194,17 @@ const Wishlist = () => {
                             <ExternalLink className="w-3.5 h-3.5 sm:ml-1.5" />
                           </a>
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="rounded-full text-muted-foreground hover:text-destructive text-xs h-9"
-                          onClick={() => removeFromWishlist(product.id)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                          Remove
-                        </Button>
+                        {!isSharedView && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="rounded-full text-muted-foreground hover:text-destructive text-xs h-9"
+                            onClick={() => removeFromWishlist(product.id)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
+                            Remove
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -123,7 +212,9 @@ const Wishlist = () => {
               ) : (
                 <div className="text-center py-20">
                   <p className="text-muted-foreground mb-6">
-                    Browse our shop and tap the heart icon on products you love!
+                    {isSharedView
+                      ? "The products in this shared wishlist are no longer available."
+                      : "Browse our shop and tap the heart icon on products you love!"}
                   </p>
                   <Button asChild className="rounded-full bg-accent text-accent-foreground hover:brightness-110">
                     <Link to="/shop">
