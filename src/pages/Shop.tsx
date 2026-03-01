@@ -48,6 +48,17 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<QuickViewProduct | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [userRatings, setUserRatings] = useState<Record<string, number>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("product_ratings") || "{}");
+    } catch { return {}; }
+  });
+
+  const handleUserRating = (productId: string, rating: number) => {
+    const updated = { ...userRatings, [productId]: rating };
+    setUserRatings(updated);
+    localStorage.setItem("product_ratings", JSON.stringify(updated));
+  };
   
   const { data: shopHeroSetting } = useSiteSetting('shop_hero');
   const shopHeroData = (shopHeroSetting?.value || {}) as Record<string, string>;
@@ -376,11 +387,16 @@ const Shop = () => {
                       
                       {/* Rating */}
                       <StarRating 
-                        rating={product.rating || 0} 
+                        rating={userRatings[product.id] || product.rating || 0} 
                         reviews={product.reviews || 0} 
                         size="sm"
-                        className="mb-3"
+                        className="mb-1"
+                        interactive
+                        onRatingChange={(r) => handleUserRating(product.id, r)}
                       />
+                      <p className="text-[10px] text-muted-foreground mb-2">
+                        {userRatings[product.id] ? "Your rating" : "Tap to rate"}
+                      </p>
                       
                       {/* Price */}
                       <div className="flex items-center justify-between">
