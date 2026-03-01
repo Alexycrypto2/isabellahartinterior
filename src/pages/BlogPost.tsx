@@ -5,8 +5,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
-import ShopTheLook from "@/components/ShopTheLook";
 import BlogCategoryLinks from "@/components/BlogCategoryLinks";
+import BlogProductShowcase from "@/components/BlogProductShowcase";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
@@ -184,6 +184,12 @@ const BlogPost = () => {
             className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent prose-img:rounded-lg"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
+
+          {/* Product Showcase */}
+          <div className="max-w-4xl mx-auto">
+            <BlogProductShowcase category={post.category} />
+          </div>
+
           {/* Internal Links to Product Categories */}
           <div className="max-w-3xl mx-auto">
             <BlogCategoryLinks category={post.category} />
