@@ -62,12 +62,14 @@ const AdminSettings = () => {
   const [aiTextProvider, setAiTextProvider] = useState('openai');
   const [aiTextKey, setAiTextKey] = useState('');
   const [aiTextModel, setAiTextModel] = useState('');
+  const [aiTextEndpoint, setAiTextEndpoint] = useState('');
   const [showTextKey, setShowTextKey] = useState(false);
 
   // AI API settings - Image
   const [aiImageProvider, setAiImageProvider] = useState('openai');
   const [aiImageKey, setAiImageKey] = useState('');
   const [aiImageModel, setAiImageModel] = useState('');
+  const [aiImageEndpoint, setAiImageEndpoint] = useState('');
   const [showImageKey, setShowImageKey] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
@@ -132,9 +134,11 @@ const AdminSettings = () => {
       setAiTextProvider(ai.text_provider || ai.provider || 'openai');
       setAiTextKey(ai.text_api_key || ai.api_key || '');
       setAiTextModel(ai.text_model || ai.model || '');
+      setAiTextEndpoint(ai.text_endpoint || '');
       setAiImageProvider(ai.image_provider || 'openai');
       setAiImageKey(ai.image_api_key || '');
       setAiImageModel(ai.image_model || '');
+      setAiImageEndpoint(ai.image_endpoint || '');
     }
   }, [settings]);
 
@@ -297,9 +301,11 @@ const AdminSettings = () => {
           text_provider: aiTextProvider,
           text_api_key: aiTextKey,
           text_model: aiTextModel,
+          text_endpoint: aiTextEndpoint,
           image_provider: aiImageProvider,
           image_api_key: aiImageKey,
           image_model: aiImageModel,
+          image_endpoint: aiImageEndpoint,
           // Keep backward-compatible fields for edge functions
           provider: aiTextProvider,
           api_key: aiTextKey,
@@ -317,6 +323,7 @@ const AdminSettings = () => {
       case 'openai': return 'gpt-4o-mini';
       case 'google': return 'gemini-2.0-flash';
       case 'anthropic': return 'claude-sonnet-4-20250514';
+      case 'custom': return '';
       default: return '';
     }
   };
@@ -325,6 +332,27 @@ const AdminSettings = () => {
     switch (provider) {
       case 'openai': return 'dall-e-3';
       case 'google': return 'imagen-3.0-generate-002';
+      case 'custom': return '';
+      default: return '';
+    }
+  };
+
+  const getTextKeyPlaceholder = (provider: string) => {
+    switch (provider) {
+      case 'openai': return 'sk-...';
+      case 'google': return 'AIza...';
+      case 'anthropic': return 'sk-ant-...';
+      case 'custom': return 'Your API key';
+      default: return '';
+    }
+  };
+
+  const getTextKeyHint = (provider: string) => {
+    switch (provider) {
+      case 'openai': return 'Get your key from platform.openai.com/api-keys';
+      case 'google': return 'Get your key from aistudio.google.com/apikey';
+      case 'anthropic': return 'Get your key from console.anthropic.com/settings/keys';
+      case 'custom': return 'Enter the API key for your custom provider';
       default: return '';
     }
   };
@@ -757,7 +785,7 @@ const AdminSettings = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Provider</Label>
-                    <Select value={aiTextProvider} onValueChange={(val) => { setAiTextProvider(val); setAiTextModel(getDefaultTextModel(val)); }}>
+                    <Select value={aiTextProvider} onValueChange={(val) => { setAiTextProvider(val); setAiTextModel(getDefaultTextModel(val)); if (val !== 'custom') setAiTextEndpoint(''); }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
@@ -765,9 +793,17 @@ const AdminSettings = () => {
                         <SelectItem value="openai">OpenAI (GPT)</SelectItem>
                         <SelectItem value="google">Google (Gemini)</SelectItem>
                         <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+                        <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  {aiTextProvider === 'custom' && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">API Endpoint URL</Label>
+                      <Input value={aiTextEndpoint} onChange={(e) => setAiTextEndpoint(e.target.value)} placeholder="https://api.example.com/v1/chat/completions" />
+                      <p className="text-xs text-muted-foreground">Must be OpenAI-compatible (e.g. Groq, Mistral, Together AI, Ollama, LM Studio)</p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">API Key</Label>
                     <div className="relative">
@@ -775,23 +811,19 @@ const AdminSettings = () => {
                         type={showTextKey ? 'text' : 'password'}
                         value={aiTextKey}
                         onChange={(e) => setAiTextKey(e.target.value)}
-                        placeholder={aiTextProvider === 'openai' ? 'sk-...' : aiTextProvider === 'google' ? 'AIza...' : 'sk-ant-...'}
+                        placeholder={getTextKeyPlaceholder(aiTextProvider)}
                         className="pr-10"
                       />
                       <button type="button" onClick={() => setShowTextKey(!showTextKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                         {showTextKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {aiTextProvider === 'openai' && 'Get your key from platform.openai.com/api-keys'}
-                      {aiTextProvider === 'google' && 'Get your key from aistudio.google.com/apikey'}
-                      {aiTextProvider === 'anthropic' && 'Get your key from console.anthropic.com/settings/keys'}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{getTextKeyHint(aiTextProvider)}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Model (optional)</Label>
-                    <Input value={aiTextModel} onChange={(e) => setAiTextModel(e.target.value)} placeholder={getDefaultTextModel(aiTextProvider)} />
-                    <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultTextModel(aiTextProvider)}</p>
+                    <Label className="text-sm font-medium">Model {aiTextProvider === 'custom' ? '' : '(optional)'}</Label>
+                    <Input value={aiTextModel} onChange={(e) => setAiTextModel(e.target.value)} placeholder={getDefaultTextModel(aiTextProvider) || 'e.g. llama-3.1-70b-versatile'} />
+                    {getDefaultTextModel(aiTextProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultTextModel(aiTextProvider)}</p>}
                   </div>
                   {aiTextKey && (
                     <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
@@ -818,16 +850,24 @@ const AdminSettings = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Provider</Label>
-                    <Select value={aiImageProvider} onValueChange={(val) => { setAiImageProvider(val); setAiImageModel(getDefaultImageModel(val)); }}>
+                    <Select value={aiImageProvider} onValueChange={(val) => { setAiImageProvider(val); setAiImageModel(getDefaultImageModel(val)); if (val !== 'custom') setAiImageEndpoint(''); }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="openai">OpenAI (DALL·E)</SelectItem>
                         <SelectItem value="google">Google (Imagen)</SelectItem>
+                        <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  {aiImageProvider === 'custom' && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">API Endpoint URL</Label>
+                      <Input value={aiImageEndpoint} onChange={(e) => setAiImageEndpoint(e.target.value)} placeholder="https://api.example.com/v1/images/generations" />
+                      <p className="text-xs text-muted-foreground">Must be OpenAI-compatible image generation endpoint</p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">API Key</Label>
                     <div className="relative">
@@ -835,7 +875,7 @@ const AdminSettings = () => {
                         type={showImageKey ? 'text' : 'password'}
                         value={aiImageKey}
                         onChange={(e) => setAiImageKey(e.target.value)}
-                        placeholder={aiImageProvider === 'openai' ? 'sk-...' : 'AIza...'}
+                        placeholder={aiImageProvider === 'custom' ? 'Your API key' : aiImageProvider === 'openai' ? 'sk-...' : 'AIza...'}
                         className="pr-10"
                       />
                       <button type="button" onClick={() => setShowImageKey(!showImageKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
@@ -845,12 +885,13 @@ const AdminSettings = () => {
                     <p className="text-xs text-muted-foreground">
                       {aiImageProvider === 'openai' && 'Same OpenAI key works for DALL·E — platform.openai.com/api-keys'}
                       {aiImageProvider === 'google' && 'Same Google key works for Imagen — aistudio.google.com/apikey'}
+                      {aiImageProvider === 'custom' && 'Enter the API key for your custom image provider'}
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Model (optional)</Label>
-                    <Input value={aiImageModel} onChange={(e) => setAiImageModel(e.target.value)} placeholder={getDefaultImageModel(aiImageProvider)} />
-                    <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultImageModel(aiImageProvider)}</p>
+                    <Label className="text-sm font-medium">Model {aiImageProvider === 'custom' ? '' : '(optional)'}</Label>
+                    <Input value={aiImageModel} onChange={(e) => setAiImageModel(e.target.value)} placeholder={getDefaultImageModel(aiImageProvider) || 'e.g. stable-diffusion-xl'} />
+                    {getDefaultImageModel(aiImageProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultImageModel(aiImageProvider)}</p>}
                   </div>
                   {aiImageKey && (
                     <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">

@@ -16,15 +16,16 @@ async function getCustomImageConfig() {
     if (data?.value) {
       const val = data.value as any;
       if (val.image_api_key) {
-        return { provider: val.image_provider || "openai", api_key: val.image_api_key, model: val.image_model || "" };
+        return { provider: val.image_provider || "openai", api_key: val.image_api_key, model: val.image_model || "", endpoint: val.image_endpoint || "" };
       }
     }
   } catch { /* no config */ }
   return null;
 }
 
-async function generateWithOpenAIDalle(apiKey: string, model: string, prompt: string): Promise<string> {
-  const response = await fetch("https://api.openai.com/v1/images/generations", {
+async function generateWithOpenAIDalle(apiKey: string, model: string, prompt: string, customUrl?: string): Promise<string> {
+  const url = customUrl || "https://api.openai.com/v1/images/generations";
+  const response = await fetch(url, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -126,6 +127,9 @@ serve(async (req) => {
         console.log(`Using fallback image provider: ${customConfig.provider}`);
         if (customConfig.provider === "google") {
           imageData = await generateWithGoogleImagen(customConfig.api_key, customConfig.model, prompt);
+        } else if (customConfig.provider === "custom" && customConfig.endpoint) {
+          // Custom OpenAI-compatible image endpoint
+          imageData = await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);
         } else {
           imageData = await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt);
         }

@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import {
   Plus, Edit, Trash2, Eye, EyeOff, FileText, Package, Users, TrendingUp,
-  Clock, ArrowRight, Image, Settings, BarChart3, LayoutDashboard, Bot, Zap, AlertTriangle, CheckCircle2,
+  Clock, ArrowRight, Image, Settings, BarChart3, LayoutDashboard, Bot, Zap, AlertTriangle, CheckCircle2, Info,
 } from 'lucide-react';
 
 const Admin = () => {
@@ -248,7 +248,7 @@ const Admin = () => {
                       <div className="flex items-center gap-1.5">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                         <span className="text-xs font-medium">
-                          Fallback: {textProvider === 'openai' ? 'OpenAI' : textProvider === 'google' ? 'Gemini' : textProvider === 'anthropic' ? 'Claude' : 'Configured'}
+                          Fallback: {textProvider === 'openai' ? 'OpenAI' : textProvider === 'google' ? 'Gemini' : textProvider === 'anthropic' ? 'Claude' : textProvider === 'custom' ? 'Custom' : 'Configured'}
                         </span>
                       </div>
                     ) : (
@@ -269,7 +269,7 @@ const Admin = () => {
                       <div className="flex items-center gap-1.5">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                         <span className="text-xs font-medium">
-                          Fallback: {imageProvider === 'openai' ? 'DALL·E' : imageProvider === 'google' ? 'Imagen' : 'Configured'}
+                          Fallback: {imageProvider === 'openai' ? 'DALL·E' : imageProvider === 'google' ? 'Imagen' : imageProvider === 'custom' ? 'Custom' : 'Configured'}
                         </span>
                       </div>
                     ) : (
@@ -289,6 +289,13 @@ const Admin = () => {
                     </p>
                   </div>
                 )}
+
+                <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border">
+                  <p className="text-xs text-muted-foreground">
+                    <Info className="h-3 w-3 inline mr-1 text-primary" />
+                    Built-in AI credits are usage-based. When exhausted, you'll get a notification and the system auto-switches to your fallback keys. To check or top up credits, visit your <strong className="text-foreground">Lovable workspace settings → Usage</strong>.
+                  </p>
+                </div>
               </CardContent>
             </Card>
 

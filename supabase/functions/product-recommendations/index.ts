@@ -135,7 +135,11 @@ serve(async (req) => {
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const sb = createClient(supabaseUrl, supabaseKey);
         const { data } = await sb.from("site_settings").select("value").eq("key", "ai_api").single();
-        if (data?.value && (data.value as any).api_key) return data.value as { provider: string; api_key: string; model?: string };
+        if (data?.value) {
+          const val = data.value as any;
+          const key = val.text_api_key || val.api_key;
+          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint };
+        }
       } catch { /* no config */ }
       return null;
     }
@@ -227,9 +231,11 @@ Please recommend the best products for me!`;
           });
         }
 
-        const url = provider === "google"
-          ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-          : "https://api.openai.com/v1/chat/completions";
+        const url = provider === "custom" && customConfig.endpoint
+          ? customConfig.endpoint
+          : provider === "google"
+            ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+            : "https://api.openai.com/v1/chat/completions";
 
         response = await fetch(url, {
           method: "POST",

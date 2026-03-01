@@ -28,14 +28,24 @@ serve(async (req) => {
           .select("value")
           .eq("key", "ai_api")
           .single();
-        if (data?.value && (data.value as any).api_key) {
-          return data.value as { provider: string; api_key: string; model?: string };
+        if (data?.value) {
+          const val = data.value as any;
+          const key = val.text_api_key || val.api_key;
+          if (key) {
+            return {
+              provider: val.text_provider || val.provider || "openai",
+              api_key: key,
+              model: val.text_model || val.model,
+              endpoint: val.text_endpoint,
+            };
+          }
         }
       } catch { /* no custom config */ }
       return null;
     }
 
-    function getProviderUrl(provider: string) {
+    function getProviderUrl(provider: string, customEndpoint?: string) {
+      if (provider === "custom" && customEndpoint) return customEndpoint;
       switch (provider) {
         case "openai": return "https://api.openai.com/v1/chat/completions";
         case "google": return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
@@ -156,7 +166,7 @@ Remember: This post should be the BEST resource on this topic. Make it comprehen
         usedFallback = true;
         const provider = customConfig.provider || "openai";
         const model = customConfig.model || getDefaultModel(provider);
-        const url = getProviderUrl(provider);
+        const url = getProviderUrl(provider, customConfig.endpoint);
 
         if (provider === "anthropic") {
           // Anthropic uses a different API format
