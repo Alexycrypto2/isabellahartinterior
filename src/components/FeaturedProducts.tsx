@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { ExternalLink, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
-import StarRating from "@/components/StarRating";
+import ProductReviewForm from "@/components/ProductReviewForm";
 import { useActiveProducts, Product } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackProductClick } from "@/lib/analytics";
@@ -23,17 +22,6 @@ const customerNames = ["Sarah M.", "Jessica L.", "Emily R.", "Amanda K.", "Rache
 
 const FeaturedProducts = () => {
   const { data: products, isLoading } = useActiveProducts();
-  const [userRatings, setUserRatings] = useState<Record<string, number>>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("product_ratings") || "{}");
-    } catch { return {}; }
-  });
-
-  const handleUserRating = (productId: string, rating: number) => {
-    const updated = { ...userRatings, [productId]: rating };
-    setUserRatings(updated);
-    localStorage.setItem("product_ratings", JSON.stringify(updated));
-  };
 
   // Get featured products first, then fill with latest products up to 6
   const featuredProducts = products
@@ -168,19 +156,6 @@ const FeaturedProducts = () => {
                     </span>
                   </div>
 
-                  {/* Rating */}
-                  <StarRating 
-                    rating={userRatings[product.id] || product.rating || 0} 
-                    reviews={product.reviews || 0}
-                    size="sm"
-                    className="mb-1"
-                    interactive
-                    onRatingChange={(r) => handleUserRating(product.id, r)}
-                  />
-                  <p className="text-[10px] text-muted-foreground mb-3">
-                    {userRatings[product.id] ? "Your rating" : "Tap to rate"}
-                  </p>
-                  
                   {/* Price & CTA */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -211,6 +186,13 @@ const FeaturedProducts = () => {
                       </a>
                     </Button>
                   </div>
+
+                  {/* Review */}
+                  <ProductReviewForm
+                    productId={product.id}
+                    productRating={product.rating || 0}
+                    productReviews={product.reviews || 0}
+                  />
                 </div>
               </article>
             ))}

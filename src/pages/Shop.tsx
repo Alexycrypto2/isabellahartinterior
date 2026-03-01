@@ -10,7 +10,7 @@ import ProductQuickView from "@/components/ProductQuickView";
 import { useActiveProducts, useProductCategories, Product } from "@/hooks/useProducts";
 import JsonLd from "@/components/JsonLd";
 import { ExternalLink, SlidersHorizontal, X, Heart, Eye } from "lucide-react";
-import StarRating from "@/components/StarRating";
+import ProductReviewForm from "@/components/ProductReviewForm";
 import shopHeroDefault from "@/assets/shop-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -48,17 +48,7 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<QuickViewProduct | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  const [userRatings, setUserRatings] = useState<Record<string, number>>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("product_ratings") || "{}");
-    } catch { return {}; }
-  });
-
-  const handleUserRating = (productId: string, rating: number) => {
-    const updated = { ...userRatings, [productId]: rating };
-    setUserRatings(updated);
-    localStorage.setItem("product_ratings", JSON.stringify(updated));
-  };
+  
   
   const { data: shopHeroSetting } = useSiteSetting('shop_hero');
   const shopHeroData = (shopHeroSetting?.value || {}) as Record<string, string>;
@@ -385,21 +375,8 @@ const Shop = () => {
                         {product.name}
                       </h3>
                       
-                      {/* Rating */}
-                      <StarRating 
-                        rating={userRatings[product.id] || product.rating || 0} 
-                        reviews={product.reviews || 0} 
-                        size="sm"
-                        className="mb-1"
-                        interactive
-                        onRatingChange={(r) => handleUserRating(product.id, r)}
-                      />
-                      <p className="text-[10px] text-muted-foreground mb-2">
-                        {userRatings[product.id] ? "Your rating" : "Tap to rate"}
-                      </p>
-                      
                       {/* Price */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-semibold text-foreground">
                             {product.price}
@@ -420,6 +397,13 @@ const Shop = () => {
                           <ExternalLink className="w-4 h-4" />
                         </a>
                       </div>
+
+                      {/* Review */}
+                      <ProductReviewForm
+                        productId={product.id}
+                        productRating={product.rating || 0}
+                        productReviews={product.reviews || 0}
+                      />
                     </div>
                   </article>
                 ))}
