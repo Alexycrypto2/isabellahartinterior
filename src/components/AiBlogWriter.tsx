@@ -53,6 +53,53 @@ type Step = "input" | "generating-text" | "generating-image" | "done" | "error";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
+const analyzeSeoScore = (data: BlogPostData, keywordsStr: string) => {
+  const plain = stripHtml(data.content);
+  const wordCount = plain.split(/\s+/).length;
+  const h2Count = (data.content.match(/<h2[\s>]/gi) || []).length;
+  const h3Count = (data.content.match(/<h3[\s>]/gi) || []).length;
+  const hasLists = /<ul[\s>]/i.test(data.content) || /<ol[\s>]/i.test(data.content);
+  const hasBlockquote = /<blockquote[\s>]/i.test(data.content);
+  const hasBold = /<strong[\s>]/i.test(data.content) || /<b[\s>]/i.test(data.content);
+  const paragraphs = data.content.match(/<p[\s>]/gi) || [];
+  const sentencesPerPara = paragraphs.length > 0 ? Math.round(wordCount / paragraphs.length / 15) : 0;
+
+  const checks = [
+    { label: "Title length (50-60 chars)", pass: data.meta_title.length >= 40 && data.meta_title.length <= 60, weight: 10 },
+    { label: "Meta description (140-160 chars)", pass: data.meta_description.length >= 120 && data.meta_description.length <= 160, weight: 10 },
+    { label: "Word count (1200+ words)", pass: wordCount >= 1200, weight: 15, detail: `${wordCount} words` },
+    { label: "H2 headings (4-6 recommended)", pass: h2Count >= 3 && h2Count <= 8, weight: 10, detail: `${h2Count} found` },
+    { label: "H3 subheadings used", pass: h3Count >= 1, weight: 5, detail: `${h3Count} found` },
+    { label: "Lists for scannability", pass: hasLists, weight: 8 },
+    { label: "Bold/emphasis used", pass: hasBold, weight: 5 },
+    { label: "Blockquotes for depth", pass: hasBlockquote, weight: 3 },
+    { label: "Short paragraphs (readable)", pass: sentencesPerPara <= 4, weight: 7 },
+    { label: "Slug is concise (≤5 words)", pass: data.slug.split("-").length <= 6, weight: 5, detail: `${data.slug.split("-").length} words` },
+    { label: "Featured image included", pass: !!data.image_url, weight: 7 },
+    { label: "Excerpt provided", pass: data.excerpt.length >= 50, weight: 5 },
+  ];
+
+  // Keyword-specific checks
+  if (keywordsStr.trim()) {
+    const primaryKw = keywordsStr.split(",")[0].trim().toLowerCase();
+    checks.push(
+      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 10 },
+    );
+    const first100Words = plain.split(/\s+/).slice(0, 100).join(" ").toLowerCase();
+    checks.push(
+      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 10 },
+    );
+  }
+
+  const maxScore = checks.reduce((s, c) => s + c.weight, 0);
+  const earned = checks.filter((c) => c.pass).reduce((s, c) => s + c.weight, 0);
+  const score = Math.round((earned / maxScore) * 100);
+  const grade: string = score >= 90 ? "A+" : score >= 80 ? "A" : score >= 70 ? "B" : score >= 60 ? "C" : "D";
+  const verdict = score >= 85 ? "Excellent — strong ranking potential!" : score >= 70 ? "Good — solid foundation, minor tweaks possible." : score >= 55 ? "Fair — consider regenerating for better results." : "Needs work — try a different topic or keywords.";
+
+  return { score, grade, verdict, checks, wordCount };
+};
+
 const analyzeKeywordDensity = (content: string, title: string, metaDesc: string, keywordsStr: string) => {
   if (!keywordsStr.trim()) return [];
   const plainContent = stripHtml(content).toLowerCase();
@@ -406,6 +453,61 @@ const AiBlogWriter = ({
                 )}
               </div>
             </div>
+
+            {/* SEO Score Card */}
+            {(() => {
+              const seo = analyzeSeoScore(generatedData, keywords);
+              return (
+                <div className="border border-border rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-accent" />
+                      <p className="text-xs font-semibold text-foreground">SEO Performance Score</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-2xl font-bold ${
+                        seo.score >= 80 ? "text-accent" : seo.score >= 60 ? "text-foreground" : "text-destructive"
+                      }`}>{seo.score}</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        seo.score >= 80 ? "bg-accent/15 text-accent" : seo.score >= 60 ? "bg-muted text-foreground" : "bg-destructive/10 text-destructive"
+                      }`}>{seo.grade}</span>
+                    </div>
+                  </div>
+
+                  {/* Score bar */}
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        seo.score >= 80 ? "bg-accent" : seo.score >= 60 ? "bg-foreground/50" : "bg-destructive"
+                      }`}
+                      style={{ width: `${seo.score}%` }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{seo.verdict}</p>
+
+                  {/* Checklist */}
+                  <div className="grid grid-cols-1 gap-1.5 pt-1">
+                    {seo.checks.map((check, i) => (
+                      <div key={i} className="flex items-center gap-2 text-[11px]">
+                        <span className={check.pass ? "text-accent" : "text-muted-foreground"}>
+                          {check.pass ? "✓" : "✗"}
+                        </span>
+                        <span className={check.pass ? "text-foreground" : "text-muted-foreground"}>
+                          {check.label}
+                        </span>
+                        {check.detail && (
+                          <span className="text-muted-foreground ml-auto">({check.detail})</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground pt-1">
+                    {seo.wordCount.toLocaleString()} words · Score based on {seo.checks.length} on-page SEO factors
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* Keyword Density Checker */}
             {keywords.trim() && (() => {
