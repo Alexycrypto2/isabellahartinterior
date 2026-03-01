@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2 } from 'lucide-react';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
 const AdminSettings = () => {
@@ -279,45 +279,54 @@ const AdminSettings = () => {
 
   return (
     <AdminLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8 max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-medium">Site Settings</h1>
-          <p className="text-muted-foreground mt-1">Customize your website content and appearance</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+              <Settings2 className="w-5 h-5 text-accent" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl sm:text-3xl font-medium">Site Settings</h1>
+              <p className="text-sm text-muted-foreground">Customize your website content and appearance</p>
+            </div>
+          </div>
         </div>
 
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid grid-cols-7 w-full max-w-4xl">
-            <TabsTrigger value="hero" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Hero
-            </TabsTrigger>
-            <TabsTrigger value="shop" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Shop
-            </TabsTrigger>
-            <TabsTrigger value="about" className="flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              About
-            </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Contact
-            </TabsTrigger>
-            <TabsTrigger value="social" className="flex items-center gap-2">
-              <Share2 className="h-4 w-4" />
-              Social
-            </TabsTrigger>
-            <TabsTrigger value="newsletter" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              Newsletter
-            </TabsTrigger>
-            <TabsTrigger value="footer" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Footer
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-11 p-1 gap-1">
+              <TabsTrigger value="hero" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Home className="h-3.5 w-3.5" />
+                Hero
+              </TabsTrigger>
+              <TabsTrigger value="shop" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <FileText className="h-3.5 w-3.5" />
+                Shop
+              </TabsTrigger>
+              <TabsTrigger value="about" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Info className="h-3.5 w-3.5" />
+                About
+              </TabsTrigger>
+              <TabsTrigger value="contact" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Mail className="h-3.5 w-3.5" />
+                Contact
+              </TabsTrigger>
+              <TabsTrigger value="social" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Share2 className="h-3.5 w-3.5" />
+                Social
+              </TabsTrigger>
+              <TabsTrigger value="newsletter" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Bell className="h-3.5 w-3.5" />
+                Newsletter
+              </TabsTrigger>
+              <TabsTrigger value="footer" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <FileText className="h-3.5 w-3.5" />
+                Footer
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Hero Section */}
           <TabsContent value="hero">
@@ -328,28 +337,33 @@ const AdminSettings = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Title</Label>
+                  <Label className="text-sm font-medium">Title</Label>
                   <Input value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Curated Home Finds" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Subtitle</Label>
+                  <Label className="text-sm font-medium">Subtitle</Label>
                   <Textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Transform your space..." rows={3} />
                 </div>
-                <div className="space-y-2">
-                  <Label>Background Image</Label>
-                  <div className="flex gap-4">
-                    {heroImage && <img src={heroImage} alt="Hero" className="w-32 h-20 object-cover rounded-lg" />}
-                    <Button type="button" variant="outline" onClick={() => triggerUpload('hero')} disabled={isUploading}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      {isUploading && uploadTarget === 'hero' ? 'Uploading...' : 'Upload Image'}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Background Image</Label>
+                  {heroImage && (
+                    <img src={heroImage} alt="Hero preview" className="w-full h-32 object-cover rounded-lg border border-border" />
+                  )}
+                  <div className="flex items-center gap-3">
+                    <Button type="button" variant="outline" size="sm" onClick={() => triggerUpload('hero')} disabled={isUploading}>
+                      <Upload className="mr-2 h-3.5 w-3.5" />
+                      {isUploading && uploadTarget === 'hero' ? 'Uploading...' : 'Upload'}
                     </Button>
+                    <span className="text-xs text-muted-foreground">or</span>
+                    <Input value={heroImage} onChange={(e) => setHeroImage(e.target.value)} placeholder="Paste image URL" className="flex-1 text-sm" />
                   </div>
-                  <Input value={heroImage} onChange={(e) => setHeroImage(e.target.value)} placeholder="Or paste image URL" className="mt-2" />
                 </div>
-                <Button onClick={saveHero} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Hero Settings
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveHero} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Hero Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -363,28 +377,33 @@ const AdminSettings = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Title</Label>
+                  <Label className="text-sm font-medium">Title</Label>
                   <Input value={shopTitle} onChange={(e) => setShopTitle(e.target.value)} placeholder="Shop Our Collection" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Subtitle</Label>
+                  <Label className="text-sm font-medium">Subtitle</Label>
                   <Textarea value={shopSubtitle} onChange={(e) => setShopSubtitle(e.target.value)} placeholder="Handpicked pieces..." rows={3} />
                 </div>
-                <div className="space-y-2">
-                  <Label>Background Image</Label>
-                  <div className="flex gap-4">
-                    {shopImage && <img src={shopImage} alt="Shop" className="w-32 h-20 object-cover rounded-lg" />}
-                    <Button type="button" variant="outline" onClick={() => triggerUpload('shop')} disabled={isUploading}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      {isUploading && uploadTarget === 'shop' ? 'Uploading...' : 'Upload Image'}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Background Image</Label>
+                  {shopImage && (
+                    <img src={shopImage} alt="Shop preview" className="w-full h-32 object-cover rounded-lg border border-border" />
+                  )}
+                  <div className="flex items-center gap-3">
+                    <Button type="button" variant="outline" size="sm" onClick={() => triggerUpload('shop')} disabled={isUploading}>
+                      <Upload className="mr-2 h-3.5 w-3.5" />
+                      {isUploading && uploadTarget === 'shop' ? 'Uploading...' : 'Upload'}
                     </Button>
+                    <span className="text-xs text-muted-foreground">or</span>
+                    <Input value={shopImage} onChange={(e) => setShopImage(e.target.value)} placeholder="Paste image URL" className="flex-1 text-sm" />
                   </div>
-                  <Input value={shopImage} onChange={(e) => setShopImage(e.target.value)} placeholder="Or paste image URL" className="mt-2" />
                 </div>
-                <Button onClick={saveShopHero} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Shop Settings
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveShopHero} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Shop Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -398,28 +417,33 @@ const AdminSettings = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Title</Label>
+                  <Label className="text-sm font-medium">Title</Label>
                   <Input value={aboutTitle} onChange={(e) => setAboutTitle(e.target.value)} placeholder="About Us" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Description</Label>
+                  <Label className="text-sm font-medium">Description</Label>
                   <Textarea value={aboutDescription} onChange={(e) => setAboutDescription(e.target.value)} placeholder="Tell your story..." rows={5} />
                 </div>
-                <div className="space-y-2">
-                  <Label>Image</Label>
-                  <div className="flex gap-4">
-                    {aboutImage && <img src={aboutImage} alt="About" className="w-32 h-20 object-cover rounded-lg" />}
-                    <Button type="button" variant="outline" onClick={() => triggerUpload('about')} disabled={isUploading}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      {isUploading && uploadTarget === 'about' ? 'Uploading...' : 'Upload Image'}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Image</Label>
+                  {aboutImage && (
+                    <img src={aboutImage} alt="About preview" className="w-full h-32 object-cover rounded-lg border border-border" />
+                  )}
+                  <div className="flex items-center gap-3">
+                    <Button type="button" variant="outline" size="sm" onClick={() => triggerUpload('about')} disabled={isUploading}>
+                      <Upload className="mr-2 h-3.5 w-3.5" />
+                      {isUploading && uploadTarget === 'about' ? 'Uploading...' : 'Upload'}
                     </Button>
+                    <span className="text-xs text-muted-foreground">or</span>
+                    <Input value={aboutImage} onChange={(e) => setAboutImage(e.target.value)} placeholder="Paste image URL" className="flex-1 text-sm" />
                   </div>
-                  <Input value={aboutImage} onChange={(e) => setAboutImage(e.target.value)} placeholder="Or paste image URL" className="mt-2" />
                 </div>
-                <Button onClick={saveAbout} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save About Settings
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveAbout} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save About Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -444,10 +468,12 @@ const AdminSettings = () => {
                   <Label>Address</Label>
                   <Textarea value={contactAddress} onChange={(e) => setContactAddress(e.target.value)} placeholder="Your business address" rows={2} />
                 </div>
-                <Button onClick={saveContact} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Contact Settings
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveContact} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Contact Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -490,10 +516,12 @@ const AdminSettings = () => {
                     <Input value={socialLinkedin} onChange={(e) => setSocialLinkedin(e.target.value)} placeholder="https://linkedin.com/in/yourusername" />
                   </div>
                 </div>
-                <Button onClick={saveSocialMedia} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Social Media Links
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveSocialMedia} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Social Media Links
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -595,10 +623,12 @@ const AdminSettings = () => {
                   </div>
                 </div>
 
-                <Button onClick={saveNewsletterSettings} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Newsletter Settings
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveNewsletterSettings} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Newsletter Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -615,10 +645,12 @@ const AdminSettings = () => {
                   <Label>Copyright Text</Label>
                   <Input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2024 Your Brand. All rights reserved." />
                 </div>
-                <Button onClick={saveFooter} disabled={updateMutation.isPending}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Footer Settings
-                </Button>
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveFooter} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Footer Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
