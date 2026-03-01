@@ -19,6 +19,25 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+    // Fetch existing published blog posts for internal linking
+    async function getExistingPosts() {
+      try {
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const { data } = await supabase
+          .from("blog_posts")
+          .select("title, slug, category, excerpt")
+          .eq("published", true)
+          .order("created_at", { ascending: false })
+          .limit(50);
+        return data || [];
+      } catch { return []; }
+    }
+
+    const existingPosts = await getExistingPosts();
+    const baseUrl = "https://roomeefine.lovable.app";
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
     // Fetch custom AI API settings from site_settings
     async function getCustomAiConfig() {
       try {
@@ -63,6 +82,23 @@ serve(async (req) => {
       }
     }
 
+    // Build internal links reference for AI
+    const internalLinksRef = existingPosts.length > 0
+      ? `\n\nINTERNAL LINKING (CRITICAL FOR SEO):
+You MUST include 3-5 internal links to existing blog posts where relevant. Use actual HTML anchor tags with the full URL.
+
+EXISTING BLOG POSTS ON THE SITE:
+${existingPosts.map(p => `- "${p.title}" (Category: ${p.category}) → ${baseUrl}/blog/${p.slug}`).join("\n")}
+
+INTERNAL LINKING RULES:
+- Insert links naturally within paragraphs — never list them separately
+- Use descriptive anchor text (not "click here") that includes relevant keywords
+- Link to posts in the same or related categories first
+- Space links throughout the content — don't cluster them
+- Format: <a href="${baseUrl}/blog/slug">descriptive anchor text</a>
+- Example: "For more tips, check out our guide on <a href="${baseUrl}/blog/hygge-styling">creating a hygge-inspired living space</a>."`
+      : "";
+
     const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "RoomRefine", a premium home decor and interior design brand.
 
 Your mission is to write blog posts that RANK ON PAGE 1 OF GOOGLE. Every post must follow proven SEO frameworks.
@@ -74,7 +110,6 @@ WRITING PRINCIPLES:
 - Include actionable, specific advice (not generic fluff)
 - Use power words: "proven", "essential", "stunning", "transform", "effortless"
 - Write in second person ("you") to create personal connection
-- Include internal linking suggestions as [LINK: anchor text] placeholders
 
 SEO STRUCTURE (MANDATORY):
 - Title: Include primary keyword near the beginning, under 60 chars, use numbers or power words
@@ -95,6 +130,7 @@ IMAGE PROMPT RULES:
 - Describe a photorealistic interior design scene that matches the topic
 - Specify: room type, lighting (natural golden hour preferred), camera angle, color palette, styling details
 - Always include: "editorial interior design photography, high-end magazine quality, 4K, shallow depth of field"
+${internalLinksRef}
 
 You MUST return structured data using the "generate_blog_post" tool.`;
 
