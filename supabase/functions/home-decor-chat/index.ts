@@ -65,7 +65,6 @@ function validateMessages(messages: unknown): { valid: boolean; error?: string }
   return { valid: true };
 }
 
-// Simple in-memory cache for DB content (refreshes every 5 minutes)
 let contentCache: { blogs: string; products: string; fetchedAt: number } | null = null;
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -80,18 +79,8 @@ async function fetchDynamicContent(): Promise<{ blogs: string; products: string 
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const [blogsRes, productsRes] = await Promise.all([
-    supabase
-      .from("blog_posts")
-      .select("title, slug, excerpt, category")
-      .eq("published", true)
-      .order("created_at", { ascending: false })
-      .limit(30),
-    supabase
-      .from("products")
-      .select("name, slug, description, price, original_price, category, badge, rating")
-      .eq("is_active", true)
-      .order("is_featured", { ascending: false })
-      .limit(40),
+    supabase.from("blog_posts").select("title, slug, excerpt, category").eq("published", true).order("created_at", { ascending: false }).limit(30),
+    supabase.from("products").select("name, slug, description, price, original_price, category, badge, rating").eq("is_active", true).order("is_featured", { ascending: false }).limit(40),
   ]);
 
   const baseUrl = "https://roomeefine.lovable.app";
@@ -117,6 +106,17 @@ async function fetchDynamicContent(): Promise<{ blogs: string; products: string 
   return { blogs: blogsText, products: productsText };
 }
 
+async function getCustomAiConfig() {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const sb = createClient(supabaseUrl, supabaseKey);
+    const { data } = await sb.from("site_settings").select("value").eq("key", "ai_api").single();
+    if (data?.value && (data.value as any).api_key) return data.value as { provider: string; api_key: string; model?: string };
+  } catch { /* no config */ }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -140,9 +140,7 @@ serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("Service configuration error");
 
-    // Fetch latest content from database
     const { blogs, products } = await fetchDynamicContent();
     const baseUrl = "https://roomeefine.lovable.app";
 
@@ -203,37 +201,71 @@ Always include direct links using markdown format:
 ⚠️ Suggest professional installation for heavy fixtures
 ⚠️ Fire safety reminders for candles/lighting`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
-        stream: true,
-      }),
-    });
+    const allMessages = [{ role: "system", content: systemPrompt }, ...messages];
 
-    if (!response.ok) {
+    // Try Lovable AI first
+    let response: Response | null = null;
+
+    if (LOVABLE_API_KEY) {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: allMessages, stream: true }),
+      });
+
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Service temporarily unavailable." }), {
+        console.log("Lovable credits exhausted, trying fallback...");
+        response = null;
+      }
+    }
+
+    // Fallback to custom API key
+    if (!response || !response.ok) {
+      const customConfig = await getCustomAiConfig();
+      if (customConfig) {
+        const provider = customConfig.provider || "openai";
+        const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
+
+        if (provider === "anthropic") {
+          const anthropicResp = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+            body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: messages.map((m: any) => ({ role: m.role, content: m.content })), stream: true }),
+          });
+          if (!anthropicResp.ok) throw new Error("Fallback AI error");
+          return new Response(anthropicResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+        }
+
+        const url = provider === "google"
+          ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+          : "https://api.openai.com/v1/chat/completions";
+
+        response = await fetch(url, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages: allMessages, stream: true }),
+        });
+      } else if (!response || response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Add your own API key in Admin → Settings → AI API." }), {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      console.error("AI gateway error:", response.status);
+    }
+
+    if (!response!.ok) {
+      console.error("AI error:", response!.status);
       return new Response(JSON.stringify({ error: "Failed to get AI response" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
+    return new Response(response!.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {

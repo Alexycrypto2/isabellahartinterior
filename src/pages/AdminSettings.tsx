@@ -11,7 +11,8 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2 } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
 const AdminSettings = () => {
@@ -56,6 +57,12 @@ const AdminSettings = () => {
   const [newsletterDelay, setNewsletterDelay] = useState(DEFAULT_NEWSLETTER_SETTINGS.delay_seconds);
   const [newsletterScroll, setNewsletterScroll] = useState(DEFAULT_NEWSLETTER_SETTINGS.scroll_threshold);
   const [newsletterExpiry, setNewsletterExpiry] = useState(DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
+
+  // AI API settings
+  const [aiProvider, setAiProvider] = useState('openai');
+  const [aiApiKey, setAiApiKey] = useState('');
+  const [aiModel, setAiModel] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -113,6 +120,12 @@ const AdminSettings = () => {
       setNewsletterDelay(newsletter.delay_seconds ?? DEFAULT_NEWSLETTER_SETTINGS.delay_seconds);
       setNewsletterScroll(newsletter.scroll_threshold ?? DEFAULT_NEWSLETTER_SETTINGS.scroll_threshold);
       setNewsletterExpiry(newsletter.expiry_days ?? DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
+
+      // AI API
+      const ai = getSetting('ai_api') as Record<string, string>;
+      setAiProvider(ai.provider || 'openai');
+      setAiApiKey(ai.api_key || '');
+      setAiModel(ai.model || '');
     }
   }, [settings]);
 
@@ -267,6 +280,31 @@ const AdminSettings = () => {
     }
   };
 
+  const saveAiSettings = async () => {
+    try {
+      await updateMutation.mutateAsync({
+        key: 'ai_api',
+        value: {
+          provider: aiProvider,
+          api_key: aiApiKey,
+          model: aiModel,
+        },
+      });
+      toast({ title: 'Saved', description: 'AI API settings updated successfully.' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save AI settings.', variant: 'destructive' });
+    }
+  };
+
+  const getDefaultModel = (provider: string) => {
+    switch (provider) {
+      case 'openai': return 'gpt-4o-mini';
+      case 'google': return 'gemini-2.0-flash';
+      case 'anthropic': return 'claude-sonnet-4-20250514';
+      default: return '';
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -324,6 +362,10 @@ const AdminSettings = () => {
               <TabsTrigger value="footer" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
                 <FileText className="h-3.5 w-3.5" />
                 Footer
+              </TabsTrigger>
+              <TabsTrigger value="ai" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Bot className="h-3.5 w-3.5" />
+                AI API
               </TabsTrigger>
             </TabsList>
           </div>
@@ -649,6 +691,90 @@ const AdminSettings = () => {
                   <Button onClick={saveFooter} disabled={updateMutation.isPending} className="rounded-full">
                     <Save className="mr-2 h-4 w-4" />
                     Save Footer Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* AI API Section */}
+          <TabsContent value="ai">
+            <Card>
+              <CardHeader>
+                <CardTitle>AI API Configuration</CardTitle>
+                <CardDescription>
+                  Add your own AI API key as a fallback when built-in AI credits are exhausted. Your key is stored securely and only used by backend functions.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                  <p className="text-sm text-muted-foreground">
+                    <strong className="text-foreground">How it works:</strong> The site uses built-in AI credits first. If credits run out (402 error), it automatically falls back to your custom API key below.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">AI Provider</Label>
+                  <Select value={aiProvider} onValueChange={(val) => { setAiProvider(val); setAiModel(getDefaultModel(val)); }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="openai">OpenAI</SelectItem>
+                      <SelectItem value="google">Google (Gemini)</SelectItem>
+                      <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">API Key</Label>
+                  <div className="relative">
+                    <Input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={aiApiKey}
+                      onChange={(e) => setAiApiKey(e.target.value)}
+                      placeholder={aiProvider === 'openai' ? 'sk-...' : aiProvider === 'google' ? 'AIza...' : 'sk-ant-...'}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {aiProvider === 'openai' && 'Get your key from platform.openai.com/api-keys'}
+                    {aiProvider === 'google' && 'Get your key from aistudio.google.com/apikey'}
+                    {aiProvider === 'anthropic' && 'Get your key from console.anthropic.com/settings/keys'}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Model (optional)</Label>
+                  <Input
+                    value={aiModel}
+                    onChange={(e) => setAiModel(e.target.value)}
+                    placeholder={getDefaultModel(aiProvider)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave blank to use the default model for this provider.
+                  </p>
+                </div>
+
+                {aiApiKey && (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-sm text-green-700 dark:text-green-400">Fallback API key configured</span>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-border">
+                  <Button onClick={saveAiSettings} disabled={updateMutation.isPending} className="rounded-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save AI Settings
                   </Button>
                 </div>
               </CardContent>
