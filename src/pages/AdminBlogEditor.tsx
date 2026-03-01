@@ -22,7 +22,8 @@ import {
 } from '@/hooks/useBlogPosts';
 import { useCategories } from '@/hooks/useCategories';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Save, Image as ImageIcon, Upload } from 'lucide-react';
+import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles } from 'lucide-react';
+import AiBlogWriter from '@/components/AiBlogWriter';
 
 const generateSlug = (title: string) => {
   return title
@@ -54,6 +55,7 @@ const AdminBlogEditor = () => {
   const [published, setPublished] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
+  const [isAiWriterOpen, setIsAiWriterOpen] = useState(false);
   
   // SEO fields
   const [metaTitle, setMetaTitle] = useState('');
@@ -226,7 +228,18 @@ const AdminBlogEditor = () => {
               {isEditing ? 'Edit Post' : 'New Post'}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {!isEditing && (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full border-accent/30 text-accent hover:bg-accent/10"
+                onClick={() => setIsAiWriterOpen(true)}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Write with AI
+              </Button>
+            )}
             <div className="flex items-center gap-2">
               <Switch
                 id="published"
@@ -449,6 +462,26 @@ const AdminBlogEditor = () => {
             </div>
           </div>
         </div>
+
+        <AiBlogWriter
+          isOpen={isAiWriterOpen}
+          onClose={() => setIsAiWriterOpen(false)}
+          categories={categories || []}
+          onGenerated={(data) => {
+            setTitle(data.title);
+            setSlug(data.slug);
+            setAutoSlug(false);
+            setExcerpt(data.excerpt);
+            setContent(data.content);
+            setMetaTitle(data.meta_title);
+            setMetaDescription(data.meta_description);
+            setReadTime(data.read_time);
+            if (data.image_url) {
+              setImageUrl(data.image_url);
+              setOgImageUrl(data.image_url);
+            }
+          }}
+        />
       </form>
     </AdminLayout>
   );
