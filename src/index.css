@@ -283,4 +283,26 @@
   .gold-underline:hover::after {
     @apply scale-x-100;
   }
+
+  /* Inline product embeds from AI-generated blog content */
+  .prose .product-embed {
+    @apply my-6 p-4 border border-border rounded-xl flex items-center gap-4 bg-card;
+    transition: box-shadow 0.3s, border-color 0.3s;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .prose .product-embed:hover {
+    @apply shadow-md border-primary/30;
+  }
+  .prose .product-embed img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  .prose .product-embed a {
+    text-decoration: none;
+  }
 }

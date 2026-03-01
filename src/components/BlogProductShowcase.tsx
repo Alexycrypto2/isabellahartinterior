@@ -1,6 +1,5 @@
-import { ExternalLink, ShoppingBag } from "lucide-react";
+import { ExternalLink, ShoppingBag, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import StarRating from "@/components/StarRating";
 import { Link } from "react-router-dom";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
@@ -9,7 +8,6 @@ interface BlogProductShowcaseProps {
   category: string;
 }
 
-// Map blog categories to product category slugs
 const categoryProductMap: Record<string, string[]> = {
   "BEDROOM": ["textiles", "lighting", "furniture"],
   "LIVING ROOM": ["furniture", "decor-accents", "lighting"],
@@ -29,118 +27,112 @@ const BlogProductShowcase = ({ category }: BlogProductShowcaseProps) => {
   const matchingSlugs = categoryProductMap[category.toUpperCase()] || ["decor-accents", "furniture", "lighting"];
   
   const matchedProducts = products
-    .filter(p => matchingSlugs.some(slug => 
+    .filter(p => matchingSlugs.some(slug =>
       p.category.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '') === slug ||
       p.category.toLowerCase().includes(slug.replace('-', ' '))
     ))
     .slice(0, 4);
 
-  // Fallback to featured products if no category match
-  const displayProducts = matchedProducts.length > 0 
-    ? matchedProducts 
+  const displayProducts = matchedProducts.length > 0
+    ? matchedProducts
     : products.filter(p => p.is_featured).slice(0, 4);
 
   if (displayProducts.length === 0) return null;
 
   return (
-    <section className="py-10 my-10 bg-muted/40 rounded-2xl">
-      <div className="px-6 md:px-10">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-1">
-          <ShoppingBag className="w-5 h-5 text-primary" />
-          <h2 className="font-display text-2xl font-medium text-foreground">
-            Products Featured in This Post
-          </h2>
+    <section className="my-14">
+      {/* Premium header */}
+      <div className="flex items-center gap-3 mb-1">
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          <ShoppingBag className="w-4 h-4 text-primary" />
         </div>
-        <p className="text-muted-foreground text-sm mb-8">
-          Love these styles? Shop our top-rated picks — all available on Amazon.
-        </p>
+        <h2 className="font-display text-2xl font-medium text-foreground tracking-tight">
+          Shop the Products
+        </h2>
+      </div>
+      <p className="text-muted-foreground text-sm mb-6 ml-11">
+        Curated picks featured in this article — all top-rated on Amazon.
+      </p>
 
-        {/* Products */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {displayProducts.map((product) => (
-            <article
-              key={product.id}
-              className="bg-background rounded-xl overflow-hidden border border-border group hover:shadow-lg transition-all duration-300"
-            >
-              {/* Image */}
-              <div className="relative aspect-square overflow-hidden">
-                <img
-                  src={resolveImageUrl(product.image_url)}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+      {/* Product cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {displayProducts.map((product) => (
+          <a
+            key={product.id}
+            href={product.affiliate_url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="group flex gap-4 p-4 rounded-xl border border-border bg-background hover:border-primary/30 hover:shadow-md transition-all duration-300"
+          >
+            {/* Image */}
+            <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+              <img
+                src={resolveImageUrl(product.image_url)}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Info */}
+            <div className="flex flex-col justify-center min-w-0 flex-1">
+              <h3 className="font-medium text-foreground text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                {product.name}
+              </h3>
+
+              {/* Rating */}
+              {product.rating && product.rating > 0 && (
+                <div className="flex items-center gap-1 mt-1">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${i < Math.round(product.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    ({product.reviews || 0})
+                  </span>
+                </div>
+              )}
+
+              {/* Price + CTA */}
+              <div className="flex items-center gap-3 mt-2">
+                <span className="text-base font-semibold text-foreground">
+                  {product.price}
+                </span>
+                {product.original_price && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    {product.original_price}
+                  </span>
+                )}
                 {product.badge && (
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                    product.badge === 'Sale'
-                      ? 'bg-accent text-accent-foreground'
-                      : 'bg-secondary text-secondary-foreground'
-                  }`}>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
                     {product.badge}
                   </span>
                 )}
               </div>
+            </div>
 
-              {/* Content */}
-              <div className="p-3 md:p-4">
-                <h3 className="font-medium text-foreground text-sm mb-1 line-clamp-2 leading-snug">
-                  {product.name}
-                </h3>
+            {/* Arrow */}
+            <div className="flex items-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </a>
+        ))}
+      </div>
 
-                <StarRating
-                  rating={product.rating || 0}
-                  reviews={product.reviews || 0}
-                  size="sm"
-                  className="mb-2"
-                />
-
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <span className="text-base font-semibold text-foreground">
-                      {product.price}
-                    </span>
-                    {product.original_price && (
-                      <span className="text-xs text-muted-foreground line-through ml-1">
-                        {product.original_price}
-                      </span>
-                    )}
-                  </div>
-
-                  <Button
-                    size="sm"
-                    className="rounded-full bg-accent text-accent-foreground hover:brightness-110 text-xs px-3"
-                    asChild
-                  >
-                    <a
-                      href={product.affiliate_url}
-                      target="_blank"
-                      rel="noopener noreferrer nofollow"
-                    >
-                      Shop
-                      <ExternalLink className="ml-1 w-3 h-3" />
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div className="text-center mt-6">
-          <Link to="/shop">
-            <Button variant="outline" className="rounded-full text-sm">
-              Browse All Products
-              <ExternalLink className="ml-2 w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
-
-        {/* Disclosure */}
-        <p className="text-[11px] text-muted-foreground text-center mt-4">
-          As an Amazon Associate, I earn from qualifying purchases. Prices may vary.
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+        <p className="text-[11px] text-muted-foreground">
+          As an Amazon Associate, I earn from qualifying purchases.
         </p>
+        <Link to="/shop">
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
+            Browse all →
+          </Button>
+        </Link>
       </div>
     </section>
   );
