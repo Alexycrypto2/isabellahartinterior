@@ -328,7 +328,7 @@ const Shop = () => {
                       )}
                       
                       {/* Action Buttons */}
-                      <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                         <PinterestSaveButton
                           imageUrl={resolveImageUrl(product.image_url)}
                           description={`${product.name} - ${product.price}`}
@@ -353,7 +353,7 @@ const Shop = () => {
                       </div>
                       
                       {/* Quick View Overlay */}
-                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 items-center justify-center hidden md:flex opacity-0 group-hover:opacity-100">
                         <Button 
                           size="sm"
                           className="rounded-full bg-accent text-accent-foreground hover:brightness-110"
