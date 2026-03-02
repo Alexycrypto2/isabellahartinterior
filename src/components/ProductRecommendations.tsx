@@ -320,7 +320,7 @@ export const ProductRecommendations = () => {
                             <a
                               href={product.affiliateUrl}
                               target="_blank"
-                              rel="noopener noreferrer"
+                              rel="noopener noreferrer nofollow"
                               className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline mt-3 group-hover:gap-2 transition-all"
                             >
                               Shop on Amazon <ExternalLink className="w-3.5 h-3.5" />

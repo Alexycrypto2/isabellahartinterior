@@ -115,7 +115,7 @@ const FeaturedProducts = () => {
                   )}
                   
                   {/* Pinterest Save Button */}
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute top-4 right-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                     <PinterestSaveButton
                       imageUrl={resolveImageUrl(product.image_url)}
                       description={`${product.name} - ${product.price}`}

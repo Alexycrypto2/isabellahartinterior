@@ -82,7 +82,7 @@ const Navigation = () => {
             Shop
           </Link>
           <Link to="/inspiration" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            Inspiration
+            AI Stylist
           </Link>
           <Link to="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
             Blog
@@ -266,7 +266,7 @@ const Navigation = () => {
         <div className="md:hidden bg-background border-b border-border animate-fade-in-up">
           <div className="container mx-auto px-6 py-6 space-y-4">
             <Link to="/shop" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Shop</Link>
-            <Link to="/inspiration" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Inspiration</Link>
+            <Link to="/inspiration" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>AI Stylist</Link>
             <Link to="/blog" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Blog</Link>
             <Link to="/about" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>About</Link>
             <Link to="/contact" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Contact</Link>
