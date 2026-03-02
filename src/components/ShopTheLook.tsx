@@ -2,6 +2,7 @@ import { ExternalLink, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { products, Product } from "@/data/products";
 import StarRating from "@/components/StarRating";
+import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { Link } from "react-router-dom";
 
 interface ShopTheLookProps {
@@ -54,6 +55,16 @@ const ShopTheLook = ({ productIds, title = "Shop the Look on Amazon" }: ShopTheL
                     {product.badge}
                   </span>
                 )}
+                <div className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <PinterestSaveButton
+                    imageUrl={product.image}
+                    description={`${product.name} - ${product.price}`}
+                    url={window.location.origin + `/shop?product=${product.id}`}
+                    price={product.price}
+                    isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
+                    isOnSale={product.badge === 'Sale'}
+                  />
+                </div>
               </div>
 
               {/* Content */}
