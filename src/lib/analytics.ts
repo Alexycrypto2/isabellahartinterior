@@ -18,6 +18,8 @@ interface TrackEventOptions {
   pagePath?: string;
   entityId?: string;
   entityName?: string;
+  /** Optional metadata stored in referrer field (e.g. UTM source info) */
+  metadata?: string;
 }
 
 export const trackEvent = async (options: TrackEventOptions): Promise<void> => {
@@ -30,7 +32,7 @@ export const trackEvent = async (options: TrackEventOptions): Promise<void> => {
       entity_id: options.entityId || null,
       entity_name: options.entityName || null,
       visitor_id: visitorId,
-      referrer: document.referrer || null,
+      referrer: options.metadata || document.referrer || null,
       user_agent: navigator.userAgent?.substring(0, 500) || null,
     });
   } catch (error) {
@@ -55,11 +57,36 @@ export const trackBlogView = (blogId: string, blogTitle: string) => {
   });
 };
 
-export const trackProductClick = (productId: string, productName: string) => {
+/**
+ * Track a product affiliate click with UTM source context.
+ * Derives utm_source and utm_medium from the current page location.
+ */
+export const trackProductClick = (productId: string, productName: string, utmSource?: string, utmMedium?: string) => {
+  // Auto-detect source/medium from page context if not provided
+  const source = utmSource || detectUtmSource();
+  const medium = utmMedium || detectUtmMedium();
+  
   trackEvent({
     eventType: 'product_click',
     pagePath: window.location.pathname,
     entityId: productId,
     entityName: productName,
+    metadata: `utm_source=${source}|utm_medium=${medium}`,
   });
 };
+
+/** Detect UTM source from the current page path */
+function detectUtmSource(): string {
+  const path = window.location.pathname;
+  if (path === '/') return 'homepage';
+  if (path.startsWith('/shop')) return 'shop';
+  if (path.startsWith('/blog')) return 'blog';
+  if (path.startsWith('/cart')) return 'cart';
+  if (path.startsWith('/inspiration')) return 'ai-stylist';
+  return path.replace(/^\//, '').split('/')[0] || 'unknown';
+}
+
+/** Detect UTM medium from the current page context */
+function detectUtmMedium(): string {
+  return 'product-link';
+}

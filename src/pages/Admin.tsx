@@ -20,6 +20,7 @@ import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
+import AffiliateClicksDashboard from '@/components/admin/AffiliateClicksDashboard';
 import {
   Plus, Edit, Trash2, Eye, EyeOff, FileText, Package, Users, TrendingUp,
   Clock, ArrowRight, Image, Settings, BarChart3, LayoutDashboard, Bot, Zap, AlertTriangle, CheckCircle2, Info,
@@ -128,6 +129,10 @@ const Admin = () => {
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="affiliates" className="flex items-center gap-2 flex-1 sm:flex-auto">
+              <TrendingUp className="h-4 w-4" />
+              Affiliates
+            </TabsTrigger>
             <TabsTrigger value="overview" className="flex items-center gap-2 flex-1 sm:flex-auto">
               <LayoutDashboard className="h-4 w-4" />
               Overview
@@ -136,6 +141,10 @@ const Admin = () => {
 
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="affiliates">
+            <AffiliateClicksDashboard />
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-4 md:space-y-6">

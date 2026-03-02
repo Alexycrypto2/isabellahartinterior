@@ -393,7 +393,7 @@ const Shop = () => {
                           target="_blank"
                           rel="noopener noreferrer nofollow"
                           className="text-accent hover:text-accent/80 transition-colors"
-                          onClick={() => trackProductClick(product.id, product.name)}
+                          onClick={() => trackProductClick(product.id, product.name, "shop", "product-grid")}
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>

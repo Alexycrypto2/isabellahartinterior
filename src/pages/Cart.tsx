@@ -99,7 +99,7 @@ const Cart = () => {
     // Open all affiliate links (browsers may block multiple tabs, so we open them sequentially)
     displayProducts.forEach((product, i) => {
       setTimeout(() => {
-        trackProductClick(product.id, product.name);
+        trackProductClick(product.id, product.name, "cart", "checkout-all");
         window.open(withUtm(product.affiliate_url, "cart", "checkout-all"), "_blank", "noopener,noreferrer");
       }, i * 300);
     });
@@ -266,7 +266,7 @@ const Cart = () => {
                                   href={withUtm(product.affiliate_url, "cart", "buy-button")}
                                   target="_blank"
                                   rel="noopener noreferrer nofollow"
-                                  onClick={() => trackProductClick(product.id, product.name)}
+                                  onClick={() => trackProductClick(product.id, product.name, "cart", "buy-button")}
                                 >
                                   <ExternalLink className="w-3.5 h-3.5 sm:mr-1.5" />
                                   <span className="hidden sm:inline">Buy</span>

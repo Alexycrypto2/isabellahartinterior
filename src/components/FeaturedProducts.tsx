@@ -180,7 +180,7 @@ const FeaturedProducts = () => {
                         target="_blank" 
                         rel="noopener noreferrer nofollow"
                         className="flex items-center gap-1"
-                        onClick={() => trackProductClick(product.id, product.name)}
+                        onClick={() => trackProductClick(product.id, product.name, "homepage", "featured-grid")}
                       >
                         Shop on Amazon
                         <ExternalLink className="w-3 h-3" />
