@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
@@ -76,6 +76,10 @@ const AdminSettings = () => {
   const [alertThreshold, setAlertThreshold] = useState(10);
   const [alertEnabled, setAlertEnabled] = useState(true);
   const [alertEmail, setAlertEmail] = useState('');
+
+  // Weekly digest settings
+  const [digestEnabled, setDigestEnabled] = useState(true);
+  const [digestEmail, setDigestEmail] = useState('');
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -150,6 +154,11 @@ const AdminSettings = () => {
       setAlertThreshold(alerts.threshold ?? 10);
       setAlertEnabled(alerts.enabled ?? true);
       setAlertEmail(alerts.email || '');
+
+      // Weekly digest
+      const digest = getSetting('weekly_digest') as Record<string, any>;
+      setDigestEnabled(digest.enabled ?? true);
+      setDigestEmail(digest.email || '');
     }
   }, [settings]);
 
@@ -433,6 +442,10 @@ const AdminSettings = () => {
               <TabsTrigger value="alerts" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
                 <TrendingUp className="h-3.5 w-3.5" />
                 Alerts
+              </TabsTrigger>
+              <TabsTrigger value="digest" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <BarChart3 className="h-3.5 w-3.5" />
+                Digest
               </TabsTrigger>
             </TabsList>
           </div>
@@ -994,6 +1007,60 @@ const AdminSettings = () => {
                   >
                     <Save className="mr-2 h-4 w-4" />
                     Save Alert Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Weekly Digest */}
+          <TabsContent value="digest">
+            <Card>
+              <CardHeader>
+                <CardTitle>Weekly Performance Digest</CardTitle>
+                <CardDescription>Receive a summary of top products and blog posts every Monday at 9 AM UTC</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">Enable Weekly Digest</Label>
+                    <p className="text-xs text-muted-foreground">Send a performance summary email every Monday</p>
+                  </div>
+                  <Switch checked={digestEnabled} onCheckedChange={setDigestEnabled} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Digest Email (optional)</Label>
+                  <Input
+                    type="email"
+                    value={digestEmail}
+                    onChange={(e) => setDigestEmail(e.target.value)}
+                    placeholder="Leave empty to use contact email"
+                  />
+                  <p className="text-xs text-muted-foreground">Override the default contact email for digest notifications</p>
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await updateMutation.mutateAsync({
+                          key: 'weekly_digest',
+                          value: {
+                            enabled: digestEnabled,
+                            email: digestEmail || null,
+                          },
+                        });
+                        toast({ title: 'Saved', description: 'Digest settings updated successfully.' });
+                      } catch (error) {
+                        toast({ title: 'Error', description: 'Failed to save digest settings.', variant: 'destructive' });
+                      }
+                    }}
+                    disabled={updateMutation.isPending}
+                    className="rounded-full"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Digest Settings
                   </Button>
                 </div>
               </CardContent>
