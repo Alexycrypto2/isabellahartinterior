@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
@@ -46,7 +47,25 @@ serve(async (req: Request) => {
       );
     }
 
-    const siteEmail = Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
+    // Read notification & reply-to emails from site_settings
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    let siteEmail = Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
+    let replyToEmail = email; // default: reply to the submitter
+
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: contactSetting } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "contact")
+        .maybeSingle();
+
+      const contactConfig = (contactSetting?.value as Record<string, any>) || {};
+      siteEmail = contactConfig.notification_email || contactConfig.email || siteEmail;
+    }
+
+    const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
       from: `RoomRefine Contact <onboarding@resend.dev>`,

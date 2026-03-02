@@ -39,6 +39,8 @@ const AdminSettings = () => {
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [contactAddress, setContactAddress] = useState('');
+  const [notificationEmail, setNotificationEmail] = useState('');
+  const [contactReplyEmail, setContactReplyEmail] = useState('');
 
 // Footer settings
   const [footerCopyright, setFooterCopyright] = useState('');
@@ -116,6 +118,8 @@ const AdminSettings = () => {
       setContactEmail(contact.email || '');
       setContactPhone(contact.phone || '');
       setContactAddress(contact.address || '');
+      setNotificationEmail(contact.notification_email || '');
+      setContactReplyEmail(contact.reply_email || '');
       
       // Footer
       const footer = getSetting('footer') as Record<string, string>;
@@ -256,7 +260,13 @@ const AdminSettings = () => {
     try {
       await updateMutation.mutateAsync({
         key: 'contact',
-        value: { email: contactEmail, phone: contactPhone, address: contactAddress },
+        value: {
+          email: contactEmail,
+          phone: contactPhone,
+          address: contactAddress,
+          notification_email: notificationEmail || null,
+          reply_email: contactReplyEmail || null,
+        },
       });
       toast({ title: 'Saved', description: 'Contact info updated successfully.' });
     } catch (error) {
@@ -579,8 +589,19 @@ const AdminSettings = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Email</Label>
+                  <Label className="text-sm font-medium">Display Email</Label>
                   <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="hello@example.com" />
+                  <p className="text-xs text-muted-foreground">Shown on the contact page for visitors</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Notification Email</Label>
+                  <Input value={notificationEmail} onChange={(e) => setNotificationEmail(e.target.value)} placeholder="Leave empty to use display email" />
+                  <p className="text-xs text-muted-foreground">Where all system emails go — contact form submissions, trending alerts, weekly digest</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Contact Reply-To Email</Label>
+                  <Input value={contactReplyEmail} onChange={(e) => setContactReplyEmail(e.target.value)} placeholder="Leave empty to use display email" />
+                  <p className="text-xs text-muted-foreground">When customers reply to the contact form confirmation, it goes to this address</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Phone</Label>

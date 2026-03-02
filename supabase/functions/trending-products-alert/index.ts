@@ -134,7 +134,14 @@ serve(async (req: Request) => {
       </div>
     `;
 
-    const siteEmail = customEmail || Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
+    // Resolve email: alert override → contact notification_email → contact email → env fallback
+    let siteEmail = customEmail || Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
+    if (!customEmail) {
+      const { data: contactSetting } = await supabase
+        .from("site_settings").select("value").eq("key", "contact").maybeSingle();
+      const cc = (contactSetting?.value as Record<string, any>) || {};
+      siteEmail = cc.notification_email || cc.email || siteEmail;
+    }
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
