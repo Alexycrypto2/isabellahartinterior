@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
@@ -71,6 +71,11 @@ const AdminSettings = () => {
   const [aiImageModel, setAiImageModel] = useState('');
   const [aiImageEndpoint, setAiImageEndpoint] = useState('');
   const [showImageKey, setShowImageKey] = useState(false);
+
+  // Affiliate alert settings
+  const [alertThreshold, setAlertThreshold] = useState(10);
+  const [alertEnabled, setAlertEnabled] = useState(true);
+  const [alertEmail, setAlertEmail] = useState('');
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -139,6 +144,12 @@ const AdminSettings = () => {
       setAiImageKey(ai.image_api_key || '');
       setAiImageModel(ai.image_model || '');
       setAiImageEndpoint(ai.image_endpoint || '');
+
+      // Affiliate alerts
+      const alerts = getSetting('affiliate_alerts') as Record<string, any>;
+      setAlertThreshold(alerts.threshold ?? 10);
+      setAlertEnabled(alerts.enabled ?? true);
+      setAlertEmail(alerts.email || '');
     }
   }, [settings]);
 
@@ -418,6 +429,10 @@ const AdminSettings = () => {
               <TabsTrigger value="ai" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
                 <Bot className="h-3.5 w-3.5" />
                 AI API
+              </TabsTrigger>
+              <TabsTrigger value="alerts" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <TrendingUp className="h-3.5 w-3.5" />
+                Alerts
               </TabsTrigger>
             </TabsList>
           </div>
@@ -910,6 +925,79 @@ const AdminSettings = () => {
                 </Button>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Affiliate Alerts */}
+          <TabsContent value="alerts">
+            <Card>
+              <CardHeader>
+                <CardTitle>Trending Products Alerts</CardTitle>
+                <CardDescription>Get notified when affiliate clicks exceed a daily threshold</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">Enable Alerts</Label>
+                    <p className="text-xs text-muted-foreground">Send email when products trend above threshold</p>
+                  </div>
+                  <Switch checked={alertEnabled} onCheckedChange={setAlertEnabled} />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Daily Click Threshold</Label>
+                  <div className="flex items-center gap-4">
+                    <Slider
+                      value={[alertThreshold]}
+                      onValueChange={([v]) => setAlertThreshold(v)}
+                      min={1}
+                      max={100}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-mono w-12 text-right">{alertThreshold}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Alert when any product gets more than {alertThreshold} affiliate clicks in a day
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Alert Email (optional)</Label>
+                  <Input
+                    type="email"
+                    value={alertEmail}
+                    onChange={(e) => setAlertEmail(e.target.value)}
+                    placeholder="Leave empty to use contact email"
+                  />
+                  <p className="text-xs text-muted-foreground">Override the default contact email for alert notifications</p>
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await updateMutation.mutateAsync({
+                          key: 'affiliate_alerts',
+                          value: {
+                            enabled: alertEnabled,
+                            threshold: alertThreshold,
+                            email: alertEmail || null,
+                          },
+                        });
+                        toast({ title: 'Saved', description: 'Alert settings updated successfully.' });
+                      } catch (error) {
+                        toast({ title: 'Error', description: 'Failed to save alert settings.', variant: 'destructive' });
+                      }
+                    }}
+                    disabled={updateMutation.isPending}
+                    className="rounded-full"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Alert Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
