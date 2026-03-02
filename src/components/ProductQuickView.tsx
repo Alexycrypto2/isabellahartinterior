@@ -5,6 +5,7 @@ import { ExternalLink, ShoppingCart, Star, MessageSquare, Send } from "lucide-re
 import { Product } from "@/data/products";
 import { useCart } from "@/hooks/useCart";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
+import { withUtm } from "@/lib/utm";
 import StarRating from "@/components/StarRating";
 import { useProductReviews, useSubmitReview } from "@/hooks/useProductReviews";
 import { Input } from "@/components/ui/input";
@@ -138,7 +139,7 @@ const ProductQuickView = ({ product, isOpen, onClose }: ProductQuickViewProps) =
               <div className="flex flex-col gap-3 mb-6">
                 <Button asChild size="lg" className="w-full rounded-full bg-accent text-accent-foreground hover:brightness-110">
                   <a
-                    href={product.affiliateUrl}
+                    href={withUtm(product.affiliateUrl, "shop", "quick-view")}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
                   >

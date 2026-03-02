@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { products, Product } from "@/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { withUtm } from "@/lib/utm";
 import { useToast } from "@/hooks/use-toast";
 import StarRating from "@/components/StarRating";
 
@@ -318,7 +319,7 @@ export const ProductRecommendations = () => {
                               "{rec.reason}"
                             </p>
                             <a
-                              href={product.affiliateUrl}
+                              href={withUtm(product.affiliateUrl, "ai-stylist", "recommendation")}
                               target="_blank"
                               rel="noopener noreferrer nofollow"
                               className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline mt-3 group-hover:gap-2 transition-all"

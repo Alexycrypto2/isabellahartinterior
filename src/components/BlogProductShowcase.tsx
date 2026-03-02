@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
+import { withUtm } from "@/lib/utm";
 
 interface BlogProductShowcaseProps {
   category: string;
@@ -59,7 +60,7 @@ const BlogProductShowcase = ({ category }: BlogProductShowcaseProps) => {
         {displayProducts.map((product) => (
           <a
             key={product.id}
-            href={product.affiliate_url}
+            href={withUtm(product.affiliate_url, "blog", "product-showcase")}
             target="_blank"
             rel="noopener noreferrer nofollow"
             className="group flex gap-4 p-4 rounded-xl border border-border bg-background hover:border-primary/30 hover:shadow-md transition-all duration-300"

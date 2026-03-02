@@ -15,6 +15,7 @@ import shopHeroDefault from "@/assets/shop-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
+import { withUtm } from "@/lib/utm";
 import { useSiteSetting } from "@/hooks/useSiteSettings";
 import { resolveImageUrl } from "@/lib/imageResolver";
 import {
@@ -388,7 +389,7 @@ const Shop = () => {
                           )}
                         </div>
                         <a 
-                          href={product.affiliate_url}
+                          href={withUtm(product.affiliate_url, "shop", "product-grid")}
                           target="_blank"
                           rel="noopener noreferrer nofollow"
                           className="text-accent hover:text-accent/80 transition-colors"

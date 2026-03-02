@@ -11,6 +11,7 @@ import { ExternalLink, Trash2, ShoppingCart, Share2, Check, Plus, Minus } from "
 import { Link } from "react-router-dom";
 import StarRating from "@/components/StarRating";
 import { trackProductClick } from "@/lib/analytics";
+import { withUtm } from "@/lib/utm";
 import { toast } from "sonner";
 
 const Cart = () => {
@@ -99,7 +100,7 @@ const Cart = () => {
     displayProducts.forEach((product, i) => {
       setTimeout(() => {
         trackProductClick(product.id, product.name);
-        window.open(product.affiliate_url, "_blank", "noopener,noreferrer");
+        window.open(withUtm(product.affiliate_url, "cart", "checkout-all"), "_blank", "noopener,noreferrer");
       }, i * 300);
     });
     toast.success("Opening product pages — complete your purchase on each retailer's site!");
@@ -262,7 +263,7 @@ const Cart = () => {
                                 asChild
                               >
                                 <a
-                                  href={product.affiliate_url}
+                                  href={withUtm(product.affiliate_url, "cart", "buy-button")}
                                   target="_blank"
                                   rel="noopener noreferrer nofollow"
                                   onClick={() => trackProductClick(product.id, product.name)}
