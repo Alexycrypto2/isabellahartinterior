@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3 } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
@@ -73,6 +73,12 @@ const AdminSettings = () => {
   const [aiImageModel, setAiImageModel] = useState('');
   const [aiImageEndpoint, setAiImageEndpoint] = useState('');
   const [showImageKey, setShowImageKey] = useState(false);
+
+  // AI test states
+  const [testingText, setTestingText] = useState(false);
+  const [testingImage, setTestingImage] = useState(false);
+  const [textTestResult, setTextTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [imageTestResult, setImageTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Affiliate alert settings
   const [alertThreshold, setAlertThreshold] = useState(10);
@@ -383,7 +389,50 @@ const AdminSettings = () => {
       case 'google': return 'Get your key from aistudio.google.com/apikey';
       case 'anthropic': return 'Get your key from console.anthropic.com/settings/keys';
       case 'custom': return 'Enter the API key for your custom provider';
-      default: return '';
+    default: return '';
+    }
+  };
+
+  const testAiKey = async (type: 'text' | 'image') => {
+    const isText = type === 'text';
+    const provider = isText ? aiTextProvider : aiImageProvider;
+    const apiKey = isText ? aiTextKey : aiImageKey;
+    const model = isText ? aiTextModel : aiImageModel;
+    const endpoint = isText ? aiTextEndpoint : aiImageEndpoint;
+
+    if (!apiKey) {
+      toast({ title: 'No API key', description: 'Enter an API key first.', variant: 'destructive' });
+      return;
+    }
+
+    if (isText) { setTestingText(true); setTextTestResult(null); }
+    else { setTestingImage(true); setImageTestResult(null); }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('test-ai-key', {
+        body: { type, provider, api_key: apiKey, model, endpoint },
+      });
+
+      if (error) throw error;
+
+      const result = { success: data.success, message: data.success ? data.message : data.error };
+      if (isText) setTextTestResult(result);
+      else setImageTestResult(result);
+
+      toast({
+        title: data.success ? '✅ Connection successful' : '❌ Connection failed',
+        description: data.success ? data.message : data.error,
+        variant: data.success ? 'default' : 'destructive',
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Test failed';
+      const result = { success: false, message: msg };
+      if (isText) setTextTestResult(result);
+      else setImageTestResult(result);
+      toast({ title: 'Test failed', description: msg, variant: 'destructive' });
+    } finally {
+      if (isText) setTestingText(false);
+      else setTestingImage(false);
     }
   };
 
@@ -875,9 +924,31 @@ const AdminSettings = () => {
                     {getDefaultTextModel(aiTextProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultTextModel(aiTextProvider)}</p>}
                   </div>
                   {aiTextKey && (
-                    <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span className="text-sm text-emerald-700 dark:text-emerald-400">Text AI fallback configured</span>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span className="text-sm text-emerald-700 dark:text-emerald-400">Text AI fallback configured</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => testAiKey('text')}
+                        disabled={testingText}
+                        className="w-full"
+                      >
+                        {testingText ? (
+                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing connection...</>
+                        ) : (
+                          <><Zap className="mr-2 h-4 w-4" />Test Text AI Connection</>
+                        )}
+                      </Button>
+                      {textTestResult && (
+                        <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${textTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-destructive/10 border-destructive/30'}`}>
+                          {textTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+                          <span className={`text-sm ${textTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'}`}>{textTestResult.message}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -943,9 +1014,31 @@ const AdminSettings = () => {
                     {getDefaultImageModel(aiImageProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultImageModel(aiImageProvider)}</p>}
                   </div>
                   {aiImageKey && (
-                    <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span className="text-sm text-emerald-700 dark:text-emerald-400">Image AI fallback configured</span>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span className="text-sm text-emerald-700 dark:text-emerald-400">Image AI fallback configured</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => testAiKey('image')}
+                        disabled={testingImage}
+                        className="w-full"
+                      >
+                        {testingImage ? (
+                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing connection...</>
+                        ) : (
+                          <><Zap className="mr-2 h-4 w-4" />Test Image AI Connection</>
+                        )}
+                      </Button>
+                      {imageTestResult && (
+                        <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${imageTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-destructive/10 border-destructive/30'}`}>
+                          {imageTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+                          <span className={`text-sm ${imageTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'}`}>{imageTestResult.message}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
