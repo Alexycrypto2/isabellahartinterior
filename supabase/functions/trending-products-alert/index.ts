@@ -8,7 +8,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const DAILY_CLICK_THRESHOLD = 10; // Alert when a product exceeds this many clicks in a day
+const DEFAULT_THRESHOLD = 10;
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -28,6 +28,25 @@ serve(async (req: Request) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Read alert settings from site_settings
+    const { data: alertSetting } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "affiliate_alerts")
+      .maybeSingle();
+
+    const alertConfig = (alertSetting?.value as Record<string, any>) || {};
+    const isEnabled = alertConfig.enabled ?? true;
+    const DAILY_CLICK_THRESHOLD = alertConfig.threshold ?? DEFAULT_THRESHOLD;
+    const customEmail = alertConfig.email || null;
+
+    if (!isEnabled) {
+      return new Response(
+        JSON.stringify({ message: "Alerts are disabled", alerts_sent: 0 }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     // Get today's start timestamp
     const todayStart = new Date();
@@ -115,7 +134,7 @@ serve(async (req: Request) => {
       </div>
     `;
 
-    const siteEmail = Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
+    const siteEmail = customEmail || Deno.env.get("CONTACT_EMAIL") || "ayubadesina3@gmail.com";
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
