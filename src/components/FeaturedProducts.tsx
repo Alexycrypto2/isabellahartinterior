@@ -6,6 +6,7 @@ import ProductReviewForm from "@/components/ProductReviewForm";
 import { useActiveProducts, Product } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackProductClick } from "@/lib/analytics";
+import { withUtm } from "@/lib/utm";
 import OptimizedImage from "@/components/OptimizedImage";
 import { resolveImageUrl } from "@/lib/imageResolver";
 
@@ -175,7 +176,7 @@ const FeaturedProducts = () => {
                       asChild
                     >
                       <a 
-                        href={product.affiliate_url} 
+                        href={withUtm(product.affiliate_url, "homepage", "featured-grid")} 
                         target="_blank" 
                         rel="noopener noreferrer nofollow"
                         className="flex items-center gap-1"

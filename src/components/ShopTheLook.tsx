@@ -4,6 +4,7 @@ import { products, Product } from "@/data/products";
 import StarRating from "@/components/StarRating";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { Link } from "react-router-dom";
+import { withUtm } from "@/lib/utm";
 
 interface ShopTheLookProps {
   productIds: string[];
@@ -98,7 +99,7 @@ const ShopTheLook = ({ productIds, title = "Shop the Look on Amazon" }: ShopTheL
                     asChild
                   >
                     <a 
-                      href={product.affiliateUrl}
+                      href={withUtm(product.affiliateUrl, "blog", "shop-the-look")}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                     >
