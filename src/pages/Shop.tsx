@@ -73,7 +73,7 @@ const Shop = () => {
   const categories = useMemo(() => {
     const allCategory = { id: "all", name: "All Products", icon: "✨", slug: "all" };
     if (!dbCategories) return [allCategory];
-    return [allCategory, ...dbCategories.map(c => ({ 
+    return [allCategory, ...dbCategories.filter(c => c.slug !== "all").map(c => ({ 
       id: c.slug, 
       name: c.name, 
       icon: c.icon || "📦",
