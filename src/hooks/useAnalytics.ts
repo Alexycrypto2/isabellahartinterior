@@ -15,6 +15,12 @@ interface AnalyticsEvent {
   created_at: string;
 }
 
+interface ClickSourceData {
+  source: string;
+  medium: string;
+  clicks: number;
+}
+
 interface DailyStats {
   date: string;
   visitors: number;
@@ -252,6 +258,94 @@ export const useTopPages = (dateRange: DateRange, limit = 5) => {
       });
       
       return topPages.sort((a, b) => b.count - a.count).slice(0, limit);
+    },
+  });
+};
+
+/** Parse UTM metadata from the referrer field: "utm_source=X|utm_medium=Y" */
+function parseUtmMetadata(referrer: string | null): { source: string; medium: string } | null {
+  if (!referrer || !referrer.startsWith('utm_source=')) return null;
+  const parts = referrer.split('|');
+  const source = parts[0]?.replace('utm_source=', '') || 'unknown';
+  const medium = parts[1]?.replace('utm_medium=', '') || 'unknown';
+  return { source, medium };
+}
+
+export const useClickSourceAnalytics = (dateRange: DateRange) => {
+  return useQuery({
+    queryKey: ['analytics-click-sources', dateRange],
+    queryFn: async () => {
+      const startDate = getDateRangeStart(dateRange);
+      
+      const { data, error } = await supabase
+        .from('analytics_events')
+        .select('referrer, page_path, entity_id, entity_name, created_at')
+        .eq('event_type', 'product_click')
+        .gte('created_at', startDate.toISOString());
+      
+      if (error) throw error;
+      
+      // Group by source
+      const sourceMap = new Map<string, number>();
+      const mediumMap = new Map<string, number>();
+      const sourceByMedium = new Map<string, Map<string, number>>();
+      const dailyBySource = new Map<string, Map<string, number>>();
+      
+      (data || []).forEach((event: any) => {
+        const utm = parseUtmMetadata(event.referrer);
+        const source = utm?.source || event.page_path || 'unknown';
+        const medium = utm?.medium || 'direct';
+        const date = format(new Date(event.created_at), 'yyyy-MM-dd');
+        
+        sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
+        mediumMap.set(medium, (mediumMap.get(medium) || 0) + 1);
+        
+        // Source x Medium breakdown
+        const key = `${source}|${medium}`;
+        if (!sourceByMedium.has(key)) sourceByMedium.set(key, new Map());
+        sourceByMedium.get(key)!.set('count', (sourceByMedium.get(key)!.get('count') || 0) + 1);
+        
+        // Daily by source
+        if (!dailyBySource.has(date)) dailyBySource.set(date, new Map());
+        dailyBySource.get(date)!.set(source, (dailyBySource.get(date)!.get(source) || 0) + 1);
+      });
+      
+      // Format sources
+      const sources = Array.from(sourceMap.entries())
+        .map(([source, clicks]) => ({ source, clicks }))
+        .sort((a, b) => b.clicks - a.clicks);
+      
+      // Format mediums
+      const mediums = Array.from(mediumMap.entries())
+        .map(([medium, clicks]) => ({ medium, clicks }))
+        .sort((a, b) => b.clicks - a.clicks);
+      
+      // Format source x medium breakdown
+      const breakdown: ClickSourceData[] = Array.from(sourceByMedium.entries())
+        .map(([key, map]) => {
+          const [source, medium] = key.split('|');
+          return { source, medium, clicks: map.get('count') || 0 };
+        })
+        .sort((a, b) => b.clicks - a.clicks);
+      
+      // Format daily trends (for chart)
+      const allSources = Array.from(sourceMap.keys());
+      const dailyTrends = Array.from(dailyBySource.entries())
+        .map(([date, sourceData]) => {
+          const entry: Record<string, any> = { date };
+          allSources.forEach(s => { entry[s] = sourceData.get(s) || 0; });
+          return entry;
+        })
+        .sort((a, b) => a.date.localeCompare(b.date));
+      
+      return {
+        totalClicks: data?.length || 0,
+        sources,
+        mediums,
+        breakdown,
+        dailyTrends,
+        topSources: allSources.slice(0, 6), // for chart legend colors
+      };
     },
   });
 };
