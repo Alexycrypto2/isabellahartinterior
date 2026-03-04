@@ -77,8 +77,10 @@ const AdminSettings = () => {
   // AI test states
   const [testingText, setTestingText] = useState(false);
   const [testingImage, setTestingImage] = useState(false);
+  const [testingBuiltIn, setTestingBuiltIn] = useState(false);
   const [textTestResult, setTextTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [imageTestResult, setImageTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [builtInTestResult, setBuiltInTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Affiliate alert settings
   const [alertThreshold, setAlertThreshold] = useState(10);
@@ -390,6 +392,39 @@ const AdminSettings = () => {
       case 'anthropic': return 'Get your key from console.anthropic.com/settings/keys';
       case 'custom': return 'Enter the API key for your custom provider';
     default: return '';
+    }
+  };
+
+  const testBuiltInCredits = async () => {
+    setTestingBuiltIn(true);
+    setBuiltInTestResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('home-decor-chat', {
+        body: { messages: [{ role: 'user', content: 'Say OK' }] },
+      });
+
+      // If we get a streaming response or data back, credits are working
+      if (error) {
+        const errMsg = typeof error === 'object' && 'message' in error ? (error as any).message : String(error);
+        if (errMsg.includes('402') || errMsg.includes('Payment')) {
+          setBuiltInTestResult({ success: false, message: 'Built-in AI credits exhausted. Configure fallback keys below.' });
+        } else if (errMsg.includes('429') || errMsg.includes('Rate')) {
+          setBuiltInTestResult({ success: false, message: 'Rate limited. Try again in a minute.' });
+        } else {
+          setBuiltInTestResult({ success: false, message: errMsg });
+        }
+      } else {
+        setBuiltInTestResult({ success: true, message: 'Built-in AI credits are active and working!' });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Test failed';
+      if (msg.includes('402') || msg.includes('Payment')) {
+        setBuiltInTestResult({ success: false, message: 'Built-in AI credits exhausted. Configure fallback keys below.' });
+      } else {
+        setBuiltInTestResult({ success: false, message: msg });
+      }
+    } finally {
+      setTestingBuiltIn(false);
     }
   };
 
@@ -858,11 +893,33 @@ const AdminSettings = () => {
                     Configure separate API keys for text generation (blog writing, chat, recommendations) and image generation. Built-in AI is used first; your keys are used as fallback.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <div className="p-4 bg-muted/50 rounded-lg border border-border">
                     <p className="text-sm text-muted-foreground">
                       <strong className="text-foreground">How it works:</strong> The site tries built-in AI credits first. If credits run out, it automatically falls back to your custom API keys below. Text and image generation use different APIs, so you can configure them separately.
                     </p>
+                  </div>
+                  <div className="space-y-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={testBuiltInCredits}
+                      disabled={testingBuiltIn}
+                      className="w-full"
+                    >
+                      {testingBuiltIn ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Checking built-in credits...</>
+                      ) : (
+                        <><Bot className="mr-2 h-4 w-4" />Test Built-in AI Credits</>
+                      )}
+                    </Button>
+                    {builtInTestResult && (
+                      <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${builtInTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'}`}>
+                        {builtInTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-amber-500 shrink-0" />}
+                        <span className={`text-sm ${builtInTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>{builtInTestResult.message}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
