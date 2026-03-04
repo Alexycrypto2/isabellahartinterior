@@ -12,6 +12,7 @@ import { useProductReviews } from "@/hooks/useProductReviews";
 import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
 import { withUtm } from "@/lib/utm";
+import { useMemo } from "react";
 import { resolveImageUrl } from "@/lib/imageResolver";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, ShoppingCart, ChevronRight, ArrowLeft } from "lucide-react";
