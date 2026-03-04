@@ -63,8 +63,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Add products (if you have product detail pages in the future)
-    // Products currently link externally, but included for completeness
+    // Add product detail pages
+    if (products) {
+      for (const product of products) {
+        urls.push(`  <url>
+    <loc>${SITE_URL}/shop/${product.slug}</loc>
+    <lastmod>${new Date(product.updated_at).toISOString().split("T")[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+      }
+    }
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
