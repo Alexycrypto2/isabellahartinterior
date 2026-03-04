@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
@@ -333,7 +333,7 @@ const Shop = () => {
                         <PinterestSaveButton
                           imageUrl={resolveImageUrl(product.image_url)}
                           description={`${product.name} - ${product.price}`}
-                          url={window.location.origin + `/shop?product=${product.id}`}
+                          url={window.location.origin + `/shop/${product.slug}`}
                           price={product.price}
                           isBestseller={product.badge === 'Bestseller' || product.badge === 'Top Pick'}
                           isOnSale={product.badge === 'Sale'}
@@ -373,7 +373,9 @@ const Shop = () => {
                       </span>
                       
                       <h3 className="font-display text-lg font-medium mb-1 line-clamp-1">
-                        {product.name}
+                        <Link to={`/shop/${product.slug}`} className="hover:text-accent transition-colors">
+                          {product.name}
+                        </Link>
                       </h3>
                       
                       {/* Price */}
