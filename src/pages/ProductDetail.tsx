@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import JsonLd from "@/components/JsonLd";
-import { StarRating } from "@/components/StarRating";
+import StarRating from "@/components/StarRating";
 import ProductReviewForm from "@/components/ProductReviewForm";
 import { useProductBySlug } from "@/hooks/useProducts";
 import { useProductReviews } from "@/hooks/useProductReviews";

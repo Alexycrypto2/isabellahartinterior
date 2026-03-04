@@ -16,6 +16,7 @@ import Index from "./pages/Index";
 
 // Lazy load non-critical pages
 const Shop = lazy(() => import("./pages/Shop"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Inspiration = lazy(() => import("./pages/Inspiration"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
