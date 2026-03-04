@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -29,6 +30,58 @@ const ProductDetail = () => {
   const { data: product, isLoading, error } = useProductBySlug(slug || "");
   const { data: reviews } = useProductReviews(product?.id || "");
   const { addToCart, isInCart } = useCart();
+
+  const imageUrl = product ? resolveImageUrl(product.image_url) : "";
+  const productUrl = product ? `${window.location.origin}/shop/${product.slug}` : "";
+
+  // Set OG meta tags for social sharing / Pinterest — before early returns
+  useEffect(() => {
+    if (!product) return;
+
+    const ogTitle = product.meta_title || product.name;
+    const ogDescription = product.meta_description || product.description;
+    const ogImage = product.og_image_url || imageUrl;
+
+    document.title = `${ogTitle} | RoomRefine`;
+
+    const metaTags: Record<string, string> = {
+      "og:title": ogTitle,
+      "og:description": ogDescription,
+      "og:image": ogImage,
+      "og:url": productUrl,
+      "og:type": "product",
+      "og:site_name": "RoomRefine",
+      "product:price:amount": product.price.replace("$", ""),
+      "product:price:currency": "USD",
+      "twitter:card": "summary_large_image",
+      "twitter:title": ogTitle,
+      "twitter:description": ogDescription,
+      "twitter:image": ogImage,
+      "pinterest:description": `${ogTitle} - ${product.price} | Shop top-rated home decor`,
+    };
+
+    const createdTags: HTMLMetaElement[] = [];
+    Object.entries(metaTags).forEach(([property, content]) => {
+      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.querySelector(`meta[name="${property}"]`) as HTMLMetaElement | null;
+      }
+      if (el) {
+        el.setAttribute("content", content);
+      } else {
+        el = document.createElement("meta");
+        el.setAttribute(property.startsWith("twitter:") ? "name" : "property", property);
+        el.setAttribute("content", content);
+        document.head.appendChild(el);
+        createdTags.push(el);
+      }
+    });
+
+    return () => {
+      createdTags.forEach((tag) => tag.remove());
+      document.title = "RoomRefine - Curated Home Decor";
+    };
+  }, [product, imageUrl, productUrl]);
 
   if (isLoading) {
     return (
@@ -72,9 +125,6 @@ const ProductDetail = () => {
       </PageTransition>
     );
   }
-
-  const imageUrl = resolveImageUrl(product.image_url);
-  const productUrl = `${window.location.origin}/shop/${product.slug}`;
 
   const productJsonLd = {
     "@context": "https://schema.org",
