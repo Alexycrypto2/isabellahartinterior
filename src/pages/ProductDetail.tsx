@@ -30,6 +30,7 @@ const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading, error } = useProductBySlug(slug || "");
   const { data: reviews } = useProductReviews(product?.id || "");
+  const { data: allProducts } = useActiveProducts();
   const { addToCart, isInCart } = useCart();
 
   const imageUrl = product ? resolveImageUrl(product.image_url) : "";
@@ -315,6 +316,46 @@ const ProductDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* You May Also Like */}
+            {(() => {
+              const related = allProducts
+                ?.filter((p) => p.id !== product.id && p.category === product.category)
+                .slice(0, 4) || [];
+              const fallback = related.length < 4
+                ? allProducts?.filter((p) => p.id !== product.id && !related.find((r) => r.id === p.id)).slice(0, 4 - related.length) || []
+                : [];
+              const items = [...related, ...fallback];
+              if (items.length === 0) return null;
+              return (
+                <div className="mt-16">
+                  <h2 className="font-display text-2xl font-semibold mb-6">You May Also Like</h2>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    {items.map((p) => (
+                      <Link
+                        key={p.id}
+                        to={`/shop/${p.slug}`}
+                        className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-shadow"
+                      >
+                        <div className="aspect-square overflow-hidden">
+                          <img
+                            src={resolveImageUrl(p.image_url)}
+                            alt={p.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{p.category}</span>
+                          <h3 className="font-medium text-sm line-clamp-1 mt-1">{p.name}</h3>
+                          <span className="text-sm font-semibold mt-1 block">{p.price}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Affiliate Note */}
             <div className="mt-12 text-center">
