@@ -31,79 +31,13 @@ const ProductDetail = () => {
   const { data: reviews } = useProductReviews(product?.id || "");
   const { addToCart, isInCart } = useCart();
 
-  if (isLoading) {
-    return (
-      <PageTransition>
-        <div className="min-h-screen">
-          <Navigation />
-          <div className="container mx-auto px-6 pt-28 pb-16">
-            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-              <Skeleton className="aspect-square rounded-2xl" />
-              <div className="space-y-4 pt-4">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-10 w-3/4" />
-                <Skeleton className="h-6 w-20" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-12 w-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </PageTransition>
-    );
-  }
+  const imageUrl = product ? resolveImageUrl(product.image_url) : "";
+  const productUrl = product ? `${window.location.origin}/shop/${product.slug}` : "";
 
-  if (error || !product) {
-    return (
-      <PageTransition>
-        <div className="min-h-screen">
-          <Navigation />
-          <div className="container mx-auto px-6 pt-28 pb-16 text-center">
-            <h1 className="font-display text-3xl font-semibold mb-4">Product Not Found</h1>
-            <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist or is no longer available.</p>
-            <Button asChild className="rounded-full">
-              <Link to="/shop">
-                <ArrowLeft className="mr-2 w-4 h-4" />
-                Back to Shop
-              </Link>
-            </Button>
-          </div>
-          <Footer />
-        </div>
-      </PageTransition>
-    );
-  }
-
-  const imageUrl = resolveImageUrl(product.image_url);
-  const productUrl = `${window.location.origin}/shop/${product.slug}`;
-
-  const productJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: imageUrl,
-    url: productUrl,
-    offers: {
-      "@type": "Offer",
-      price: product.price.replace("$", ""),
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-      url: product.affiliate_url,
-    },
-    ...(product.rating
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: product.rating,
-            reviewCount: product.reviews || 0,
-          },
-        }
-      : {}),
-  };
-
-  // Set OG meta tags for social sharing / Pinterest
+  // Set OG meta tags for social sharing / Pinterest — before early returns
   useEffect(() => {
+    if (!product) return;
+
     const ogTitle = product.meta_title || product.name;
     const ogDescription = product.meta_description || product.description;
     const ogImage = product.og_image_url || imageUrl;
@@ -148,6 +82,74 @@ const ProductDetail = () => {
       document.title = "RoomRefine - Curated Home Decor";
     };
   }, [product, imageUrl, productUrl]);
+
+  if (isLoading) {
+    return (
+      <PageTransition>
+        <div className="min-h-screen">
+          <Navigation />
+          <div className="container mx-auto px-6 pt-28 pb-16">
+            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+              <Skeleton className="aspect-square rounded-2xl" />
+              <div className="space-y-4 pt-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-3/4" />
+                <Skeleton className="h-6 w-20" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <PageTransition>
+        <div className="min-h-screen">
+          <Navigation />
+          <div className="container mx-auto px-6 pt-28 pb-16 text-center">
+            <h1 className="font-display text-3xl font-semibold mb-4">Product Not Found</h1>
+            <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist or is no longer available.</p>
+            <Button asChild className="rounded-full">
+              <Link to="/shop">
+                <ArrowLeft className="mr-2 w-4 h-4" />
+                Back to Shop
+              </Link>
+            </Button>
+          </div>
+          <Footer />
+        </div>
+      </PageTransition>
+    );
+  }
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: imageUrl,
+    url: productUrl,
+    offers: {
+      "@type": "Offer",
+      price: product.price.replace("$", ""),
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: product.affiliate_url,
+    },
+    ...(product.rating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            reviewCount: product.reviews || 0,
+          },
+        }
+      : {}),
+  };
 
   return (
     <PageTransition>
