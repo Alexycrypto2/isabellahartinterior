@@ -309,7 +309,7 @@ const Shop = () => {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-square overflow-hidden">
+                    <Link to={`/shop/${product.slug}`} className="relative aspect-square overflow-hidden block">
                       <img 
                         src={resolveImageUrl(product.image_url)} 
                         alt={`${product.name} - ${product.category} home decor, ${product.price}${product.badge ? `, ${product.badge}` : ''}`}
@@ -364,7 +364,7 @@ const Shop = () => {
                           Quick View
                         </Button>
                       </div>
-                    </div>
+                    </Link>
                     
                     {/* Content */}
                     <div className="p-5">
