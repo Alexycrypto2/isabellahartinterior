@@ -123,6 +123,25 @@ export const useProductById = (id: string) => {
   });
 };
 
+// Fetch single product by slug
+export const useProductBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ['products', 'slug', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_active', true)
+        .single();
+      
+      if (error) throw error;
+      return data as Product;
+    },
+    enabled: !!slug,
+  });
+};
+
 // Create product
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
