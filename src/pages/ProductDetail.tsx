@@ -7,7 +7,7 @@ import PinterestSaveButton from "@/components/PinterestSaveButton";
 import JsonLd from "@/components/JsonLd";
 import StarRating from "@/components/StarRating";
 import ProductReviewForm from "@/components/ProductReviewForm";
-import { useProductBySlug } from "@/hooks/useProducts";
+import { useProductBySlug, useActiveProducts } from "@/hooks/useProducts";
 import { useProductReviews } from "@/hooks/useProductReviews";
 import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
