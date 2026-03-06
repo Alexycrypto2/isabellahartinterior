@@ -54,7 +54,12 @@ async function testTextAi(provider: string, apiKey: string, model: string, endpo
     });
   } else if (provider === "google") {
     const m = model || "gemini-2.0-flash";
-    url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
+    url = endpoint || `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
+    // If endpoint is provided, append key as query param
+    if (endpoint) {
+      const separator = endpoint.includes("?") ? "&" : "?";
+      url = `${endpoint}${separator}key=${apiKey}`;
+    }
     headers = { "Content-Type": "application/json" };
     body = JSON.stringify({
       contents: [{ parts: [{ text: testPrompt }] }],
@@ -78,7 +83,7 @@ async function testTextAi(provider: string, apiKey: string, model: string, endpo
     let errorMsg = `API returned ${response.status}`;
     try {
       const errJson = JSON.parse(errText);
-      errorMsg = errJson.error?.message || errJson.error?.type || errorMsg;
+      errorMsg = errJson.error?.message || errJson.error?.type || errJson.error?.status || errorMsg;
     } catch { /* use default */ }
     return new Response(JSON.stringify({ success: false, error: errorMsg }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -92,19 +97,23 @@ async function testTextAi(provider: string, apiKey: string, model: string, endpo
 }
 
 async function testImageAi(provider: string, apiKey: string, model: string, endpoint: string) {
-  // For image AI we just validate the key with a minimal request
-  // We use a small/cheap prompt and request the smallest possible output
   let url: string;
   let headers: Record<string, string>;
   let body: string;
 
   if (provider === "google") {
-    const m = model || "imagen-3.0-generate-002";
-    url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:predict?key=${apiKey}`;
+    // Use Gemini generateContent with image generation for testing
+    const m = model || "gemini-2.0-flash-exp";
+    url = endpoint || `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
+    if (endpoint) {
+      const separator = endpoint.includes("?") ? "&" : "?";
+      url = `${endpoint}${separator}key=${apiKey}`;
+    }
     headers = { "Content-Type": "application/json" };
+    // Simple test: just verify the model responds (not actually generating an image)
     body = JSON.stringify({
-      instances: [{ prompt: "A small red dot" }],
-      parameters: { sampleCount: 1, aspectRatio: "1:1" },
+      contents: [{ parts: [{ text: "Respond with exactly: OK" }] }],
+      generationConfig: { maxOutputTokens: 10 },
     });
   } else {
     // OpenAI DALL-E or custom
@@ -125,7 +134,7 @@ async function testImageAi(provider: string, apiKey: string, model: string, endp
     let errorMsg = `API returned ${response.status}`;
     try {
       const errJson = JSON.parse(errText);
-      errorMsg = errJson.error?.message || errJson.error?.type || errorMsg;
+      errorMsg = errJson.error?.message || errJson.error?.type || errJson.error?.status || errorMsg;
     } catch { /* use default */ }
     return new Response(JSON.stringify({ success: false, error: errorMsg }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
