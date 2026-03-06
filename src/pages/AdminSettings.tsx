@@ -975,13 +975,11 @@ const AdminSettings = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  {aiTextProvider === 'custom' && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">API Endpoint URL</Label>
-                      <Input value={aiTextEndpoint} onChange={(e) => setAiTextEndpoint(e.target.value)} placeholder="https://api.example.com/v1/chat/completions" />
-                      <p className="text-xs text-muted-foreground">Must be OpenAI-compatible (e.g. Groq, Mistral, Together AI, Ollama, LM Studio)</p>
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">API Endpoint URL</Label>
+                    <Input value={aiTextEndpoint} onChange={(e) => setAiTextEndpoint(e.target.value)} placeholder={getDefaultTextEndpoint(aiTextProvider)} readOnly={aiTextProvider !== 'custom'} className={aiTextProvider !== 'custom' ? 'bg-muted/50' : ''} />
+                    <p className="text-xs text-muted-foreground">{aiTextProvider === 'custom' ? 'Must be OpenAI-compatible (e.g. Groq, Mistral, Together AI, Ollama, LM Studio)' : 'Auto-filled based on provider and model'}</p>
+                  </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">API Key</Label>
                     <div className="relative">
@@ -1003,34 +1001,34 @@ const AdminSettings = () => {
                     <Input value={aiTextModel} onChange={(e) => setAiTextModel(e.target.value)} placeholder={getDefaultTextModel(aiTextProvider) || 'e.g. llama-3.1-70b-versatile'} />
                     {getDefaultTextModel(aiTextProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultTextModel(aiTextProvider)}</p>}
                   </div>
-                  {aiTextKey && (
-                    <div className="space-y-3">
+                  <div className="space-y-3">
+                    {aiTextKey && (
                       <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
                         <div className="w-2 h-2 rounded-full bg-emerald-500" />
                         <span className="text-sm text-emerald-700 dark:text-emerald-400">Text AI fallback configured</span>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => testAiKey('text')}
-                        disabled={testingText}
-                        className="w-full"
-                      >
-                        {testingText ? (
-                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing connection...</>
-                        ) : (
-                          <><Zap className="mr-2 h-4 w-4" />Test Text AI Connection</>
-                        )}
-                      </Button>
-                      {textTestResult && (
-                        <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${textTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-destructive/10 border-destructive/30'}`}>
-                          {textTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
-                          <span className={`text-sm ${textTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'}`}>{textTestResult.message}</span>
-                        </div>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => testAiKey('text')}
+                      disabled={testingText || !aiTextKey}
+                      className="w-full"
+                    >
+                      {testingText ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing connection...</>
+                      ) : (
+                        <><Zap className="mr-2 h-4 w-4" />Test Text AI Connection</>
                       )}
-                    </div>
-                  )}
+                    </Button>
+                    {textTestResult && (
+                      <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${textTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-destructive/10 border-destructive/30'}`}>
+                        {textTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+                        <span className={`text-sm ${textTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'}`}>{textTestResult.message}</span>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
