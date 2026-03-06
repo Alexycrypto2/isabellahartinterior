@@ -120,11 +120,11 @@ const analyzeSeoScore = (data: BlogPostData, keywordsStr: string) => {
   if (keywordsStr.trim()) {
     const primaryKw = keywordsStr.split(",")[0].trim().toLowerCase();
     checks.push(
-      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 10 },
+      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 10, fix: `Add "${primaryKw}" naturally into your title for better keyword targeting.` },
     );
     const first100Words = plain.split(/\s+/).slice(0, 100).join(" ").toLowerCase();
     checks.push(
-      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 10 },
+      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 10, fix: `Mention "${primaryKw}" in your opening paragraph so Google identifies the topic early.` },
     );
   }
 
