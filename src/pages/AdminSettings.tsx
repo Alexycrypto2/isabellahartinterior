@@ -369,8 +369,31 @@ const AdminSettings = () => {
   const getDefaultImageModel = (provider: string) => {
     switch (provider) {
       case 'openai': return 'dall-e-3';
-      case 'google': return 'imagen-3.0-generate-002';
+      case 'google': return 'gemini-2.0-flash-exp';
       case 'custom': return '';
+      default: return '';
+    }
+  };
+
+  const getDefaultTextEndpoint = (provider: string, model?: string) => {
+    switch (provider) {
+      case 'google': {
+        const m = model || 'gemini-2.0-flash';
+        return `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+      }
+      case 'openai': return 'https://api.openai.com/v1/chat/completions';
+      case 'anthropic': return 'https://api.anthropic.com/v1/messages';
+      default: return '';
+    }
+  };
+
+  const getDefaultImageEndpoint = (provider: string, model?: string) => {
+    switch (provider) {
+      case 'google': {
+        const m = model || 'gemini-2.0-flash-exp';
+        return `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+      }
+      case 'openai': return 'https://api.openai.com/v1/images/generations';
       default: return '';
     }
   };
@@ -940,7 +963,7 @@ const AdminSettings = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Provider</Label>
-                    <Select value={aiTextProvider} onValueChange={(val) => { setAiTextProvider(val); setAiTextModel(getDefaultTextModel(val)); if (val !== 'custom') setAiTextEndpoint(''); }}>
+                    <Select value={aiTextProvider} onValueChange={(val) => { setAiTextProvider(val); const m = getDefaultTextModel(val); setAiTextModel(m); setAiTextEndpoint(val !== 'custom' ? getDefaultTextEndpoint(val, m) : ''); }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
@@ -1027,7 +1050,7 @@ const AdminSettings = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Provider</Label>
-                    <Select value={aiImageProvider} onValueChange={(val) => { setAiImageProvider(val); setAiImageModel(getDefaultImageModel(val)); if (val !== 'custom') setAiImageEndpoint(''); }}>
+                    <Select value={aiImageProvider} onValueChange={(val) => { setAiImageProvider(val); const m = getDefaultImageModel(val); setAiImageModel(m); setAiImageEndpoint(val !== 'custom' ? getDefaultImageEndpoint(val, m) : ''); }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
