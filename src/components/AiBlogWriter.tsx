@@ -525,15 +525,22 @@ const AiBlogWriter = ({
                   {/* Checklist */}
                   <div className="grid grid-cols-1 gap-1.5 pt-1">
                     {seo.checks.map((check, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px]">
-                        <span className={check.pass ? "text-accent" : "text-muted-foreground"}>
-                          {check.pass ? "✓" : "✗"}
-                        </span>
-                        <span className={check.pass ? "text-foreground" : "text-muted-foreground"}>
-                          {check.label}
-                        </span>
-                        {check.detail && (
-                          <span className="text-muted-foreground ml-auto">({check.detail})</span>
+                      <div key={i} className="space-y-0.5">
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span className={check.pass ? "text-accent" : "text-destructive"}>
+                            {check.pass ? "✓" : "✗"}
+                          </span>
+                          <span className={check.pass ? "text-foreground" : "text-muted-foreground"}>
+                            {check.label}
+                          </span>
+                          {check.detail && (
+                            <span className="text-muted-foreground ml-auto">({check.detail})</span>
+                          )}
+                        </div>
+                        {!check.pass && check.fix && (
+                          <p className="text-[10px] text-destructive/80 pl-5 leading-relaxed">
+                            💡 {check.fix}
+                          </p>
                         )}
                       </div>
                     ))}
