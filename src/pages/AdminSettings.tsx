@@ -1054,18 +1054,16 @@ const AdminSettings = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="openai">OpenAI (DALL·E)</SelectItem>
-                        <SelectItem value="google">Google (Imagen)</SelectItem>
+                        <SelectItem value="google">Google (Gemini)</SelectItem>
                         <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  {aiImageProvider === 'custom' && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">API Endpoint URL</Label>
-                      <Input value={aiImageEndpoint} onChange={(e) => setAiImageEndpoint(e.target.value)} placeholder="https://api.example.com/v1/images/generations" />
-                      <p className="text-xs text-muted-foreground">Must be OpenAI-compatible image generation endpoint</p>
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">API Endpoint URL</Label>
+                    <Input value={aiImageEndpoint} onChange={(e) => setAiImageEndpoint(e.target.value)} placeholder={getDefaultImageEndpoint(aiImageProvider)} readOnly={aiImageProvider !== 'custom'} className={aiImageProvider !== 'custom' ? 'bg-muted/50' : ''} />
+                    <p className="text-xs text-muted-foreground">{aiImageProvider === 'custom' ? 'Must be OpenAI-compatible image generation endpoint' : 'Auto-filled based on provider and model'}</p>
+                  </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">API Key</Label>
                     <div className="relative">
@@ -1091,34 +1089,34 @@ const AdminSettings = () => {
                     <Input value={aiImageModel} onChange={(e) => setAiImageModel(e.target.value)} placeholder={getDefaultImageModel(aiImageProvider) || 'e.g. stable-diffusion-xl'} />
                     {getDefaultImageModel(aiImageProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultImageModel(aiImageProvider)}</p>}
                   </div>
-                  {aiImageKey && (
-                    <div className="space-y-3">
+                  <div className="space-y-3">
+                    {aiImageKey && (
                       <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
                         <div className="w-2 h-2 rounded-full bg-emerald-500" />
                         <span className="text-sm text-emerald-700 dark:text-emerald-400">Image AI fallback configured</span>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => testAiKey('image')}
-                        disabled={testingImage}
-                        className="w-full"
-                      >
-                        {testingImage ? (
-                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing connection...</>
-                        ) : (
-                          <><Zap className="mr-2 h-4 w-4" />Test Image AI Connection</>
-                        )}
-                      </Button>
-                      {imageTestResult && (
-                        <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${imageTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-destructive/10 border-destructive/30'}`}>
-                          {imageTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
-                          <span className={`text-sm ${imageTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'}`}>{imageTestResult.message}</span>
-                        </div>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => testAiKey('image')}
+                      disabled={testingImage || !aiImageKey}
+                      className="w-full"
+                    >
+                      {testingImage ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing connection...</>
+                      ) : (
+                        <><Zap className="mr-2 h-4 w-4" />Test Image AI Connection</>
                       )}
-                    </div>
-                  )}
+                    </Button>
+                    {imageTestResult && (
+                      <div className={`flex items-center gap-2 p-2.5 rounded-lg border ${imageTestResult.success ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-destructive/10 border-destructive/30'}`}>
+                        {imageTestResult.success ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+                        <span className={`text-sm ${imageTestResult.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'}`}>{imageTestResult.message}</span>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
