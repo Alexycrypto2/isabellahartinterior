@@ -16,7 +16,12 @@ async function getCustomImageConfig() {
     if (data?.value) {
       const val = data.value as any;
       if (val.image_api_key) {
-        return { provider: val.image_provider || "openai", api_key: val.image_api_key, model: val.image_model || "", endpoint: val.image_endpoint || "" };
+        return {
+          provider: val.image_provider || "openai",
+          api_key: val.image_api_key,
+          model: val.image_model || "",
+          endpoint: val.image_endpoint || "",
+        };
       }
     }
   } catch { /* no config */ }
@@ -49,29 +54,47 @@ async function generateWithOpenAIDalle(apiKey: string, model: string, prompt: st
   return `data:image/png;base64,${b64}`;
 }
 
-async function generateWithGoogleImagen(apiKey: string, model: string, prompt: string): Promise<string> {
-  const modelName = model || "imagen-3.0-generate-002";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict?key=${apiKey}`;
+async function generateWithGeminiImage(apiKey: string, model: string, prompt: string, endpoint?: string): Promise<string> {
+  const modelName = model || "gemini-2.0-flash-exp";
+  const url = endpoint || `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
   
-  const response = await fetch(url, {
+  // If endpoint doesn't have the key param, append it
+  const finalUrl = url.includes("key=") ? url : `${url}${url.includes("?") ? "&" : "?"}key=${apiKey}`;
+
+  const fullPrompt = `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}`;
+
+  const response = await fetch(finalUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      instances: [{ prompt: `Beautiful, high-quality photograph for a home decor blog post. Photorealistic, well-lit, magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}` }],
-      parameters: { sampleCount: 1, aspectRatio: "16:9" },
+      contents: [{ parts: [{ text: fullPrompt }] }],
+      generationConfig: {
+        responseModalities: ["TEXT", "IMAGE"],
+      },
     }),
   });
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error("Google Imagen error:", response.status, errText);
-    throw new Error(`Imagen error: ${response.status}`);
+    console.error("Gemini image error:", response.status, errText);
+    throw new Error(`Gemini image error: ${response.status} - ${errText.substring(0, 200)}`);
   }
 
   const data = await response.json();
-  const b64 = data.predictions?.[0]?.bytesBase64Encoded;
-  if (!b64) throw new Error("No image data from Imagen");
-  return `data:image/png;base64,${b64}`;
+  
+  // Extract image from Gemini response
+  const candidates = data.candidates || [];
+  for (const candidate of candidates) {
+    const parts = candidate.content?.parts || [];
+    for (const part of parts) {
+      if (part.inlineData?.data) {
+        const mimeType = part.inlineData.mimeType || "image/png";
+        return `data:${mimeType};base64,${part.inlineData.data}`;
+      }
+    }
+  }
+
+  throw new Error("No image data in Gemini response");
 }
 
 serve(async (req) => {
@@ -93,30 +116,34 @@ serve(async (req) => {
 
     // Try Lovable AI first
     if (LOVABLE_API_KEY) {
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
-          messages: [{ role: "user", content: `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}` }],
-          modalities: ["image", "text"],
-        }),
-      });
-
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      try {
+        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image",
+            messages: [{ role: "user", content: `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}` }],
+            modalities: ["image", "text"],
+          }),
         });
-      }
 
-      if (response.ok) {
-        const data = await response.json();
-        imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
-      } else if (response.status === 402) {
-        console.log("Lovable AI credits exhausted for image gen, trying fallback...");
-      } else {
-        const errorText = await response.text();
-        console.error("AI image error:", response.status, errorText);
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        if (response.ok) {
+          const data = await response.json();
+          imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
+        } else if (response.status === 402) {
+          console.log("Lovable AI credits exhausted for image gen, trying fallback...");
+        } else {
+          const errorText = await response.text();
+          console.error("Lovable AI image error:", response.status, errorText);
+        }
+      } catch (lovableErr) {
+        console.error("Lovable AI image request failed:", lovableErr);
       }
     }
 
@@ -124,11 +151,17 @@ serve(async (req) => {
     if (!imageData) {
       const customConfig = await getCustomImageConfig();
       if (customConfig) {
-        console.log(`Using fallback image provider: ${customConfig.provider}`);
+        console.log(`Using fallback image provider: ${customConfig.provider}, model: ${customConfig.model}`);
+        
         if (customConfig.provider === "google") {
-          imageData = await generateWithGoogleImagen(customConfig.api_key, customConfig.model, prompt);
+          // Use Gemini generateContent API (not Imagen predict)
+          imageData = await generateWithGeminiImage(
+            customConfig.api_key,
+            customConfig.model,
+            prompt,
+            customConfig.endpoint
+          );
         } else if (customConfig.provider === "custom" && customConfig.endpoint) {
-          // Custom OpenAI-compatible image endpoint
           imageData = await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);
         } else {
           imageData = await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt);

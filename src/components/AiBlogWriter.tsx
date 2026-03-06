@@ -102,29 +102,29 @@ const analyzeSeoScore = (data: BlogPostData, keywordsStr: string) => {
   const sentencesPerPara = paragraphs.length > 0 ? Math.round(wordCount / paragraphs.length / 15) : 0;
 
   const checks = [
-    { label: "Title length (50-60 chars)", pass: data.meta_title.length >= 40 && data.meta_title.length <= 60, weight: 10 },
-    { label: "Meta description (140-160 chars)", pass: data.meta_description.length >= 120 && data.meta_description.length <= 160, weight: 10 },
-    { label: "Word count (1200+ words)", pass: wordCount >= 1200, weight: 15, detail: `${wordCount} words` },
-    { label: "H2 headings (4-6 recommended)", pass: h2Count >= 3 && h2Count <= 8, weight: 10, detail: `${h2Count} found` },
-    { label: "H3 subheadings used", pass: h3Count >= 1, weight: 5, detail: `${h3Count} found` },
-    { label: "Lists for scannability", pass: hasLists, weight: 8 },
-    { label: "Bold/emphasis used", pass: hasBold, weight: 5 },
-    { label: "Blockquotes for depth", pass: hasBlockquote, weight: 3 },
-    { label: "Short paragraphs (readable)", pass: sentencesPerPara <= 4, weight: 7 },
-    { label: "Slug is concise (≤5 words)", pass: data.slug.split("-").length <= 6, weight: 5, detail: `${data.slug.split("-").length} words` },
-    { label: "Featured image included", pass: !!data.image_url, weight: 7 },
-    { label: "Excerpt provided", pass: data.excerpt.length >= 50, weight: 5 },
+    { label: "Title length (50-60 chars)", pass: data.meta_title.length >= 40 && data.meta_title.length <= 60, weight: 10, fix: `Title is ${data.meta_title.length} chars. ${data.meta_title.length < 40 ? "Add more descriptive words to reach 50-60 characters." : "Shorten to under 60 characters to avoid truncation in search results."}` },
+    { label: "Meta description (140-160 chars)", pass: data.meta_description.length >= 120 && data.meta_description.length <= 160, weight: 10, fix: `Description is ${data.meta_description.length} chars. ${data.meta_description.length < 120 ? "Expand with a call-to-action or benefit statement to reach 140-160 characters." : "Trim to under 160 characters so Google doesn't cut it off."}` },
+    { label: "Word count (1200+ words)", pass: wordCount >= 1200, weight: 15, detail: `${wordCount} words`, fix: "Articles under 1200 words rank lower. Try regenerating with a broader topic or add more subtopics." },
+    { label: "H2 headings (4-6 recommended)", pass: h2Count >= 3 && h2Count <= 8, weight: 10, detail: `${h2Count} found`, fix: h2Count < 3 ? "Add more H2 sections to break up content. Each H2 should cover a distinct subtopic." : "Too many H2s can dilute focus. Merge similar sections or convert some to H3." },
+    { label: "H3 subheadings used", pass: h3Count >= 1, weight: 5, detail: `${h3Count} found`, fix: "Add H3 subheadings under your H2 sections to improve scannability and structure." },
+    { label: "Lists for scannability", pass: hasLists, weight: 8, fix: "Add a bulleted or numbered list to make key points easy to scan. Lists also help win featured snippets." },
+    { label: "Bold/emphasis used", pass: hasBold, weight: 5, fix: "Bold key phrases and important terms to help readers and search engines identify main concepts." },
+    { label: "Blockquotes for depth", pass: hasBlockquote, weight: 3, fix: "Add a blockquote with an expert tip or inspiring quote to add credibility and visual variety." },
+    { label: "Short paragraphs (readable)", pass: sentencesPerPara <= 4, weight: 7, fix: "Break long paragraphs into 2-3 sentences each. Wall-of-text paragraphs increase bounce rate." },
+    { label: "Slug is concise (≤5 words)", pass: data.slug.split("-").length <= 6, weight: 5, detail: `${data.slug.split("-").length} words`, fix: "Shorten the URL slug to 3-5 key words. Remove filler words like 'the', 'and', 'for'." },
+    { label: "Featured image included", pass: !!data.image_url, weight: 7, fix: "Upload a featured image or try regenerating — posts with images get 94% more views." },
+    { label: "Excerpt provided", pass: data.excerpt.length >= 50, weight: 5, fix: "Write a compelling 50-160 character excerpt that summarizes the post and encourages clicks." },
   ];
 
   // Keyword-specific checks
   if (keywordsStr.trim()) {
     const primaryKw = keywordsStr.split(",")[0].trim().toLowerCase();
     checks.push(
-      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 10 },
+      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 10, fix: `Add "${primaryKw}" naturally into your title for better keyword targeting.` },
     );
     const first100Words = plain.split(/\s+/).slice(0, 100).join(" ").toLowerCase();
     checks.push(
-      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 10 },
+      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 10, fix: `Mention "${primaryKw}" in your opening paragraph so Google identifies the topic early.` },
     );
   }
 
@@ -525,15 +525,22 @@ const AiBlogWriter = ({
                   {/* Checklist */}
                   <div className="grid grid-cols-1 gap-1.5 pt-1">
                     {seo.checks.map((check, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px]">
-                        <span className={check.pass ? "text-accent" : "text-muted-foreground"}>
-                          {check.pass ? "✓" : "✗"}
-                        </span>
-                        <span className={check.pass ? "text-foreground" : "text-muted-foreground"}>
-                          {check.label}
-                        </span>
-                        {check.detail && (
-                          <span className="text-muted-foreground ml-auto">({check.detail})</span>
+                      <div key={i} className="space-y-0.5">
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span className={check.pass ? "text-accent" : "text-destructive"}>
+                            {check.pass ? "✓" : "✗"}
+                          </span>
+                          <span className={check.pass ? "text-foreground" : "text-muted-foreground"}>
+                            {check.label}
+                          </span>
+                          {check.detail && (
+                            <span className="text-muted-foreground ml-auto">({check.detail})</span>
+                          )}
+                        </div>
+                        {!check.pass && check.fix && (
+                          <p className="text-[10px] text-destructive/80 pl-5 leading-relaxed">
+                            💡 {check.fix}
+                          </p>
                         )}
                       </div>
                     ))}
