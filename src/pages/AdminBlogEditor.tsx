@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
+import { resolveImageUrl } from '@/lib/imageResolver';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -64,12 +65,20 @@ const AdminBlogEditor = () => {
   const [metaDescription, setMetaDescription] = useState('');
   const [ogImageUrl, setOgImageUrl] = useState('');
 
+  // Resolve /src/assets/ paths in HTML content so images display in the editor
+  const resolveContentImages = (html: string) => {
+    return html.replace(
+      /src="(\/src\/assets\/[^"]+)"/g,
+      (_, path) => `src="${resolveImageUrl(path)}"`
+    );
+  };
+
   useEffect(() => {
     if (existingPost) {
       setTitle(existingPost.title);
       setSlug(existingPost.slug);
       setExcerpt(existingPost.excerpt);
-      setContent(existingPost.content);
+      setContent(resolveContentImages(existingPost.content));
       setAuthor(existingPost.author);
       setCategory(existingPost.category);
       setReadTime(existingPost.read_time);
@@ -146,6 +155,47 @@ const AdminBlogEditor = () => {
       setIsUploading(false);
     }
   };
+
+  const handleContentImageUpload = useCallback((insertImage: (url: string, alt?: string) => void) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        toast({ title: 'Invalid file type', description: 'Please upload an image file.', variant: 'destructive' });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: 'File too large', description: 'Max 5MB.', variant: 'destructive' });
+        return;
+      }
+
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `content/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('blog-images')
+          .upload(filePath, file);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('blog-images')
+          .getPublicUrl(filePath);
+
+        insertImage(publicUrl, file.name);
+        toast({ title: 'Image inserted', description: 'Image uploaded and added to content.' });
+      } catch (error) {
+        console.error('Content image upload error:', error);
+        toast({ title: 'Upload failed', description: 'Failed to upload image.', variant: 'destructive' });
+      }
+    };
+    input.click();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -485,7 +535,7 @@ const AdminBlogEditor = () => {
           {/* Content */}
           <div className="space-y-2">
             <Label>Content *</Label>
-            <RichTextEditor content={content} onChange={setContent} />
+            <RichTextEditor content={content} onChange={setContent} onImageUpload={handleContentImageUpload} />
           </div>
 
           {/* SEO Section */}
