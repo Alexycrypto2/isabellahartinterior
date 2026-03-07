@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
@@ -16,8 +17,11 @@ import {
   Image as ImageIcon,
   Undo,
   Redo,
+  ExternalLink,
+  Pencil,
+  Unlink,
 } from 'lucide-react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -26,6 +30,9 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProps) => {
+  const [editingLink, setEditingLink] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -89,12 +96,80 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
     }
   }, [editor]);
 
+  const handleEditLink = useCallback(() => {
+    if (!editor) return;
+    const href = editor.getAttributes('link').href || '';
+    setLinkUrl(href);
+    setEditingLink(true);
+  }, [editor]);
+
+  const handleSaveLink = useCallback(() => {
+    if (!editor) return;
+    if (linkUrl === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    } else {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run();
+    }
+    setEditingLink(false);
+    setLinkUrl('');
+  }, [editor, linkUrl]);
+
+  const handleRemoveLink = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    setEditingLink(false);
+    setLinkUrl('');
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
 
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
+      {/* Link Bubble Menu */}
+      <BubbleMenu
+        editor={editor}
+        shouldShow={({ editor }) => editor.isActive('link')}
+      >
+        <div className="bg-popover border border-border rounded-lg shadow-lg p-2 flex items-center gap-2 max-w-[400px]">
+          {editingLink ? (
+            <div className="flex items-center gap-1.5 w-full">
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveLink()}
+                placeholder="https://..."
+                className="flex-1 text-xs px-2 py-1 border border-input rounded bg-background text-foreground min-w-[180px]"
+                autoFocus
+              />
+              <Button type="button" variant="default" size="sm" onClick={handleSaveLink} className="text-xs h-7 px-2">
+                Save
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setEditingLink(false)} className="text-xs h-7 px-2">
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <>
+              <span className="text-xs text-muted-foreground truncate max-w-[200px]" title={editor.getAttributes('link').href}>
+                {editor.getAttributes('link').href}
+              </span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => window.open(editor.getAttributes('link').href, '_blank')} className="h-7 w-7 p-0" title="Open link">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={handleEditLink} className="h-7 w-7 p-0" title="Edit link">
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={handleRemoveLink} className="h-7 w-7 p-0 text-destructive" title="Remove link">
+                <Unlink className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
+        </div>
+      </BubbleMenu>
+
       {/* Toolbar */}
       <div className="border-b p-2 flex flex-wrap gap-1 bg-muted/30">
         <Button
