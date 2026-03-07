@@ -19,6 +19,7 @@ import {
   Menu,
   MessageSquare,
   Camera,
+  FileText,
 } from 'lucide-react';
 
 interface AdminLayoutProps {

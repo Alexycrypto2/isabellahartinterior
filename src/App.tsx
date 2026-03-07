@@ -27,6 +27,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminBlogPosts = lazy(() => import("./pages/AdminBlogPosts"));
 const AdminBlogEditor = lazy(() => import("./pages/AdminBlogEditor"));
 const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts"));
