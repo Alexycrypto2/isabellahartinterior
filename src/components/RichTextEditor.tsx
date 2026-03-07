@@ -130,7 +130,6 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
       {/* Link Bubble Menu */}
       <BubbleMenu
         editor={editor}
-        tippyOptions={{ duration: 150, placement: 'bottom-start' }}
         shouldShow={({ editor }) => editor.isActive('link')}
       >
         <div className="bg-popover border border-border rounded-lg shadow-lg p-2 flex items-center gap-2 max-w-[400px]">
