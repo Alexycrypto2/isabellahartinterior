@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
+import { resolveImageUrl } from '@/lib/imageResolver';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -64,12 +65,20 @@ const AdminBlogEditor = () => {
   const [metaDescription, setMetaDescription] = useState('');
   const [ogImageUrl, setOgImageUrl] = useState('');
 
+  // Resolve /src/assets/ paths in HTML content so images display in the editor
+  const resolveContentImages = (html: string) => {
+    return html.replace(
+      /src="(\/src\/assets\/[^"]+)"/g,
+      (_, path) => `src="${resolveImageUrl(path)}"`
+    );
+  };
+
   useEffect(() => {
     if (existingPost) {
       setTitle(existingPost.title);
       setSlug(existingPost.slug);
       setExcerpt(existingPost.excerpt);
-      setContent(existingPost.content);
+      setContent(resolveContentImages(existingPost.content));
       setAuthor(existingPost.author);
       setCategory(existingPost.category);
       setReadTime(existingPost.read_time);
@@ -485,7 +494,7 @@ const AdminBlogEditor = () => {
           {/* Content */}
           <div className="space-y-2">
             <Label>Content *</Label>
-            <RichTextEditor content={content} onChange={setContent} />
+            <RichTextEditor content={content} onChange={setContent} onImageUpload={handleContentImageUpload} />
           </div>
 
           {/* SEO Section */}
