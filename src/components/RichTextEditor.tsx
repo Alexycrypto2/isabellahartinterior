@@ -26,7 +26,7 @@ import { useCallback, useEffect, useState } from 'react';
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
-  onImageUpload?: () => void;
+  onImageUpload?: (insertImage: (url: string, alt?: string) => void) => void;
 }
 
 const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProps) => {
@@ -257,7 +257,15 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
           type="button"
           variant="ghost"
           size="sm"
-          onClick={onImageUpload || addImage}
+          onClick={() => {
+            if (onImageUpload && editor) {
+              onImageUpload((url: string, alt?: string) => {
+                editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
+              });
+            } else {
+              addImage();
+            }
+          }}
         >
           <ImageIcon className="h-4 w-4" />
         </Button>
