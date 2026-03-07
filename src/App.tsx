@@ -27,6 +27,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminBlogPosts = lazy(() => import("./pages/AdminBlogPosts"));
 const AdminBlogEditor = lazy(() => import("./pages/AdminBlogEditor"));
 const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts"));
@@ -66,6 +67,7 @@ const AnimatedRoutes = () => {
           <Route path="/disclosure" element={<Disclosure />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/blog" element={<AdminBlogPosts />} />
           <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
           <Route path="/admin/blog/edit/:id" element={<AdminBlogEditor />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
