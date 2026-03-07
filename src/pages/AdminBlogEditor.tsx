@@ -156,7 +156,52 @@ const AdminBlogEditor = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const contentImageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleContentImageUpload = useCallback(() => {
+    // Create a temporary file input for inline image upload
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        toast({ title: 'Invalid file type', description: 'Please upload an image file.', variant: 'destructive' });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: 'File too large', description: 'Max 5MB.', variant: 'destructive' });
+        return;
+      }
+
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `content/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('blog-images')
+          .upload(filePath, file);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('blog-images')
+          .getPublicUrl(filePath);
+
+        // Insert image at cursor position in editor
+        setContent(prev => prev + `<img src="${publicUrl}" alt="${file.name}" />`);
+        toast({ title: 'Image inserted', description: 'Image uploaded and added to content.' });
+      } catch (error) {
+        console.error('Content image upload error:', error);
+        toast({ title: 'Upload failed', description: 'Failed to upload image.', variant: 'destructive' });
+      }
+    };
+    input.click();
+  }, [toast]);
+
+
     e.preventDefault();
 
     if (!title || !slug || !excerpt || !content || !author || !category) {
