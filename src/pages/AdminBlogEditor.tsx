@@ -156,10 +156,7 @@ const AdminBlogEditor = () => {
     }
   };
 
-  const contentImageInputRef = useRef<HTMLInputElement>(null);
-
-  const handleContentImageUpload = useCallback(() => {
-    // Create a temporary file input for inline image upload
+  const handleContentImageUpload = useCallback((insertImage: (url: string, alt?: string) => void) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -190,8 +187,7 @@ const AdminBlogEditor = () => {
           .from('blog-images')
           .getPublicUrl(filePath);
 
-        // Insert image at cursor position in editor
-        setContent(prev => prev + `<img src="${publicUrl}" alt="${file.name}" />`);
+        insertImage(publicUrl, file.name);
         toast({ title: 'Image inserted', description: 'Image uploaded and added to content.' });
       } catch (error) {
         console.error('Content image upload error:', error);
