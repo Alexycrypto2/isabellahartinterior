@@ -79,6 +79,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         <Separator className="my-3" />
         <p className="text-xs font-medium text-muted-foreground px-3 py-2">BLOG</p>
+        <Link to="/admin/blog">
+          <Button variant={isActive('/admin/blog') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <FileText className="mr-2 h-4 w-4" />
+            All Posts
+          </Button>
+        </Link>
         <Link to="/admin/blog/new">
           <Button variant={isActive('/admin/blog/new') ? 'secondary' : 'ghost'} className="w-full justify-start">
             <PlusCircle className="mr-2 h-4 w-4" />
