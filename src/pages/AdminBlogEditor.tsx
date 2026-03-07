@@ -201,7 +201,7 @@ const AdminBlogEditor = () => {
     input.click();
   }, [toast]);
 
-
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title || !slug || !excerpt || !content || !author || !category) {
