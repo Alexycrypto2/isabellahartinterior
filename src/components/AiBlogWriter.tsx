@@ -339,6 +339,9 @@ const AiBlogWriter = ({
     setGeneratedData(null);
     setDiscoveredProducts([]);
     setErrorMessage("");
+    setTitleIdeas([]);
+    setSelectedTitle("");
+    setIsGeneratingTitles(false);
   };
 
   const handleClose = () => {
