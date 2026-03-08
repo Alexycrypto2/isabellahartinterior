@@ -45,6 +45,8 @@ const AdminAccountSettings = lazy(() => import("./pages/AdminAccountSettings"));
 const AdminTeamManagement = lazy(() => import("./pages/AdminTeamManagement"));
 const AdminSecurityLog = lazy(() => import("./pages/AdminSecurityLog"));
 const AdminOwnershipTransfer = lazy(() => import("./pages/AdminOwnershipTransfer"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AdminComments = lazy(() => import("./pages/AdminComments"));
 
 // Simple loading fallback
 const PageLoader = () => (
