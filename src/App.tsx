@@ -12,6 +12,7 @@ import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Index from "./pages/Index";
 
 // Lazy load non-critical pages

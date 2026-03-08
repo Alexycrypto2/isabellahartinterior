@@ -326,8 +326,17 @@ const Admin = () => {
               </div>
             </Card>
 
-            {/* Weekly Trends */}
-            <WeeklyTrendsCard />
+            {/* Weekly Trends & Revenue */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <WeeklyTrendsCard />
+              <RevenueTracker />
+            </div>
+
+            {/* Broken Links & Exit Intent Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <BrokenLinksChecker />
+              <ExitIntentStats />
+            </div>
 
             {/* Quick Actions & Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
