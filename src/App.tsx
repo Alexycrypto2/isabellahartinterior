@@ -105,6 +105,7 @@ const App = () => (
               <AnimatedRoutes />
               <Chatbot />
               <EmailCapturePopup />
+              <ExitIntentPopup />
             </BrowserRouter>
           </CartProvider>
         </AuthProvider>
