@@ -360,6 +360,7 @@ const AiBlogWriter = ({
     setSelectedTitle("");
     setIsGeneratingTitles(false);
     setFixResults([]);
+    setLastProvider(null);
   };
 
   const handleFixSeo = async (mode: "fix" | "optimize") => {
