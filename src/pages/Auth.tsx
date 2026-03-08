@@ -254,8 +254,6 @@ const Auth = () => {
                         {strength.label}
                       </span>
                     </div>
-                    <Progress value={strength.score} className="h-1.5 [&>div]:transition-all [&>div]:duration-300" style={{'--progress-color': 'currentColor'} as React.CSSProperties} />
-                    <style>{`.h-1\\.5 > div { background-color: unset; } .h-1\\.5 > div { @apply ${strength.color}; }`}</style>
                     <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-300 ${strength.color}`} style={{ width: `${strength.score}%` }} />
                     </div>
