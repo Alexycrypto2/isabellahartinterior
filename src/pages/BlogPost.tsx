@@ -8,6 +8,7 @@ import PageTransition from "@/components/PageTransition";
 import BlogCategoryLinks from "@/components/BlogCategoryLinks";
 import BlogProductShowcase from "@/components/BlogProductShowcase";
 import ShopTheLookInline from "@/components/ShopTheLookInline";
+import BlogComments from "@/components/BlogComments";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";

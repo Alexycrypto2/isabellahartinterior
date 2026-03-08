@@ -95,6 +95,8 @@ const AnimatedRoutes = () => {
           <Route path="/admin/team" element={<AdminTeamManagement />} />
           <Route path="/admin/security" element={<AdminSecurityLog />} />
           <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
+          <Route path="/admin/comments" element={<AdminComments />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
