@@ -418,7 +418,7 @@ const Admin = () => {
             </div>
 
             {/* Recent Posts — Premium */}
-            <Card className="border-border/50 shadow-sm">
+            <Card className="border-border/30 shadow-sm rounded-2xl">
               <CardHeader className="flex flex-row items-center justify-between p-5">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
