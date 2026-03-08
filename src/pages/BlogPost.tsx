@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -9,7 +9,7 @@ import BlogCategoryLinks from "@/components/BlogCategoryLinks";
 import BlogProductShowcase from "@/components/BlogProductShowcase";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
-import { ArrowLeft, Calendar, Clock, User, ChevronDown } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackBlogView } from "@/lib/analytics";
@@ -19,13 +19,41 @@ const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, error } = useBlogPostBySlug(slug || '');
   const { data: allPosts } = usePublishedBlogPosts();
-  const [tocOpen, setTocOpen] = useState(true);
 
   // Track blog view
   useEffect(() => {
     if (post) {
       trackBlogView(post.id, post.title);
     }
+  }, [post]);
+
+  // Make TOC collapsible on mobile — toggle toc-open class
+  useEffect(() => {
+    const tocEl = document.querySelector('.blog-toc');
+    if (!tocEl) return;
+
+    // Start open on desktop, closed on mobile
+    if (window.innerWidth > 768) {
+      tocEl.classList.add('toc-open');
+    }
+
+    const handleClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      // Toggle when clicking the TOC header (first <p>)
+      if (target.tagName === 'P' || target.closest('.blog-toc > p')) {
+        tocEl.classList.toggle('toc-open');
+      }
+    };
+
+    tocEl.addEventListener('click', handleClick);
+    // Add cursor pointer to the header on mobile
+    const header = tocEl.querySelector(':scope > p');
+    if (header && window.innerWidth <= 768) {
+      (header as HTMLElement).style.cursor = 'pointer';
+      header.innerHTML = header.innerHTML + ' <span style="float:right;font-size:12px;">▼</span>';
+    }
+
+    return () => tocEl.removeEventListener('click', handleClick);
   }, [post]);
 
   if (isLoading) {
