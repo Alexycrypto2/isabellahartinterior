@@ -645,8 +645,9 @@ const AdminBlogEditor = () => {
           isOpen={isAiWriterOpen}
           onClose={() => setIsAiWriterOpen(false)}
           categories={categories || []}
-          initialTopic={initialTopic}
-          initialKeywords={initialKeywords}
+          initialTopic={isEditing ? title : initialTopic}
+          initialKeywords={isEditing ? (metaDescription ? metaDescription.split(/[,.]/).slice(0, 3).map(s => s.trim()).filter(Boolean).join(', ') : '') : initialKeywords}
+          initialCategory={isEditing ? category : ''}
           onGenerated={(data) => {
             setTitle(data.title);
             setSlug(data.slug);
