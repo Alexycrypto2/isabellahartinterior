@@ -1,0 +1,158 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const today = new Date();
+    const weekStr = `${today.getFullYear()}-W${String(Math.ceil((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / 604800000)).padStart(2, '0')}`;
+
+    const systemPrompt = `You are a home decor trend analyst for RoomRefine. Research and identify 10 trending home decor topics for this week (${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}).
+
+Consider seasonal trends, social media buzz, interior design movements, and consumer behavior.
+
+Return a JSON array of exactly 10 objects, each with:
+- "rank": number 1-10
+- "trend": the trending topic name (short, 3-6 words)
+- "description": 1-2 sentence explanation of why it's trending
+- "suggested_title": a ready-to-use blog post title for this trend
+- "keywords": array of exactly 3 target keywords for SEO
+
+Return ONLY valid JSON, no markdown, no code blocks.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Generate 10 trending home decor topics for the week of ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. Consider current season, Pinterest trends, Instagram reels, TikTok home content, and interior design shows.` },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const t = await response.text();
+      console.error("AI error:", response.status, t);
+      throw new Error("AI gateway error");
+    }
+
+    const data = await response.json();
+    let content = data.choices?.[0]?.message?.content?.trim() || "[]";
+    content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    const trends = JSON.parse(content);
+
+    // Save to site_settings so the admin dashboard can display it
+    await supabase.from("site_settings").upsert({
+      key: "weekly_trends",
+      value: { week: weekStr, generated_at: today.toISOString(), trends },
+      updated_at: today.toISOString(),
+    }, { onConflict: "key" });
+
+    // Send email if configured
+    const { data: emailSettings } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "email_settings")
+      .single();
+
+    const adminEmail = (emailSettings?.value as any)?.notification_email || (emailSettings?.value as any)?.admin_email;
+
+    if (adminEmail) {
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      if (RESEND_API_KEY) {
+        const trendsHtml = trends.map((t: any) => `
+          <tr>
+            <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;text-align:center;font-weight:700;color:#b8860b;font-size:18px;">${t.rank}</td>
+            <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;">
+              <div style="font-weight:600;color:#1a1a1a;font-size:14px;margin-bottom:4px;">${t.trend}</div>
+              <div style="color:#666;font-size:12px;line-height:1.4;">${t.description}</div>
+              <div style="margin-top:8px;padding:8px 12px;background:#faf8f5;border-radius:6px;border-left:3px solid #b8860b;">
+                <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">Suggested Title</div>
+                <div style="font-size:13px;color:#333;font-weight:500;">${t.suggested_title}</div>
+              </div>
+              <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+                ${t.keywords.map((kw: string) => `<span style="display:inline-block;padding:2px 8px;background:#f5f0e8;color:#8b7355;border-radius:12px;font-size:11px;">${kw}</span>`).join(' ')}
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        const emailHtml = `
+        <div style="font-family:'Georgia',serif;max-width:640px;margin:0 auto;background:#ffffff;">
+          <div style="background:linear-gradient(135deg,#1a1a1a,#2d2d2d);padding:32px;text-align:center;">
+            <h1 style="color:#b8860b;font-size:24px;margin:0 0 8px;">📊 Weekly Trend Report</h1>
+            <p style="color:#ccc;font-size:14px;margin:0;">Week of ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+          </div>
+          <div style="padding:24px;">
+            <p style="color:#555;font-size:14px;line-height:1.6;">Here are the top 10 trending home decor topics this week, curated by AI for your content strategy:</p>
+            <table style="width:100%;border-collapse:collapse;margin-top:16px;">
+              ${trendsHtml}
+            </table>
+            <div style="margin-top:24px;padding:16px;background:#faf8f5;border-radius:8px;text-align:center;">
+              <p style="color:#666;font-size:13px;margin:0;">💡 Use these trends to plan your blog content and social media strategy for the week.</p>
+            </div>
+          </div>
+          <div style="padding:16px;text-align:center;border-top:1px solid #f0f0f0;">
+            <p style="color:#999;font-size:11px;margin:0;">RoomRefine AI Trend Report · Generated automatically every Monday</p>
+          </div>
+        </div>`;
+
+        try {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "RoomRefine <onboarding@resend.dev>",
+              to: [adminEmail],
+              subject: `📊 Weekly Trend Report — ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`,
+              html: emailHtml,
+            }),
+          });
+        } catch (emailErr) {
+          console.warn("Email send failed:", emailErr);
+        }
+      }
+    }
+
+    return new Response(JSON.stringify({ success: true, trends, week: weekStr }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("Trend report error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
