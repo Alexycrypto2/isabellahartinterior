@@ -336,14 +336,22 @@ const Admin = () => {
 
             {/* Weekly Trends & Revenue */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <WeeklyTrendsCard />
-              <RevenueTracker />
+              <WidgetErrorBoundary name="Weekly Trends">
+                <WeeklyTrendsCard />
+              </WidgetErrorBoundary>
+              <WidgetErrorBoundary name="Revenue Tracker">
+                <RevenueTracker />
+              </WidgetErrorBoundary>
             </div>
 
             {/* Broken Links & Exit Intent Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <BrokenLinksChecker />
-              <ExitIntentStats />
+              <WidgetErrorBoundary name="Broken Links">
+                <BrokenLinksChecker />
+              </WidgetErrorBoundary>
+              <WidgetErrorBoundary name="Exit Intent Stats">
+                <ExitIntentStats />
+              </WidgetErrorBoundary>
             </div>
 
             {/* Quick Actions & Recent Activity */}
