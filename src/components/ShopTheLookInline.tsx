@@ -84,7 +84,7 @@ const ShopTheLookInline = ({ blogTitle, blogContent, category }: ShopTheLookInli
             href={withUtm(product.affiliate_url, "blog", "shop-the-look")}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            onClick={() => trackEvent({ eventType: 'product_click', entityId: product.id, entityName: product.name })}
+            onClick={() => trackProductClick(product.id, product.name, 'blog', 'shop-the-look')}
             className="group flex gap-4 p-3 rounded-xl bg-background border border-border hover:border-primary/30 hover:shadow-sm transition-all duration-200"
           >
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
