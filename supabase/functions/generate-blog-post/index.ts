@@ -65,8 +65,10 @@ serve(async (req) => {
               api_key: key,
               model: val.text_model || val.model,
               endpoint: val.text_endpoint,
+              priority: val.priority || "custom",
             };
           }
+          return { priority: val.priority || "custom" } as any;
         }
       } catch { /* no custom config */ }
       return null;
