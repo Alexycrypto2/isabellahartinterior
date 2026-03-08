@@ -253,7 +253,7 @@ const Admin = () => {
             </div>
 
             {/* AI Status — Premium */}
-            <Card className="border-border/50 shadow-sm overflow-hidden">
+            <Card className="border-border/30 shadow-sm overflow-hidden rounded-2xl">
               <div className="bg-gradient-to-r from-accent/5 via-transparent to-accent/5">
                 <CardContent className="p-5 md:p-6">
                   <div className="flex items-center justify-between gap-4 mb-5">
