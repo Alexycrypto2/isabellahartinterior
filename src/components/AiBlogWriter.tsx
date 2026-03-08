@@ -390,7 +390,7 @@ const AiBlogWriter = ({
         )}
 
         {/* Generating Steps */}
-        {(step === "generating-text" || step === "generating-image") && (
+        {(step === "discovering-products" || step === "generating-text" || step === "generating-image") && (
           <div className="py-8 space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">
@@ -407,28 +407,51 @@ const AiBlogWriter = ({
 
             {/* Steps */}
             <div className="space-y-4">
+              {/* Step 0: Discover Products */}
               <div className="flex items-center gap-3">
-                {step === "generating-text" ? (
+                {step === "discovering-products" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
                 ) : (
                   <CheckCircle2 className="w-5 h-5 text-accent" />
                 )}
                 <div>
                   <p className="text-sm font-medium">
-                    {step === "generating-text"
-                      ? "Writing SEO-optimized content..."
-                      : "Content generated"}
+                    {step === "discovering-products"
+                      ? "Discovering trending products..."
+                      : `Products discovered${discoveredProducts.length > 0 ? ` (${discoveredProducts.length} added to shop)` : ""}`}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Title, excerpt, meta tags, and full article
+                    Finding relevant Amazon products for your topic
                   </p>
                 </div>
               </div>
 
+              {/* Step 1: Generate Content */}
+              <div className="flex items-center gap-3">
+                {step === "generating-text" ? (
+                  <Loader2 className="w-5 h-5 text-accent animate-spin" />
+                ) : step === "discovering-products" ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-border" />
+                ) : (
+                  <CheckCircle2 className="w-5 h-5 text-accent" />
+                )}
+                <div>
+                  <p className={`text-sm font-medium ${step === "discovering-products" ? "text-muted-foreground" : ""}`}>
+                    {step === "generating-text"
+                      ? "Writing SEO-optimized content..."
+                      : step === "discovering-products" ? "Write blog content" : "Content generated"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Title, excerpt, meta tags, and full article with product embeds
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2: Generate Image */}
               <div className="flex items-center gap-3">
                 {step === "generating-image" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
-                ) : step === "generating-text" ? (
+                ) : step === "discovering-products" || step === "generating-text" ? (
                   <div className="w-5 h-5 rounded-full border-2 border-border" />
                 ) : (
                   <CheckCircle2 className="w-5 h-5 text-accent" />
@@ -436,7 +459,7 @@ const AiBlogWriter = ({
                 <div>
                   <p
                     className={`text-sm font-medium ${
-                      step === "generating-text" ? "text-muted-foreground" : ""
+                      step === "discovering-products" || step === "generating-text" ? "text-muted-foreground" : ""
                     }`}
                   >
                     {step === "generating-image"
@@ -451,7 +474,7 @@ const AiBlogWriter = ({
             </div>
 
             <p className="text-center text-xs text-muted-foreground">
-              This usually takes 15-30 seconds
+              This usually takes 30-60 seconds
             </p>
           </div>
         )}
