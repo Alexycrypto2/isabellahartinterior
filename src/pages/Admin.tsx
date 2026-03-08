@@ -344,7 +344,7 @@ const Admin = () => {
             {/* Quick Actions & Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
               {/* Quick Actions — Premium */}
-              <Card className="border-border/50 shadow-sm">
+              <Card className="border-border/30 shadow-sm rounded-2xl">
                 <CardHeader className="p-5 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center">
