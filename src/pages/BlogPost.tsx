@@ -17,6 +17,8 @@ import { resolveImageUrl } from "@/lib/imageResolver";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { data: post, isLoading, error } = useBlogPostBySlug(slug || '');
+  const { data: allPosts } = usePublishedBlogPosts();
 
   // Track blog view
   useEffect(() => {
