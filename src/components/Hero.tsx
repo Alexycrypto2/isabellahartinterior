@@ -145,7 +145,7 @@ const Hero = memo(() => {
               className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium leading-[1.05] mb-4"
               style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
             >
-              <span className="text-white">{hero.title ? hero.title.split(' ')[0] || 'Discover' : 'Discover'}</span>
+              <span className="text-white">{seasonalBanner?.title?.split(' ')[0] || hero.title?.split(' ')[0] || 'Discover'}</span>
               <br />
               <span className="relative inline-block">
                 <motion.span
@@ -160,13 +160,13 @@ const Hero = memo(() => {
                   {rotatingWords[currentWord]}
                 </motion.span>
               </span>{" "}
-              <span className="text-white">{hero.title ? hero.title.split(' ').slice(1).join(' ') || 'Living' : 'Living'}</span>
+              <span className="text-white">{seasonalBanner?.title?.split(' ').slice(1).join(' ') || hero.title?.split(' ').slice(1).join(' ') || 'Living'}</span>
             </h1>
             <h2 
               className="font-script text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8 tracking-wide"
               style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
             >
-              {hero.subtitle || 'Transform your space with our handpicked collection of beautiful, affordable home décor pieces.'}
+              {seasonalBanner?.subtitle || hero.subtitle || 'Transform your space with our handpicked collection of beautiful, affordable home décor pieces.'}
             </h2>
           </motion.div>
           
