@@ -130,7 +130,7 @@ const Hero = memo(() => {
           >
             <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md text-white text-sm font-medium mb-8 border border-white/25 shadow-lg">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              Top-Rated Finds on Amazon
+              {seasonalBanner?.badge_text || 'Top-Rated Finds on Amazon'}
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             </span>
           </motion.div>
