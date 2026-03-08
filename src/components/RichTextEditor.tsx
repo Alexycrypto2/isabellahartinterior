@@ -23,6 +23,7 @@ import {
   Unlink,
   Trash2,
   Upload,
+  Maximize2,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -36,8 +37,11 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
   const [editingLink, setEditingLink] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [editingImage, setEditingImage] = useState(false);
+  const [resizingImage, setResizingImage] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
+  const [imageWidth, setImageWidth] = useState('');
+  const [imageHeight, setImageHeight] = useState('');
 
   const editor = useEditor({
     extensions: [
@@ -55,6 +59,15 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
       Image.configure({
         HTMLAttributes: {
           class: 'rounded-lg max-w-full h-auto my-4 cursor-pointer',
+        },
+        allowBase64: true,
+      }).extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            width: { default: null, renderHTML: (attrs) => attrs.width ? { width: attrs.width } : {} },
+            height: { default: null, renderHTML: (attrs) => attrs.height ? { height: attrs.height } : {} },
+          };
         },
       }),
       Placeholder.configure({
@@ -175,10 +188,28 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
     });
   }, [editor, requestImage]);
 
+  const handleStartResizeImage = useCallback(() => {
+    if (!editor) return;
+    const attrs = editor.getAttributes('image');
+    setImageWidth(attrs.width || '');
+    setImageHeight(attrs.height || '');
+    setResizingImage(true);
+  }, [editor]);
+
+  const handleSaveResize = useCallback(() => {
+    if (!editor) return;
+    const updates: Record<string, string | null> = {};
+    updates.width = imageWidth.trim() || null;
+    updates.height = imageHeight.trim() || null;
+    editor.chain().focus().updateAttributes('image', updates).run();
+    setResizingImage(false);
+  }, [editor, imageWidth, imageHeight]);
+
   const handleRemoveImage = useCallback(() => {
     if (!editor) return;
     editor.chain().focus().deleteSelection().run();
     setEditingImage(false);
+    setResizingImage(false);
     setImageUrl('');
     setImageAlt('');
   }, [editor]);
@@ -252,11 +283,48 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
                 <Button type="button" variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => setEditingImage(false)}>Cancel</Button>
               </div>
             </>
+          ) : resizingImage ? (
+            <>
+              <p className="text-xs font-medium text-foreground">Resize Image</p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <label className="text-[10px] text-muted-foreground">Width (px)</label>
+                  <input
+                    type="number"
+                    value={imageWidth}
+                    onChange={(e) => setImageWidth(e.target.value)}
+                    placeholder="auto"
+                    className="w-full text-xs px-2 py-1 border border-input rounded bg-background text-foreground"
+                    autoFocus
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[10px] text-muted-foreground">Height (px)</label>
+                  <input
+                    type="number"
+                    value={imageHeight}
+                    onChange={(e) => setImageHeight(e.target.value)}
+                    placeholder="auto"
+                    className="w-full text-xs px-2 py-1 border border-input rounded bg-background text-foreground"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-1 flex-wrap">
+                <Button type="button" size="sm" className="text-xs h-7 px-2" onClick={handleSaveResize}>Apply</Button>
+                <Button type="button" variant="outline" size="sm" className="text-xs h-7 px-2" onClick={() => { setImageWidth('800'); setImageHeight('800'); }}>800×800</Button>
+                <Button type="button" variant="outline" size="sm" className="text-xs h-7 px-2" onClick={() => { setImageWidth('1200'); setImageHeight('630'); }}>1200×630</Button>
+                <Button type="button" variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => setResizingImage(false)}>Cancel</Button>
+              </div>
+            </>
           ) : (
             <div className="flex items-center gap-1">
               <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={handleStartEditImage} title="Edit image URL and alt text">
                 <Pencil className="h-3.5 w-3.5 mr-1" />
                 Edit
+              </Button>
+              <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={handleStartResizeImage} title="Resize image">
+                <Maximize2 className="h-3.5 w-3.5 mr-1" />
+                Resize
               </Button>
               <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={handleReplaceImage} title="Replace image file">
                 <Upload className="h-3.5 w-3.5 mr-1" />
