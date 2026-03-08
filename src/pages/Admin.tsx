@@ -21,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import AffiliateClicksDashboard from '@/components/admin/AffiliateClicksDashboard';
+import WeeklyTrendsCard from '@/components/admin/WeeklyTrendsCard';
 import {
   Plus, Edit, Trash2, Eye, EyeOff, FileText, Package, Users, TrendingUp,
   Clock, ArrowRight, Image, Settings, BarChart3, LayoutDashboard, Bot, Zap, AlertTriangle, CheckCircle2, Info,
