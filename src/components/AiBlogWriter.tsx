@@ -187,14 +187,39 @@ const AiBlogWriter = ({
       return;
     }
 
-    setStep("generating-text");
-    setProgress(15);
+    setStep("discovering-products");
+    setProgress(5);
     setErrorMessage("");
+    setDiscoveredProducts([]);
 
     try {
-      // Step 1: Generate blog content
+      // Step 0: Discover & auto-add trending products
+      const discoverInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 1, 20));
+      }, 800);
+
+      let newProducts: any[] = [];
+      try {
+        const { data: discoverData, error: discoverError } =
+          await supabase.functions.invoke("discover-blog-products", {
+            body: { topic, category },
+          });
+
+        if (!discoverError && discoverData?.products) {
+          newProducts = discoverData.products;
+          setDiscoveredProducts(newProducts);
+        }
+      } catch (discErr) {
+        console.warn("Product discovery failed, continuing with existing products:", discErr);
+      }
+
+      clearInterval(discoverInterval);
+      setProgress(25);
+
+      // Step 1: Generate blog content (AI will now see the newly added products too)
+      setStep("generating-text");
       const progressInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 2, 45));
+        setProgress((prev) => Math.min(prev + 2, 55));
       }, 500);
 
       const { data: textData, error: textError } =
@@ -207,7 +232,7 @@ const AiBlogWriter = ({
       if (textError) throw new Error(textError.message || "Failed to generate blog content");
       if (textData?.error) throw new Error(textData.error);
 
-      setProgress(50);
+      setProgress(60);
       setStep("generating-image");
 
       // Step 2: Generate featured image
