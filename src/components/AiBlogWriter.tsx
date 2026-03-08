@@ -268,7 +268,7 @@ const AiBlogWriter = ({
 
       const { data: textData, error: textError } =
         await supabase.functions.invoke("generate-blog-post", {
-          body: { topic, tone: "warm", category, keywords, targetWordCount },
+          body: { topic: effectiveTopic, tone: "warm", category, keywords, targetWordCount },
         });
 
       clearInterval(progressInterval);
