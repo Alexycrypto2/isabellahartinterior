@@ -96,14 +96,22 @@ const Cart = () => {
   };
 
   const handleCheckoutAll = () => {
-    // Open all affiliate links (browsers may block multiple tabs, so we open them sequentially)
+    const tabCount = displayProducts.length;
+    if (!tabCount) return;
+
+    const confirmed = window.confirm(
+      `This will open ${tabCount} product page${tabCount > 1 ? 's' : ''} in new tabs so you can checkout each item on the retailer site. Continue?`
+    );
+    if (!confirmed) return;
+
     displayProducts.forEach((product, i) => {
       setTimeout(() => {
         trackProductClick(product.id, product.name, "cart", "checkout-all");
         window.open(withUtm(product.affiliate_url, "cart", "checkout-all"), "_blank", "noopener,noreferrer");
       }, i * 300);
     });
-    toast.success("Opening product pages — complete your purchase on each retailer's site!");
+
+    toast.success(`Opened ${tabCount} checkout page${tabCount > 1 ? 's' : ''} in new tabs.`);
   };
 
   return (
@@ -297,7 +305,7 @@ const Cart = () => {
                       <span className="text-2xl font-semibold text-foreground">${subtotal.toFixed(2)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">
-                      Prices are from affiliated retailers. Click "Checkout" to complete purchases on each retailer's website.
+                      This cart uses affiliate checkout: clicking checkout opens one retailer tab per product (for example, 3 products = 3 tabs).
                     </p>
                     {!isSharedView && (
                       <Button
@@ -305,7 +313,7 @@ const Cart = () => {
                         className="w-full rounded-full bg-accent text-accent-foreground hover:brightness-110 h-12 text-base font-semibold"
                       >
                         <ShoppingCart className="w-5 h-5 mr-2" />
-                        Checkout — ${subtotal.toFixed(2)}
+                        Checkout {displayProducts.length > 1 ? `${displayProducts.length} Items` : 'Item'} — ${subtotal.toFixed(2)}
                       </Button>
                     )}
                   </div>

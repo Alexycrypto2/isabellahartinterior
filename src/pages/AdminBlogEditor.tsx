@@ -68,8 +68,8 @@ const AdminBlogEditor = () => {
   // Resolve /src/assets/ paths in HTML content so images display in the editor
   const resolveContentImages = (html: string) => {
     return html.replace(
-      /src="(\/src\/assets\/[^"]+)"/g,
-      (_, path) => `src="${resolveImageUrl(path)}"`
+      /src=(['"])(\/?src\/assets\/[^'"\s>]+)\1/g,
+      (_match, quote, path) => `src=${quote}${resolveImageUrl(path)}${quote}`
     );
   };
 
@@ -298,7 +298,7 @@ const AdminBlogEditor = () => {
         toast({ title: 'Error', description: data.error, variant: 'destructive' });
         return;
       }
-      setContent(data.content);
+      setContent(resolveContentImages(data.content));
       toast({
         title: data.productsAdded > 0 ? `${data.productsAdded} products embedded!` : 'No products added',
         description: data.productsAdded > 0
@@ -602,7 +602,7 @@ const AdminBlogEditor = () => {
             setSlug(data.slug);
             setAutoSlug(false);
             setExcerpt(data.excerpt);
-            setContent(data.content);
+            setContent(resolveContentImages(data.content));
             setMetaTitle(data.meta_title);
             setMetaDescription(data.meta_description);
             setReadTime(data.read_time);
