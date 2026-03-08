@@ -59,6 +59,15 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
         HTMLAttributes: {
           class: 'rounded-lg max-w-full h-auto my-4 cursor-pointer',
         },
+        allowBase64: true,
+      }).extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            width: { default: null, renderHTML: (attrs) => attrs.width ? { width: attrs.width } : {} },
+            height: { default: null, renderHTML: (attrs) => attrs.height ? { height: attrs.height } : {} },
+          };
+        },
       }),
       Placeholder.configure({
         placeholder: 'Start writing your blog post...',
