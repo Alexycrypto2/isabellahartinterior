@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -55,6 +55,9 @@ interface AiBlogWriterProps {
   onClose: () => void;
   onGenerated: (data: BlogPostData) => void;
   categories: { id: string; name: string }[];
+  initialTopic?: string;
+  initialKeywords?: string;
+  initialCategory?: string;
 }
 
 type Step = "input" | "discovering-products" | "researching-competitors" | "generating-text" | "generating-image" | "done" | "error";
@@ -191,10 +194,13 @@ const AiBlogWriter = ({
   onClose,
   onGenerated,
   categories,
+  initialTopic = "",
+  initialKeywords = "",
+  initialCategory = "",
 }: AiBlogWriterProps) => {
-  const [topic, setTopic] = useState("");
-  const [category, setCategory] = useState("");
-  const [keywords, setKeywords] = useState("");
+  const [topic, setTopic] = useState(initialTopic);
+  const [category, setCategory] = useState(initialCategory);
+  const [keywords, setKeywords] = useState(initialKeywords);
   const [targetWordCount, setTargetWordCount] = useState(1500);
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
@@ -206,6 +212,13 @@ const AiBlogWriter = ({
   const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
   const [isGeneratingTitles, setIsGeneratingTitles] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
+
+  // Update state when initial values change (for trend pre-fill)
+  useEffect(() => {
+    if (initialTopic) setTopic(initialTopic);
+    if (initialKeywords) setKeywords(initialKeywords);
+    if (initialCategory) setCategory(initialCategory);
+  }, [initialTopic, initialKeywords, initialCategory]);
 
   // Get recommendation when topic changes
   const recommendation = topic.trim() ? getRecommendedWordCount(topic) : null;

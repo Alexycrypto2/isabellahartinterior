@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
 import { resolveImageUrl } from '@/lib/imageResolver';
@@ -37,10 +37,16 @@ const generateSlug = (title: string) => {
 
 const AdminBlogEditor = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const isEditing = !!id;
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check for auto-open AI writer from URL params (from trend card)
+  const autoOpenAi = searchParams.get('autoOpenAi') === 'true';
+  const initialTopic = searchParams.get('topic') || '';
+  const initialKeywords = searchParams.get('keywords') || '';
 
   const { data: existingPost, isLoading: isLoadingPost } = useBlogPostById(id || '');
   const { data: categories } = useCategories();
@@ -58,7 +64,7 @@ const AdminBlogEditor = () => {
   const [published, setPublished] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
-  const [isAiWriterOpen, setIsAiWriterOpen] = useState(false);
+  const [isAiWriterOpen, setIsAiWriterOpen] = useState(autoOpenAi);
   const [isAddingLinks, setIsAddingLinks] = useState(false);
   const [isEmbeddingProducts, setIsEmbeddingProducts] = useState(false);
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
@@ -639,6 +645,8 @@ const AdminBlogEditor = () => {
           isOpen={isAiWriterOpen}
           onClose={() => setIsAiWriterOpen(false)}
           categories={categories || []}
+          initialTopic={initialTopic}
+          initialKeywords={initialKeywords}
           onGenerated={(data) => {
             setTitle(data.title);
             setSlug(data.slug);
