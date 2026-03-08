@@ -36,8 +36,11 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
   const [editingLink, setEditingLink] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [editingImage, setEditingImage] = useState(false);
+  const [resizingImage, setResizingImage] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
+  const [imageWidth, setImageWidth] = useState('');
+  const [imageHeight, setImageHeight] = useState('');
 
   const editor = useEditor({
     extensions: [
