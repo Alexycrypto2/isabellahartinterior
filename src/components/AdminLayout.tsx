@@ -70,6 +70,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'Engage',
     items: [
+      { to: '/admin/comments', icon: MessageSquare, label: 'Comments', exact: true },
       { to: '/admin/media', icon: Image, label: 'Media Library', exact: true },
       { to: '/admin/subscribers', icon: Users, label: 'Subscribers', exact: true },
       { to: '/admin/contact-submissions', icon: MessageSquare, label: 'Messages', exact: true },
