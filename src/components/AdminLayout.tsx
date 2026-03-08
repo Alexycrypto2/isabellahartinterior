@@ -168,6 +168,33 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             Site Settings
           </Button>
         </Link>
+
+        <Separator className="my-3" />
+        <p className="text-xs font-medium text-muted-foreground px-3 py-2">ACCOUNT & TEAM</p>
+        <Link to="/admin/account">
+          <Button variant={isActive('/admin/account') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Users className="mr-2 h-4 w-4" />
+            Account Settings
+          </Button>
+        </Link>
+        <Link to="/admin/team">
+          <Button variant={isActive('/admin/team') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Users className="mr-2 h-4 w-4" />
+            Team Members
+          </Button>
+        </Link>
+        <Link to="/admin/security">
+          <Button variant={isActive('/admin/security') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Settings className="mr-2 h-4 w-4" />
+            Security Log
+          </Button>
+        </Link>
+        <Link to="/admin/ownership">
+          <Button variant={isActive('/admin/ownership') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Settings className="mr-2 h-4 w-4" />
+            Transfer Ownership
+          </Button>
+        </Link>
       </nav>
 
       <div className="p-4 border-t space-y-2">

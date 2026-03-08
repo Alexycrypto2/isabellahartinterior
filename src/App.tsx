@@ -89,6 +89,10 @@ const AnimatedRoutes = () => {
           <Route path="/admin/photo-submissions" element={<AdminPhotoSubmissions />} />
           <Route path="/admin/seasonal-banners" element={<AdminSeasonalBanners />} />
           <Route path="/admin/blog/calendar" element={<AdminContentCalendar />} />
+          <Route path="/admin/account" element={<AdminAccountSettings />} />
+          <Route path="/admin/team" element={<AdminTeamManagement />} />
+          <Route path="/admin/security" element={<AdminSecurityLog />} />
+          <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
