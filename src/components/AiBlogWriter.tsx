@@ -421,6 +421,7 @@ const AiBlogWriter = ({
 
       const fixes = data.fixes_applied || [];
       setFixResults(fixes);
+      setLastProvider({ name: data._provider || "AI", fallback: !!data._fallback });
       toast.success(`${mode === "fix" ? "SEO issues fixed" : "Post auto-optimized"}! ${fixes.length} improvement${fixes.length !== 1 ? "s" : ""} applied.`);
     } catch (err) {
       console.error("SEO fix error:", err);
