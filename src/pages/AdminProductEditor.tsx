@@ -22,6 +22,7 @@ import {
 } from '@/hooks/useProducts';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Save, Image as ImageIcon, Upload, Star } from 'lucide-react';
+import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 
 const generateSlug = (name: string) => {
   return name
