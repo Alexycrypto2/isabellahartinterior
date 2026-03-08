@@ -39,6 +39,7 @@ const AdminAppearance = lazy(() => import("./pages/AdminAppearance"));
 const AdminContactSubmissions = lazy(() => import("./pages/AdminContactSubmissions"));
 const AdminPhotoSubmissions = lazy(() => import("./pages/AdminPhotoSubmissions"));
 const AdminSeasonalBanners = lazy(() => import("./pages/AdminSeasonalBanners"));
+const AdminContentCalendar = lazy(() => import("./pages/AdminContentCalendar"));
 
 // Simple loading fallback
 const PageLoader = () => (
