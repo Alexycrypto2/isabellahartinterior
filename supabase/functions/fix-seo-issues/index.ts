@@ -181,7 +181,7 @@ Please fix the issues listed above and return the corrected JSON.`;
               { role: "user", content: userPrompt },
             ],
             temperature: 0.3,
-            max_tokens: 8000,
+            max_tokens: 16000,
           }),
         });
 
