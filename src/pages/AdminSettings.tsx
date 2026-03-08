@@ -1277,6 +1277,96 @@ const AdminSettings = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Exit Intent Popup */}
+          <TabsContent value="exit-popup">
+            <Card>
+              <CardHeader>
+                <CardTitle>Exit Intent Popup</CardTitle>
+                <CardDescription>Customize the popup that appears when visitors are about to leave your site</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-medium">Enable Exit Popup</Label>
+                    <p className="text-xs text-muted-foreground">Show the popup when visitors move to leave</p>
+                  </div>
+                  <Switch checked={exitEnabled} onCheckedChange={setExitEnabled} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Title</Label>
+                  <Input value={exitTitle} onChange={(e) => setExitTitle(e.target.value)} placeholder="Wait! Don't Leave Yet" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Description</Label>
+                  <Textarea value={exitDescription} onChange={(e) => setExitDescription(e.target.value)} placeholder="Get our Free Room Styling Guide..." rows={3} />
+                  <p className="text-xs text-muted-foreground">You can use &lt;strong&gt;bold text&lt;/strong&gt; for emphasis</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Email Placeholder</Label>
+                  <Input value={exitPlaceholder} onChange={(e) => setExitPlaceholder(e.target.value)} placeholder="Enter your email address" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Button Text</Label>
+                  <Input value={exitButtonText} onChange={(e) => setExitButtonText(e.target.value)} placeholder="Get My Free Guide" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Disclaimer Text</Label>
+                  <Input value={exitDisclaimer} onChange={(e) => setExitDisclaimer(e.target.value)} placeholder="No spam, ever. Unsubscribe anytime." />
+                </div>
+
+                {/* Live Preview */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Preview</Label>
+                  <div className="border border-border rounded-lg p-6 bg-gradient-to-br from-primary/10 via-background to-accent/10 text-center">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
+                      <Gift className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-1">{exitTitle}</h3>
+                    <p className="text-sm text-muted-foreground mb-4" dangerouslySetInnerHTML={{ __html: exitDescription }} />
+                    <div className="max-w-xs mx-auto space-y-2">
+                      <Input disabled placeholder={exitPlaceholder} className="bg-background text-sm" />
+                      <Button disabled className="w-full text-sm">{exitButtonText}</Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-3">{exitDisclaimer}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await updateMutation.mutateAsync({
+                          key: 'exit_intent_popup',
+                          value: {
+                            enabled: exitEnabled,
+                            title: exitTitle,
+                            description: exitDescription,
+                            button_text: exitButtonText,
+                            placeholder: exitPlaceholder,
+                            disclaimer: exitDisclaimer,
+                          },
+                        });
+                        toast({ title: 'Saved', description: 'Exit popup settings updated successfully.' });
+                      } catch (error) {
+                        toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
+                      }
+                    }}
+                    disabled={updateMutation.isPending}
+                    className="rounded-full"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Exit Popup Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
