@@ -98,8 +98,8 @@ const WeeklyTrendsCard = () => {
   const handleWriteBlogPost = (trend: Trend) => {
     const params = new URLSearchParams({
       autoOpenAi: 'true',
-      topic: trend.suggested_title,
-      keywords: trend.keywords.join(', '),
+      topic: trend.suggested_title || trend.trend,
+      keywords: (Array.isArray(trend.keywords) ? trend.keywords : []).join(', '),
       trendRank: trend.rank.toString(),
     });
     
