@@ -207,6 +207,9 @@ const AiBlogWriter = ({
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
   const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isFixingSeo, setIsFixingSeo] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [fixResults, setFixResults] = useState<string[]>([]);
   
   // SEO Title Generator state
   const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
@@ -355,6 +358,65 @@ const AiBlogWriter = ({
     setTitleIdeas([]);
     setSelectedTitle("");
     setIsGeneratingTitles(false);
+    setFixResults([]);
+  };
+
+  const handleFixSeo = async (mode: "fix" | "optimize") => {
+    if (!generatedData) return;
+    const seo = analyzeSeoScore(generatedData, keywords);
+    const failedChecks = mode === "fix"
+      ? seo.checks.filter(c => !c.pass)
+      : seo.checks; // optimize sends all checks so AI can improve everything
+
+    if (mode === "fix" && failedChecks.length === 0) {
+      toast.success("All SEO checks are already passing! 🎉");
+      return;
+    }
+
+    mode === "fix" ? setIsFixingSeo(true) : setIsOptimizing(true);
+    setFixResults([]);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("fix-seo-issues", {
+        body: {
+          blogData: {
+            title: generatedData.title,
+            meta_title: generatedData.meta_title,
+            meta_description: generatedData.meta_description,
+            excerpt: generatedData.excerpt,
+            content: generatedData.content,
+            slug: generatedData.slug,
+          },
+          failedChecks: failedChecks.map(c => ({ label: c.label, fix: c.fix })),
+          mode,
+          keywords,
+        },
+      });
+
+      if (error) throw new Error(error.message || "AI optimization failed");
+      if (data?.error) throw new Error(data.error);
+
+      // Update generated data with fixes
+      setGeneratedData(prev => prev ? {
+        ...prev,
+        title: data.title || prev.title,
+        meta_title: data.meta_title || prev.meta_title,
+        meta_description: data.meta_description || prev.meta_description,
+        excerpt: data.excerpt || prev.excerpt,
+        content: data.content || prev.content,
+        slug: data.slug || prev.slug,
+      } : prev);
+
+      const fixes = data.fixes_applied || [];
+      setFixResults(fixes);
+      toast.success(`${mode === "fix" ? "SEO issues fixed" : "Post auto-optimized"}! ${fixes.length} improvement${fixes.length !== 1 ? "s" : ""} applied.`);
+    } catch (err) {
+      console.error("SEO fix error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to fix SEO issues");
+    } finally {
+      setIsFixingSeo(false);
+      setIsOptimizing(false);
+    }
   };
 
   const handleClose = () => {
@@ -981,19 +1043,62 @@ const AiBlogWriter = ({
               );
             })()}
 
-            <div className="flex gap-3">
+            {/* Fix Results */}
+            {fixResults.length > 0 && (
+              <div className="bg-accent/5 border border-accent/20 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-semibold text-accent flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {fixResults.length} Fix{fixResults.length !== 1 ? "es" : ""} Applied
+                </p>
+                <ul className="space-y-1">
+                  {fixResults.map((fix, i) => (
+                    <li key={i} className="text-[11px] text-foreground flex items-start gap-1.5">
+                      <span className="text-accent mt-0.5">✓</span>
+                      {fix}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
-                className="flex-1 rounded-full"
+                className="rounded-full text-xs"
                 onClick={handleReset}
+                disabled={isFixingSeo || isOptimizing}
               >
                 Regenerate
               </Button>
               <Button
-                className="flex-1 rounded-full bg-accent text-accent-foreground hover:brightness-110"
-                onClick={handleApply}
+                variant="outline"
+                className="rounded-full text-xs border-destructive/30 text-destructive hover:bg-destructive/5"
+                onClick={() => handleFixSeo("fix")}
+                disabled={isFixingSeo || isOptimizing}
               >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
+                {isFixingSeo ? (
+                  <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Fixing...</>
+                ) : (
+                  <><Wand2 className="w-3 h-3 mr-1.5" />Fix SEO Issues</>
+                )}
+              </Button>
+              <Button
+                className="rounded-full text-xs bg-gradient-to-r from-accent to-accent/80 text-accent-foreground hover:brightness-110"
+                onClick={() => handleFixSeo("optimize")}
+                disabled={isFixingSeo || isOptimizing}
+              >
+                {isOptimizing ? (
+                  <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Optimizing...</>
+                ) : (
+                  <><Sparkles className="w-3 h-3 mr-1.5" />Auto-Optimize</>
+                )}
+              </Button>
+              <Button
+                className="rounded-full text-xs bg-accent text-accent-foreground hover:brightness-110"
+                onClick={handleApply}
+                disabled={isFixingSeo || isOptimizing}
+              >
+                <CheckCircle2 className="w-3 h-3 mr-1.5" />
                 Apply to Editor
               </Button>
             </div>
