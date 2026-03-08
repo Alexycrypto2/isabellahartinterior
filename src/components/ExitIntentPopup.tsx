@@ -4,16 +4,36 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useSiteSetting } from '@/hooks/useSiteSettings';
 import { Gift, X } from 'lucide-react';
 
 const POPUP_STORAGE_KEY = 'exit-intent-shown';
 const POPUP_COOLDOWN_DAYS = 7;
+
+const DEFAULTS = {
+  title: "Wait! Don't Leave Yet",
+  description: 'Get our <strong>Free Room Styling Guide</strong> — packed with pro tips to transform any space into a magazine-worthy room.',
+  button_text: 'Get My Free Guide',
+  placeholder: 'Enter your email address',
+  disclaimer: 'No spam, ever. Unsubscribe anytime.',
+  enabled: true,
+};
 
 export default function ExitIntentPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { data: popupSettings } = useSiteSetting('exit_intent_popup');
+
+  const config = {
+    title: (popupSettings?.value as any)?.title || DEFAULTS.title,
+    description: (popupSettings?.value as any)?.description || DEFAULTS.description,
+    button_text: (popupSettings?.value as any)?.button_text || DEFAULTS.button_text,
+    placeholder: (popupSettings?.value as any)?.placeholder || DEFAULTS.placeholder,
+    disclaimer: (popupSettings?.value as any)?.disclaimer || DEFAULTS.disclaimer,
+    enabled: (popupSettings?.value as any)?.enabled ?? DEFAULTS.enabled,
+  };
 
   const trackEvent = useCallback(async (eventType: string) => {
     const visitorId = localStorage.getItem('visitor_id') || crypto.randomUUID();
@@ -31,10 +51,9 @@ export default function ExitIntentPopup() {
   }, []);
 
   const shouldShowPopup = useCallback(() => {
-    // Only show on desktop
+    if (!config.enabled) return false;
     if (window.innerWidth < 1024) return false;
     
-    // Check cooldown
     const lastShown = localStorage.getItem(POPUP_STORAGE_KEY);
     if (lastShown) {
       const daysSinceShown = (Date.now() - parseInt(lastShown)) / (1000 * 60 * 60 * 24);
@@ -42,7 +61,7 @@ export default function ExitIntentPopup() {
     }
     
     return true;
-  }, []);
+  }, [config.enabled]);
 
   useEffect(() => {
     if (!shouldShowPopup()) return;
@@ -50,7 +69,6 @@ export default function ExitIntentPopup() {
     let triggered = false;
 
     const handleMouseLeave = (e: MouseEvent) => {
-      // Only trigger when mouse moves toward top of viewport (browser close/tab area)
       if (e.clientY <= 5 && !triggered) {
         triggered = true;
         setIsOpen(true);
@@ -59,7 +77,6 @@ export default function ExitIntentPopup() {
       }
     };
 
-    // Add a delay before enabling the listener to prevent immediate triggers
     const timeout = setTimeout(() => {
       document.addEventListener('mouseleave', handleMouseLeave);
     }, 5000);
@@ -117,28 +134,25 @@ export default function ExitIntentPopup() {
             <Gift className="h-8 w-8 text-primary" />
           </div>
           
-          <h2 className="text-2xl font-bold mb-2">Wait! Don't Leave Yet</h2>
-          <p className="text-muted-foreground mb-6">
-            Get our <span className="font-semibold text-foreground">Free Room Styling Guide</span> — 
-            packed with pro tips to transform any space into a magazine-worthy room.
-          </p>
+          <h2 className="text-2xl font-bold mb-2">{config.title}</h2>
+          <p className="text-muted-foreground mb-6" dangerouslySetInnerHTML={{ __html: config.description }} />
           
           <form onSubmit={handleSubmit} className="space-y-3">
             <Input
               type="email"
-              placeholder="Enter your email address"
+              placeholder={config.placeholder}
               value={email}
               onChange={e => setEmail(e.target.value)}
               className="bg-background"
               required
             />
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Sending...' : 'Get My Free Guide'}
+              {isSubmitting ? 'Sending...' : config.button_text}
             </Button>
           </form>
           
           <p className="text-xs text-muted-foreground mt-4">
-            No spam, ever. Unsubscribe anytime.
+            {config.disclaimer}
           </p>
         </div>
       </DialogContent>
