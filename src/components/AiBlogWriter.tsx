@@ -207,6 +207,9 @@ const AiBlogWriter = ({
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
   const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isFixingSeo, setIsFixingSeo] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [fixResults, setFixResults] = useState<string[]>([]);
   
   // SEO Title Generator state
   const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
