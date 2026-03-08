@@ -35,7 +35,7 @@ async function generateWithOpenAIDalle(apiKey: string, model: string, prompt: st
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: model || "dall-e-3",
-      prompt: `Beautiful, high-quality photograph for a home decor blog post. Photorealistic, well-lit, magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}`,
+      prompt: `Beautiful, high-quality photograph for a home decor blog post. Photorealistic, well-lit, magazine-quality. Style: interior design photography, 1200x630 aspect ratio optimized for social sharing, warm tones. Scene: ${prompt}`,
       n: 1,
       size: "1792x1024",
       response_format: "b64_json",
@@ -61,7 +61,7 @@ async function generateWithGeminiImage(apiKey: string, model: string, prompt: st
   // If endpoint doesn't have the key param, append it
   const finalUrl = url.includes("key=") ? url : `${url}${url.includes("?") ? "&" : "?"}key=${apiKey}`;
 
-  const fullPrompt = `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}`;
+  const fullPrompt = `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 1200x630px dimensions optimized for blog featured images, warm tones. Scene: ${prompt}`;
 
   const response = await fetch(finalUrl, {
     method: "POST",
@@ -122,7 +122,7 @@ serve(async (req) => {
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "google/gemini-2.5-flash-image",
-            messages: [{ role: "user", content: `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 16:9 aspect ratio, warm tones. Scene: ${prompt}` }],
+            messages: [{ role: "user", content: `Generate a beautiful, high-quality photograph for a home decor blog post. The image should be photorealistic, well-lit, and magazine-quality. Style: interior design photography, 1200x630px dimensions optimized for blog featured images and social sharing, warm tones. Scene: ${prompt}` }],
             modalities: ["image", "text"],
           }),
         });
