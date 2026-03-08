@@ -11,11 +11,22 @@ serve(async (req) => {
 
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get AI priority setting
+    let aiPriority = "custom";
+    let customTextConfig: any = null;
+    try {
+      const { data } = await supabase.from("site_settings").select("value").eq("key", "ai_api").single();
+      if (data?.value) {
+        const val = data.value as any;
+        aiPriority = val.priority || "custom";
+        const key = val.text_api_key || val.api_key;
+        if (key) customTextConfig = { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint };
+      }
+    } catch {}
 
     const today = new Date();
     const weekStr = `${today.getFullYear()}-W${String(Math.ceil((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / 604800000)).padStart(2, '0')}`;
@@ -33,39 +44,100 @@ Return a JSON array of exactly 10 objects, each with:
 
 Return ONLY valid JSON, no markdown, no code blocks.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate 10 trending home decor topics for the week of ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. Consider current season, Pinterest trends, Instagram reels, TikTok home content, and interior design shows.` },
-        ],
-      }),
-    });
+    const userContent = `Generate 10 trending home decor topics for the week of ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. Consider current season, Pinterest trends, Instagram reels, TikTok home content, and interior design shows.`;
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded." }), {
+    const msgs = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userContent },
+    ];
+
+    async function callLovable() {
+      if (!LOVABLE_API_KEY) return null;
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: msgs }),
+      });
+      if (resp.status === 429) throw { status: 429, message: "Rate limit exceeded." };
+      if (resp.status === 402) { console.log("Lovable credits exhausted"); return null; }
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    async function callCustomText() {
+      if (!customTextConfig) return null;
+      const provider = customTextConfig.provider;
+      const model = customTextConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
+      const url = provider === "custom" && customTextConfig.endpoint ? customTextConfig.endpoint
+        : provider === "google" ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        : provider === "anthropic" ? "https://api.anthropic.com/v1/messages"
+        : "https://api.openai.com/v1/chat/completions";
+
+      if (provider === "anthropic") {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "x-api-key": customTextConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+          body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: [{ role: "user", content: userContent }] }),
+        });
+        if (!resp.ok) return null;
+        const d = await resp.json();
+        return { directContent: d.content?.[0]?.text || "[]" };
+      }
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${customTextConfig.api_key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages: msgs }),
+      });
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    let response: Response | null = null;
+    let directContent: string | null = null;
+
+    try {
+      if (aiPriority === "custom" && customTextConfig) {
+        const result = await callCustomText();
+        if (result && 'directContent' in result) {
+          directContent = result.directContent;
+        } else if (result) {
+          response = result as Response;
+        } else {
+          response = await callLovable();
+        }
+      } else {
+        response = await callLovable();
+        if (!response) {
+          const result = await callCustomText();
+          if (result && 'directContent' in result) {
+            directContent = result.directContent;
+          } else if (result) {
+            response = result as Response;
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI error:", response.status, t);
-      throw new Error("AI gateway error");
+      throw e;
     }
 
-    const data = await response.json();
-    let content = data.choices?.[0]?.message?.content?.trim() || "[]";
+    let content: string;
+    if (directContent) {
+      content = directContent;
+    } else if (response && response.ok) {
+      const data = await response.json();
+      content = data.choices?.[0]?.message?.content?.trim() || "[]";
+    } else {
+      return new Response(JSON.stringify({ error: "No AI provider available. Configure an API key in Settings → AI API." }), {
+        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
     const trends = JSON.parse(content);
 
