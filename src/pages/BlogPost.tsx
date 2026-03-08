@@ -252,6 +252,15 @@ const BlogPost = () => {
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
 
+          {/* Shop the Look - inline smart matching */}
+          <div className="max-w-3xl mx-auto">
+            <ShopTheLookInline 
+              blogTitle={post.title}
+              blogContent={post.content}
+              category={post.category}
+            />
+          </div>
+
           {/* Product Showcase */}
           <div className="max-w-4xl mx-auto">
             <BlogProductShowcase category={post.category} />
