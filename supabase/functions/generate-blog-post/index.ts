@@ -13,7 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, category, keywords } = await req.json();
+    const { topic, tone, category, keywords, targetWordCount } = await req.json();
+
+    const wordCountTarget = Math.max(800, Math.min(3000, targetWordCount || 1500));
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -21,7 +23,6 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const baseUrl = "https://roomeefine.lovable.app";
 
-    // Fetch existing published blog posts for internal linking
     async function getExistingPosts() {
       try {
         const { data } = await supabase
@@ -34,7 +35,6 @@ serve(async (req) => {
       } catch { return []; }
     }
 
-    // Fetch active products for inline embedding
     async function getProducts() {
       try {
         const { data } = await supabase
@@ -49,7 +49,6 @@ serve(async (req) => {
 
     const [existingPosts, products] = await Promise.all([getExistingPosts(), getProducts()]);
 
-    // Fetch custom AI API settings from site_settings
     async function getCustomAiConfig() {
       try {
         const { data } = await supabase
@@ -138,30 +137,67 @@ PRODUCT EMBED RULES:
 - NEVER embed products in a list at the end — they must be woven into the content
 - Also hyperlink the first mention of each product keyword in your text to its affiliate URL
 - Each embed must use the EXACT affiliate_url and image_url from the catalog above`
-      : ""
-    ;
+      : "";
 
     const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "RoomRefine", a premium home decor and interior design brand.
+
+BRAND VOICE (ALWAYS APPLY — DO NOT DEVIATE):
+- Tone: Warm, elegant, and conversational — like a trusted friend who happens to be an interior designer
+- Target audience: Women 25-45 who want beautiful, affordable homes
+- Language: Second person ("you"), encouraging, aspirational yet practical
+- Avoid: Cold corporate language, overly technical jargon, condescending tone
+- Channel: Think Joanna Gaines meets a best friend chat over coffee
+- Use phrases like: "Here's the thing…", "Trust me on this one", "The secret is…", "You deserve…"
 
 Your mission is to write blog posts that RANK ON PAGE 1 OF GOOGLE. Every post must follow proven SEO frameworks.
 
 WRITING PRINCIPLES:
-- Write at a Grade 8 reading level for maximum accessibility
+- Write at a Grade 6-8 reading level for maximum accessibility
 - Use short paragraphs (2-3 sentences max) for mobile readability
 - Open with a compelling hook that addresses the reader's pain point
 - Include actionable, specific advice (not generic fluff)
 - Use power words: "proven", "essential", "stunning", "transform", "effortless"
-- Write in second person ("you") to create personal connection
 
 SEO STRUCTURE (MANDATORY):
 - Title: Include primary keyword near the beginning, under 60 chars, use numbers or power words
 - H2 headings: 4-6 per post, each containing secondary keywords naturally
 - H3 subheadings: Use under H2s for detailed breakdowns
 - First 100 words: Must contain the primary keyword naturally
-- Content: 1200-2000 words, comprehensive enough to be the definitive resource
+- Content: Target exactly ${wordCountTarget} words (±10%), comprehensive enough to be the definitive resource
 - Include a "Key Takeaways" or "Quick Tips" section with bullet points
 - End with a strong call-to-action paragraph
 - Use semantic HTML: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, <blockquote>
+
+AUTO TABLE OF CONTENTS (MANDATORY):
+- After the first introductory paragraph, insert a Table of Contents
+- Use this exact HTML structure:
+<div class="blog-toc" style="margin: 24px 0; padding: 20px; background: #f8f8f8; border-radius: 12px; border-left: 4px solid #c9a96e;">
+  <p style="font-weight: 600; margin-bottom: 12px; font-size: 15px;">📋 In This Article</p>
+  <ul style="list-style: none; padding: 0; margin: 0;">
+    <li style="margin-bottom: 8px;"><a href="#section-slug" style="color: #c9a96e; text-decoration: none; font-size: 14px;">→ Heading Text</a></li>
+  </ul>
+</div>
+- Add matching id attributes to each H2: <h2 id="section-slug">Heading Text</h2>
+- Include ALL H2 headings in the TOC
+
+FAQ SECTION (MANDATORY — ALWAYS AT THE END):
+- Generate 5-7 FAQ questions based on what people actually search about this topic
+- Use "People Also Ask" style questions (how, what, why, can, does, is)
+- Place after the main content, before the CTA paragraph
+- Use this exact HTML structure:
+<div class="blog-faq" style="margin: 32px 0; padding: 24px; background: #fafaf8; border-radius: 12px;">
+  <h2 id="frequently-asked-questions">Frequently Asked Questions</h2>
+  <div class="faq-item" style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Question text?</h3>
+    <p style="font-size: 14px; color: #555; line-height: 1.6;">Answer text (2-3 sentences, concise and helpful).</p>
+  </div>
+</div>
+
+AUTOMATIC ALT TEXT (MANDATORY):
+- Every <img> tag MUST have a descriptive, SEO-friendly alt attribute
+- Alt text format: "[Product/Item name] - [brief description] for [room type] [style keyword]"
+- Example: alt="Boho macrame wall hanging - handcrafted cotton decor for living room bohemian styling"
+- Never use generic alt text like "image" or "photo" or leave alt empty
 
 META SEO RULES:
 - Meta Title: Primary keyword + benefit/number, exactly 50-60 chars
@@ -175,34 +211,65 @@ IMAGE PROMPT RULES:
 ${internalLinksRef}
 ${productEmbedRef}
 
+COMPETITOR RESEARCH APPROACH:
+When writing, imagine you've already analyzed the top 10 Google results for "${topic}". Your content MUST:
+- Cover every angle competitors would cover PLUS unique insights they miss
+- Include more specific, actionable advice than typical articles
+- Add unique value: expert tips, cost breakdowns, before/after scenarios, seasonal considerations
+- Be more comprehensive and better structured than any existing article on this topic
+- Address common misconceptions and provide nuanced answers
+- Include specific product recommendations, measurements, and price ranges where relevant
+
 You MUST return structured data using the "generate_blog_post" tool.`;
 
     const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
-${tone ? `Tone: ${tone}` : ""}
+${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant RoomRefine brand voice underneath)` : ""}
 ${category ? `Category: ${category}` : ""}
 ${keywords ? `Primary and secondary keywords to target: ${keywords}` : ""}
+Target word count: ${wordCountTarget} words
 
-Remember: This post should be the BEST resource on this topic. Make it comprehensive, actionable, and optimized to outrank competitors. MOST IMPORTANTLY: embed real product images and affiliate links inline when mentioning product types.`;
+IMPORTANT REQUIREMENTS:
+1. Include a Table of Contents after the intro paragraph with anchor links to all H2s
+2. Include 5-7 FAQ questions at the end in proper FAQ markup
+3. Cover this topic more comprehensively than any competitor — add unique angles, specific tips, and expert insights
+4. Every image must have descriptive, keyword-rich alt text
+5. Maintain warm, conversational brand voice throughout (audience: women 25-45 who want beautiful affordable homes)
+6. Embed real product images and affiliate links inline when mentioning product types
+7. The content should feel like advice from a trusted friend, not a corporate blog`;
 
     const toolsDef = [
       {
         type: "function",
         function: {
           name: "generate_blog_post",
-          description: "Generate a complete SEO-optimized blog post with inline product embeds",
+          description: "Generate a complete SEO-optimized blog post with FAQ schema, table of contents, and inline product embeds",
           parameters: {
             type: "object",
             properties: {
               title: { type: "string", description: "Blog post title, under 60 chars" },
               slug: { type: "string", description: "URL-friendly slug derived from title, lowercase with hyphens" },
               excerpt: { type: "string", description: "1-2 sentence summary, plain text, no HTML" },
-              content: { type: "string", description: "Full blog post in semantic HTML (h2, h3, p, ul/li, strong, em, blockquote). 1200-2000 words. MUST include inline product embeds with images and affiliate links where products are mentioned. Include Key Takeaways section and CTA." },
+              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Inline product embeds, 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
               meta_title: { type: "string", description: "SEO meta title, under 60 chars" },
               meta_description: { type: "string", description: "SEO meta description, under 160 chars" },
               read_time: { type: "string", description: 'Estimated read time, e.g. "5 min read"' },
               image_prompt: { type: "string", description: "Detailed prompt for generating a featured image" },
+              faq_schema: {
+                type: "array",
+                description: "Array of FAQ items for JSON-LD schema markup",
+                items: {
+                  type: "object",
+                  properties: {
+                    question: { type: "string", description: "The FAQ question" },
+                    answer: { type: "string", description: "The FAQ answer, plain text" },
+                  },
+                  required: ["question", "answer"],
+                  additionalProperties: false,
+                },
+              },
+              featured_image_alt: { type: "string", description: "SEO-friendly alt text for the featured image, descriptive and keyword-rich" },
             },
-            required: ["title", "slug", "excerpt", "content", "meta_title", "meta_description", "read_time", "image_prompt"],
+            required: ["title", "slug", "excerpt", "content", "meta_title", "meta_description", "read_time", "image_prompt", "faq_schema", "featured_image_alt"],
             additionalProperties: false,
           },
         },
