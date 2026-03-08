@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import PageTransition from '@/components/PageTransition';
 import { z } from 'zod';
 import { checkPasswordBreach } from '@/lib/passwordBreach';
-import { Progress } from '@/components/ui/progress';
+import { checkPasswordBreach } from '@/lib/passwordBreach';
 
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   let score = 0;
