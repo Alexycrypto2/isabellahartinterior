@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
@@ -90,6 +90,14 @@ const AdminSettings = () => {
   // Weekly digest settings
   const [digestEnabled, setDigestEnabled] = useState(true);
   const [digestEmail, setDigestEmail] = useState('');
+
+  // Exit intent popup settings
+  const [exitTitle, setExitTitle] = useState("Wait! Don't Leave Yet");
+  const [exitDescription, setExitDescription] = useState('Get our <strong>Free Room Styling Guide</strong> — packed with pro tips to transform any space into a magazine-worthy room.');
+  const [exitButtonText, setExitButtonText] = useState('Get My Free Guide');
+  const [exitPlaceholder, setExitPlaceholder] = useState('Enter your email address');
+  const [exitDisclaimer, setExitDisclaimer] = useState('No spam, ever. Unsubscribe anytime.');
+  const [exitEnabled, setExitEnabled] = useState(true);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -171,6 +179,15 @@ const AdminSettings = () => {
       const digest = getSetting('weekly_digest') as Record<string, any>;
       setDigestEnabled(digest.enabled ?? true);
       setDigestEmail(digest.email || '');
+
+      // Exit intent popup
+      const exitPopup = getSetting('exit_intent_popup') as Record<string, any>;
+      setExitTitle(exitPopup.title || "Wait! Don't Leave Yet");
+      setExitDescription(exitPopup.description || 'Get our <strong>Free Room Styling Guide</strong> — packed with pro tips to transform any space into a magazine-worthy room.');
+      setExitButtonText(exitPopup.button_text || 'Get My Free Guide');
+      setExitPlaceholder(exitPopup.placeholder || 'Enter your email address');
+      setExitDisclaimer(exitPopup.disclaimer || 'No spam, ever. Unsubscribe anytime.');
+      setExitEnabled(exitPopup.enabled ?? true);
     }
   }, [settings]);
 
@@ -563,6 +580,10 @@ const AdminSettings = () => {
               <TabsTrigger value="digest" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
                 <BarChart3 className="h-3.5 w-3.5" />
                 Digest
+              </TabsTrigger>
+              <TabsTrigger value="exit-popup" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Gift className="h-3.5 w-3.5" />
+                Exit Popup
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1251,6 +1272,96 @@ const AdminSettings = () => {
                   >
                     <Save className="mr-2 h-4 w-4" />
                     Save Digest Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Exit Intent Popup */}
+          <TabsContent value="exit-popup">
+            <Card>
+              <CardHeader>
+                <CardTitle>Exit Intent Popup</CardTitle>
+                <CardDescription>Customize the popup that appears when visitors are about to leave your site</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-medium">Enable Exit Popup</Label>
+                    <p className="text-xs text-muted-foreground">Show the popup when visitors move to leave</p>
+                  </div>
+                  <Switch checked={exitEnabled} onCheckedChange={setExitEnabled} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Title</Label>
+                  <Input value={exitTitle} onChange={(e) => setExitTitle(e.target.value)} placeholder="Wait! Don't Leave Yet" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Description</Label>
+                  <Textarea value={exitDescription} onChange={(e) => setExitDescription(e.target.value)} placeholder="Get our Free Room Styling Guide..." rows={3} />
+                  <p className="text-xs text-muted-foreground">You can use &lt;strong&gt;bold text&lt;/strong&gt; for emphasis</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Email Placeholder</Label>
+                  <Input value={exitPlaceholder} onChange={(e) => setExitPlaceholder(e.target.value)} placeholder="Enter your email address" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Button Text</Label>
+                  <Input value={exitButtonText} onChange={(e) => setExitButtonText(e.target.value)} placeholder="Get My Free Guide" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Disclaimer Text</Label>
+                  <Input value={exitDisclaimer} onChange={(e) => setExitDisclaimer(e.target.value)} placeholder="No spam, ever. Unsubscribe anytime." />
+                </div>
+
+                {/* Live Preview */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Preview</Label>
+                  <div className="border border-border rounded-lg p-6 bg-gradient-to-br from-primary/10 via-background to-accent/10 text-center">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
+                      <Gift className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-1">{exitTitle}</h3>
+                    <p className="text-sm text-muted-foreground mb-4" dangerouslySetInnerHTML={{ __html: exitDescription }} />
+                    <div className="max-w-xs mx-auto space-y-2">
+                      <Input disabled placeholder={exitPlaceholder} className="bg-background text-sm" />
+                      <Button disabled className="w-full text-sm">{exitButtonText}</Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-3">{exitDisclaimer}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await updateMutation.mutateAsync({
+                          key: 'exit_intent_popup',
+                          value: {
+                            enabled: exitEnabled,
+                            title: exitTitle,
+                            description: exitDescription,
+                            button_text: exitButtonText,
+                            placeholder: exitPlaceholder,
+                            disclaimer: exitDisclaimer,
+                          },
+                        });
+                        toast({ title: 'Saved', description: 'Exit popup settings updated successfully.' });
+                      } catch (error) {
+                        toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
+                      }
+                    }}
+                    disabled={updateMutation.isPending}
+                    className="rounded-full"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Exit Popup Settings
                   </Button>
                 </div>
               </CardContent>
