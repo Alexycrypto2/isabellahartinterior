@@ -314,6 +314,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ownership_transfers: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_owner_confirmed: boolean | null
+          current_owner_id: string
+          expires_at: string
+          id: string
+          new_owner_confirmed: boolean | null
+          new_owner_email: string
+          token: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_owner_confirmed?: boolean | null
+          current_owner_id: string
+          expires_at?: string
+          id?: string
+          new_owner_confirmed?: boolean | null
+          new_owner_email: string
+          token?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_owner_confirmed?: boolean | null
+          current_owner_id?: string
+          expires_at?: string
+          id?: string
+          new_owner_confirmed?: boolean | null
+          new_owner_email?: string
+          token?: string
+        }
+        Relationships: []
+      }
       product_categories: {
         Row: {
           created_at: string
@@ -442,6 +478,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          two_factor_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          two_factor_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          two_factor_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       seasonal_banners: {
         Row: {
           badge_text: string | null
@@ -487,6 +550,39 @@ export type Database = {
         }
         Relationships: []
       }
+      security_logs: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_new_device: boolean | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_new_device?: boolean | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_new_device?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
@@ -508,22 +604,58 @@ export type Database = {
         }
         Relationships: []
       }
+      team_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
           id: string
+          last_login: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          last_login?: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          last_login?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
@@ -534,6 +666,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -543,7 +679,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role:
+        | "admin"
+        | "user"
+        | "super_admin"
+        | "editor"
+        | "writer"
+        | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -671,7 +813,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "super_admin", "editor", "writer", "viewer"],
     },
   },
 } as const

@@ -41,6 +41,10 @@ const AdminContactSubmissions = lazy(() => import("./pages/AdminContactSubmissio
 const AdminPhotoSubmissions = lazy(() => import("./pages/AdminPhotoSubmissions"));
 const AdminSeasonalBanners = lazy(() => import("./pages/AdminSeasonalBanners"));
 const AdminContentCalendar = lazy(() => import("./pages/AdminContentCalendar"));
+const AdminAccountSettings = lazy(() => import("./pages/AdminAccountSettings"));
+const AdminTeamManagement = lazy(() => import("./pages/AdminTeamManagement"));
+const AdminSecurityLog = lazy(() => import("./pages/AdminSecurityLog"));
+const AdminOwnershipTransfer = lazy(() => import("./pages/AdminOwnershipTransfer"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -85,6 +89,10 @@ const AnimatedRoutes = () => {
           <Route path="/admin/photo-submissions" element={<AdminPhotoSubmissions />} />
           <Route path="/admin/seasonal-banners" element={<AdminSeasonalBanners />} />
           <Route path="/admin/blog/calendar" element={<AdminContentCalendar />} />
+          <Route path="/admin/account" element={<AdminAccountSettings />} />
+          <Route path="/admin/team" element={<AdminTeamManagement />} />
+          <Route path="/admin/security" element={<AdminSecurityLog />} />
+          <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
