@@ -23,3 +23,12 @@ verify_jwt = false
 
 [functions.weekly-digest]
 verify_jwt = false
+
+[functions.generate-pin-description]
+verify_jwt = false
+
+[functions.generate-seo-titles]
+verify_jwt = false
+
+[functions.weekly-trend-report]
+verify_jwt = false

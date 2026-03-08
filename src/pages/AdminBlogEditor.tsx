@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2, ShoppingBag, Crop } from 'lucide-react';
 import AiBlogWriter from '@/components/AiBlogWriter';
 import FeaturedImageEditor from '@/components/FeaturedImageEditor';
+import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 
 const generateSlug = (title: string) => {
   return title
@@ -570,6 +571,14 @@ const AdminBlogEditor = () => {
             <Label>Content *</Label>
             <RichTextEditor content={content} onChange={setContent} onImageUpload={handleContentImageUpload} />
           </div>
+
+          {/* Pinterest Pin Description */}
+          <PinDescriptionGenerator
+            title={title}
+            description={excerpt || content.replace(/<[^>]*>/g, ' ').slice(0, 500)}
+            category={category}
+            type="blog"
+          />
 
           {/* SEO Section */}
           <div className="border rounded-lg p-6 space-y-4 bg-muted/30">

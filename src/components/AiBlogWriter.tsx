@@ -201,15 +201,24 @@ const AiBlogWriter = ({
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
   const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // SEO Title Generator state
+  const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
+  const [isGeneratingTitles, setIsGeneratingTitles] = useState(false);
+  const [selectedTitle, setSelectedTitle] = useState("");
 
   // Get recommendation when topic changes
   const recommendation = topic.trim() ? getRecommendedWordCount(topic) : null;
 
   const handleGenerate = async () => {
-    if (!topic.trim()) {
+    const topicToUse = selectedTitle || topic;
+    if (!topicToUse.trim()) {
       toast.error("Please enter a topic for your blog post");
       return;
     }
+
+    // If a selected title exists, use it as the topic
+    const effectiveTopic = selectedTitle || topic;
 
     setStep("discovering-products");
     setProgress(5);
@@ -226,7 +235,7 @@ const AiBlogWriter = ({
       try {
         const { data: discoverData, error: discoverError } =
           await supabase.functions.invoke("discover-blog-products", {
-            body: { topic, category },
+            body: { topic: effectiveTopic, category },
           });
 
         if (!discoverError && discoverData?.products) {
@@ -259,7 +268,7 @@ const AiBlogWriter = ({
 
       const { data: textData, error: textError } =
         await supabase.functions.invoke("generate-blog-post", {
-          body: { topic, tone: "warm", category, keywords, targetWordCount },
+          body: { topic: effectiveTopic, tone: "warm", category, keywords, targetWordCount },
         });
 
       clearInterval(progressInterval);
@@ -330,6 +339,9 @@ const AiBlogWriter = ({
     setGeneratedData(null);
     setDiscoveredProducts([]);
     setErrorMessage("");
+    setTitleIdeas([]);
+    setSelectedTitle("");
+    setIsGeneratingTitles(false);
   };
 
   const handleClose = () => {
@@ -466,6 +478,79 @@ const AiBlogWriter = ({
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* SEO Title Generator */}
+            <div className="border rounded-lg p-3 space-y-3 bg-accent/5 border-accent/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-accent" />
+                  <span className="text-xs font-semibold">AI Title Ideas</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    if (!topic.trim()) { toast.error("Enter a topic first"); return; }
+                    setIsGeneratingTitles(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('generate-seo-titles', {
+                        body: { topic, keywords, category },
+                      });
+                      if (error) throw error;
+                      if (data?.error) throw new Error(data.error);
+                      setTitleIdeas(data.titles || []);
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to generate titles');
+                    } finally {
+                      setIsGeneratingTitles(false);
+                    }
+                  }}
+                  disabled={isGeneratingTitles || !topic.trim()}
+                  className="rounded-full text-xs h-7 border-accent/30 text-accent hover:bg-accent/10"
+                >
+                  {isGeneratingTitles ? (
+                    <><Loader2 className="mr-1 h-3 w-3 animate-spin" />Generating...</>
+                  ) : (
+                    'Generate Title Ideas'
+                  )}
+                </Button>
+              </div>
+              {titleIdeas.length > 0 && (
+                <div className="space-y-1.5">
+                  {titleIdeas.map((idea, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedTitle(idea.title)}
+                      className={`w-full text-left p-2.5 rounded-lg border transition-all text-xs ${
+                        selectedTitle === idea.title 
+                          ? 'border-accent bg-accent/10 ring-1 ring-accent/30' 
+                          : 'border-border/50 hover:border-accent/30 bg-background/80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium line-clamp-1 flex-1">{idea.title}</span>
+                        <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                          idea.seo_score >= 8 ? 'bg-emerald-500/10 text-emerald-600' :
+                          idea.seo_score >= 6 ? 'bg-accent/10 text-accent' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          SEO {idea.seo_score}/10
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-1">{idea.reasoning}</p>
+                    </button>
+                  ))}
+                  {selectedTitle && (
+                    <p className="text-[10px] text-accent font-medium flex items-center gap-1 pt-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Selected title will be used for generation
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <Button

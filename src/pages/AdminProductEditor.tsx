@@ -22,6 +22,7 @@ import {
 } from '@/hooks/useProducts';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Save, Image as ImageIcon, Upload, Star } from 'lucide-react';
+import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 
 const generateSlug = (name: string) => {
   return name
@@ -322,6 +323,15 @@ const AdminProductEditor = () => {
             <p className="text-sm text-muted-foreground">Or paste an image URL:</p>
             <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
           </div>
+
+          {/* Pinterest Pin Description */}
+          <PinDescriptionGenerator
+            title={name}
+            description={description}
+            category={category}
+            price={price}
+            type="product"
+          />
 
           {/* SEO Section */}
           <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
