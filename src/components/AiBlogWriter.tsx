@@ -1043,19 +1043,62 @@ const AiBlogWriter = ({
               );
             })()}
 
-            <div className="flex gap-3">
+            {/* Fix Results */}
+            {fixResults.length > 0 && (
+              <div className="bg-accent/5 border border-accent/20 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-semibold text-accent flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {fixResults.length} Fix{fixResults.length !== 1 ? "es" : ""} Applied
+                </p>
+                <ul className="space-y-1">
+                  {fixResults.map((fix, i) => (
+                    <li key={i} className="text-[11px] text-foreground flex items-start gap-1.5">
+                      <span className="text-accent mt-0.5">✓</span>
+                      {fix}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
-                className="flex-1 rounded-full"
+                className="rounded-full text-xs"
                 onClick={handleReset}
+                disabled={isFixingSeo || isOptimizing}
               >
                 Regenerate
               </Button>
               <Button
-                className="flex-1 rounded-full bg-accent text-accent-foreground hover:brightness-110"
-                onClick={handleApply}
+                variant="outline"
+                className="rounded-full text-xs border-destructive/30 text-destructive hover:bg-destructive/5"
+                onClick={() => handleFixSeo("fix")}
+                disabled={isFixingSeo || isOptimizing}
               >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
+                {isFixingSeo ? (
+                  <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Fixing...</>
+                ) : (
+                  <><Wand2 className="w-3 h-3 mr-1.5" />Fix SEO Issues</>
+                )}
+              </Button>
+              <Button
+                className="rounded-full text-xs bg-gradient-to-r from-accent to-accent/80 text-accent-foreground hover:brightness-110"
+                onClick={() => handleFixSeo("optimize")}
+                disabled={isFixingSeo || isOptimizing}
+              >
+                {isOptimizing ? (
+                  <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Optimizing...</>
+                ) : (
+                  <><Sparkles className="w-3 h-3 mr-1.5" />Auto-Optimize</>
+                )}
+              </Button>
+              <Button
+                className="rounded-full text-xs bg-accent text-accent-foreground hover:brightness-110"
+                onClick={handleApply}
+                disabled={isFixingSeo || isOptimizing}
+              >
+                <CheckCircle2 className="w-3 h-3 mr-1.5" />
                 Apply to Editor
               </Button>
             </div>
