@@ -145,7 +145,7 @@ Please fix the issues listed above and return the corrected JSON.`;
               { role: "user", content: userPrompt },
             ],
             temperature: 0.3,
-            max_tokens: 8000,
+            max_tokens: 16000,
           }),
         });
 
@@ -156,6 +156,9 @@ Please fix the issues listed above and return the corrected JSON.`;
             const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
             result = JSON.parse(cleaned);
           }
+        } else {
+          const errText = await resp.text();
+          console.warn("Custom API error:", resp.status, errText);
         }
       } catch (e) {
         console.warn("Custom API failed, falling back:", e);
@@ -178,7 +181,7 @@ Please fix the issues listed above and return the corrected JSON.`;
               { role: "user", content: userPrompt },
             ],
             temperature: 0.3,
-            max_tokens: 8000,
+            max_tokens: 16000,
           }),
         });
 
@@ -202,6 +205,9 @@ Please fix the issues listed above and return the corrected JSON.`;
             const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
             result = JSON.parse(cleaned);
           }
+        } else {
+          const errText = await resp.text();
+          console.error("Lovable AI error:", resp.status, errText);
         }
       } catch (e) {
         console.error("Lovable AI failed:", e);
@@ -227,7 +233,7 @@ Please fix the issues listed above and return the corrected JSON.`;
               { role: "user", content: userPrompt },
             ],
             temperature: 0.3,
-            max_tokens: 8000,
+            max_tokens: 16000,
           }),
         });
 
@@ -238,6 +244,9 @@ Please fix the issues listed above and return the corrected JSON.`;
             const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
             result = JSON.parse(cleaned);
           }
+        } else {
+          const errText = await resp.text();
+          console.error("Custom API fallback error:", resp.status, errText);
         }
       } catch (e) {
         console.error("Custom API fallback failed:", e);
