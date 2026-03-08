@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Camera,
   FileText,
+  Calendar,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
