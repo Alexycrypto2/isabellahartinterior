@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Star, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSetting } from "@/hooks/useSiteSettings";
+import { useActiveSeasonalBanner } from "@/hooks/useSeasonalBanners";
 
 // Get random image path - we'll lazy load the actual image
 const heroImagePaths = [
@@ -16,6 +17,7 @@ const heroImagePaths = [
 const Hero = memo(() => {
   const { data: heroSetting } = useSiteSetting('hero');
   const hero = (heroSetting?.value || {}) as Record<string, string>;
+  const { data: seasonalBanner } = useActiveSeasonalBanner();
   
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>("");
