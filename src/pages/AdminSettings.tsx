@@ -581,6 +581,10 @@ const AdminSettings = () => {
                 <BarChart3 className="h-3.5 w-3.5" />
                 Digest
               </TabsTrigger>
+              <TabsTrigger value="exit-popup" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Gift className="h-3.5 w-3.5" />
+                Exit Popup
+              </TabsTrigger>
             </TabsList>
           </div>
 
