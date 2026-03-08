@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -9,7 +9,7 @@ import BlogCategoryLinks from "@/components/BlogCategoryLinks";
 import BlogProductShowcase from "@/components/BlogProductShowcase";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
-import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackBlogView } from "@/lib/analytics";
@@ -19,6 +19,7 @@ const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, error } = useBlogPostBySlug(slug || '');
   const { data: allPosts } = usePublishedBlogPosts();
+  const [tocOpen, setTocOpen] = useState(true);
 
   // Track blog view
   useEffect(() => {
@@ -72,14 +73,12 @@ const BlogPost = () => {
 
   /**
    * SECURITY: Content rendering with XSS protection
-   * Sanitizes HTML content using DOMPurify before rendering.
    */
   const sanitizeHtml = (html: string): string => {
     const sanitized = DOMPurify.sanitize(html, {
       ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'div', 'span'],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'style', 'loading'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'style', 'loading', 'id'],
     });
-    // Resolve /src/assets/ paths and add lazy loading to all images
     return sanitized
       .replace(/src="(\/?(src\/assets\/[^"]+))"/g, (_match, path) => {
         return `src="${resolveImageUrl(path)}"`;
@@ -94,6 +93,23 @@ const BlogPost = () => {
     const differentCategory = others.filter(p => p.category !== post.category);
     return [...sameCategory, ...differentCategory].slice(0, 3);
   })();
+
+  // Extract FAQ data from content for schema markup
+  const extractFaqFromContent = (content: string): { question: string; answer: string }[] => {
+    const faqs: { question: string; answer: string }[] = [];
+    const faqRegex = /<div class="faq-item"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>[\s\S]*?<p[^>]*>(.*?)<\/p>[\s\S]*?<\/div>/gi;
+    let match;
+    while ((match = faqRegex.exec(content)) !== null) {
+      const question = match[1].replace(/<[^>]*>/g, '').trim();
+      const answer = match[2].replace(/<[^>]*>/g, '').trim();
+      if (question && answer) {
+        faqs.push({ question, answer });
+      }
+    }
+    return faqs;
+  };
+
+  const faqItems = extractFaqFromContent(post.content);
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -117,11 +133,27 @@ const BlogPost = () => {
     },
   };
 
+  // FAQ Schema JSON-LD
+  const faqJsonLd = faqItems.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map(faq => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  } : null;
+
   return (
     <PageTransition>
       <div className="min-h-screen">
         <Navigation />
         <JsonLd data={articleJsonLd} />
+        {faqJsonLd && <JsonLd data={faqJsonLd} />}
+
       {/* Hero Section */}
       <section className="pt-32 pb-8">
         <div className="container mx-auto px-6">
@@ -170,7 +202,6 @@ const BlogPost = () => {
                 className="w-full aspect-[1200/630] object-cover rounded-2xl"
                 loading="lazy"
               />
-              {/* Pinterest Save Button */}
               <div className="absolute top-4 right-4">
                 <PinterestSaveButton
                   imageUrl={resolveImageUrl(post.image_url)}
@@ -188,7 +219,7 @@ const BlogPost = () => {
       <section className="pb-12">
         <div className="container mx-auto px-6">
           <article 
-            className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent"
+            className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent blog-content"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
 
