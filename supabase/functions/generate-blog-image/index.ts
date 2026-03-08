@@ -15,14 +15,17 @@ async function getCustomImageConfig() {
     const { data } = await sb.from("site_settings").select("value").eq("key", "ai_api").single();
     if (data?.value) {
       const val = data.value as any;
+      const priority = val.priority || "custom";
       if (val.image_api_key) {
         return {
           provider: val.image_provider || "openai",
           api_key: val.image_api_key,
           model: val.image_model || "",
           endpoint: val.image_endpoint || "",
+          priority,
         };
       }
+      return { priority } as any;
     }
   } catch { /* no config */ }
   return null;
