@@ -13,8 +13,8 @@ interface Trend {
   rank: number;
   trend: string;
   description: string;
-  suggested_title: string;
-  keywords: string[];
+  suggested_title?: string;
+  keywords?: string[];
 }
 
 const WeeklyTrendsCard = () => {
