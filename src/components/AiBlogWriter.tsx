@@ -235,7 +235,7 @@ const AiBlogWriter = ({
       try {
         const { data: discoverData, error: discoverError } =
           await supabase.functions.invoke("discover-blog-products", {
-            body: { topic, category },
+            body: { topic: effectiveTopic, category },
           });
 
         if (!discoverError && discoverData?.products) {
