@@ -83,6 +83,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/contact-submissions" element={<AdminContactSubmissions />} />
           <Route path="/admin/photo-submissions" element={<AdminPhotoSubmissions />} />
           <Route path="/admin/seasonal-banners" element={<AdminSeasonalBanners />} />
+          <Route path="/admin/blog/calendar" element={<AdminContentCalendar />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
