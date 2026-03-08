@@ -13,6 +13,16 @@ const getVisitorId = (): string => {
   return visitorId;
 };
 
+/** Check if the current user is an authenticated admin */
+const isAdminUser = async (): Promise<boolean> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session?.user;
+  } catch {
+    return false;
+  }
+};
+
 interface TrackEventOptions {
   eventType: 'page_view' | 'blog_view' | 'product_click';
   pagePath?: string;
@@ -24,11 +34,19 @@ interface TrackEventOptions {
 
 export const trackEvent = async (options: TrackEventOptions): Promise<void> => {
   try {
+    // Skip tracking for logged-in admin users (your own views)
+    const isAdmin = await isAdminUser();
+    if (isAdmin) return;
+
+    // Skip admin/auth routes
+    const path = options.pagePath || window.location.pathname;
+    if (path.startsWith('/admin') || path.startsWith('/auth')) return;
+
     const visitorId = getVisitorId();
     
     await supabase.from('analytics_events').insert({
       event_type: options.eventType,
-      page_path: options.pagePath || window.location.pathname,
+      page_path: path,
       entity_id: options.entityId || null,
       entity_name: options.entityName || null,
       visitor_id: visitorId,
@@ -59,10 +77,8 @@ export const trackBlogView = (blogId: string, blogTitle: string) => {
 
 /**
  * Track a product affiliate click with UTM source context.
- * Derives utm_source and utm_medium from the current page location.
  */
 export const trackProductClick = (productId: string, productName: string, utmSource?: string, utmMedium?: string) => {
-  // Auto-detect source/medium from page context if not provided
   const source = utmSource || detectUtmSource();
   const medium = utmMedium || detectUtmMedium();
   
