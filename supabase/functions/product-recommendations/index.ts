@@ -138,7 +138,8 @@ serve(async (req) => {
         if (data?.value) {
           const val = data.value as any;
           const key = val.text_api_key || val.api_key;
-          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint };
+          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint, priority: val.priority || "custom" };
+          return { priority: val.priority || "custom" } as any;
         }
       } catch { /* no config */ }
       return null;
@@ -181,72 +182,103 @@ Please recommend the best products for me!`;
       { role: "user", content: userMessage },
     ];
 
-    // Try Lovable AI first
-    let response: Response | null = null;
+    // Determine AI priority
+    const customConfig = await getCustomAiConfig();
+    const priority = customConfig?.priority || "custom";
+    const hasCustomKey = customConfig?.api_key;
 
-    if (LOVABLE_API_KEY) {
-      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    async function callLovable() {
+      if (!LOVABLE_API_KEY) return null;
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages, response_format: { type: "json_object" } }),
       });
+      if (resp.status === 429) throw { status: 429, message: "AI service is busy. Please try again in a moment." };
+      if (resp.status === 402) { console.log("Lovable credits exhausted"); return null; }
+      if (!resp.ok) return null;
+      return resp;
+    }
 
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "AI service is busy. Please try again in a moment." }), {
+    async function callCustom() {
+      if (!hasCustomKey) return null;
+      const provider = customConfig.provider || "openai";
+      const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
+
+      if (provider === "anthropic") {
+        const resp = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+          body: JSON.stringify({ model, max_tokens: 2048, system: systemPrompt, messages: [{ role: "user", content: userMessage }] }),
+        });
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        const content = data.content?.[0]?.text;
+        return { directResult: JSON.parse(content) };
+      }
+
+      const url = provider === "custom" && customConfig.endpoint ? customConfig.endpoint
+        : provider === "google" ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        : "https://api.openai.com/v1/chat/completions";
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages, response_format: { type: "json_object" } }),
+      });
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    let response: Response | null = null;
+    let directRecommendations: any = null;
+
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        const customResult = await callCustom();
+        if (customResult && 'directResult' in customResult) {
+          directRecommendations = customResult.directResult;
+        } else if (customResult) {
+          response = customResult as Response;
+        } else {
+          response = await callLovable();
+        }
+      } else {
+        response = await callLovable();
+        if (!response) {
+          const customResult = await callCustom();
+          if (customResult && 'directResult' in customResult) {
+            directRecommendations = customResult.directResult;
+          } else if (customResult) {
+            response = customResult as Response;
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-
-      if (response.status === 402) {
-        console.log("Lovable credits exhausted, trying fallback...");
-        response = null;
-      }
+      throw e;
     }
 
-    // Fallback to custom API key
-    if (!response || !response.ok) {
-      const customConfig = await getCustomAiConfig();
-      if (customConfig) {
-        const provider = customConfig.provider || "openai";
-        const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
-
-        if (provider === "anthropic") {
-          const anthropicResp = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-            body: JSON.stringify({ model, max_tokens: 2048, system: systemPrompt, messages: [{ role: "user", content: userMessage }] }),
-          });
-          if (!anthropicResp.ok) throw new Error("Fallback AI error");
-          const anthropicData = await anthropicResp.json();
-          const content = anthropicData.content?.[0]?.text;
-          const recommendations = JSON.parse(content);
-          const validProductIds = products.map(p => p.id);
-          if (recommendations.recommendations) {
-            recommendations.recommendations = recommendations.recommendations.filter(
-              (rec: { productId: string }) => validProductIds.includes(rec.productId)
-            );
-          }
-          return new Response(JSON.stringify(recommendations), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        const url = provider === "custom" && customConfig.endpoint
-          ? customConfig.endpoint
-          : provider === "google"
-            ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-            : "https://api.openai.com/v1/chat/completions";
-
-        response = await fetch(url, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model, messages, response_format: { type: "json_object" } }),
-        });
-      } else if (!response || response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add your own API key in Admin → Settings → AI API." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    if (directRecommendations) {
+      const validProductIds = products.map(p => p.id);
+      if (directRecommendations.recommendations) {
+        directRecommendations.recommendations = directRecommendations.recommendations.filter(
+          (rec: { productId: string }) => validProductIds.includes(rec.productId)
+        );
       }
+      return new Response(JSON.stringify(directRecommendations), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!response || !response.ok) {
+      return new Response(JSON.stringify({ error: "No AI provider available. Add API key in Admin → Settings → AI API." }), {
+        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!response!.ok) {

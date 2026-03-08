@@ -115,7 +115,8 @@ async function getCustomAiConfig() {
     if (data?.value) {
       const val = data.value as any;
       const key = val.text_api_key || val.api_key;
-      if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint };
+      if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint, priority: val.priority || "custom" };
+      return { priority: val.priority || "custom" } as any;
     }
   } catch { /* no config */ }
   return null;
@@ -207,61 +208,76 @@ Always include direct links using markdown format:
 
     const allMessages = [{ role: "system", content: systemPrompt }, ...messages];
 
-    // Try Lovable AI first
-    let response: Response | null = null;
+    // Determine AI priority
+    const customConfig = await getCustomAiConfig();
+    const priority = customConfig?.priority || "custom";
+    const hasCustomKey = customConfig?.api_key;
 
-    if (LOVABLE_API_KEY) {
-      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    async function callLovable() {
+      if (!LOVABLE_API_KEY) return null;
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: allMessages, stream: true }),
       });
+      if (resp.status === 429) {
+        throw { status: 429, message: "Rate limit exceeded. Please try again later." };
+      }
+      if (resp.status === 402) { console.log("Lovable credits exhausted"); return null; }
+      if (!resp.ok) return null;
+      return resp;
+    }
 
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+    async function callCustomStream() {
+      if (!hasCustomKey) return null;
+      const provider = customConfig.provider || "openai";
+      const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
+
+      if (provider === "anthropic") {
+        const resp = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+          body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: messages.map((m: any) => ({ role: m.role, content: m.content })), stream: true }),
+        });
+        if (!resp.ok) return null;
+        return resp;
+      }
+
+      const url = provider === "custom" && customConfig.endpoint ? customConfig.endpoint
+        : provider === "google" ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        : "https://api.openai.com/v1/chat/completions";
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages: allMessages, stream: true }),
+      });
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    let response: Response | null = null;
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        response = await callCustomStream();
+        if (!response) response = await callLovable();
+      } else {
+        response = await callLovable();
+        if (!response) response = await callCustomStream();
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-
-      if (response.status === 402) {
-        console.log("Lovable credits exhausted, trying fallback...");
-        response = null;
-      }
+      throw e;
     }
 
-    // Fallback to custom API key
-    if (!response || !response.ok) {
-      const customConfig = await getCustomAiConfig();
-      if (customConfig) {
-        const provider = customConfig.provider || "openai";
-        const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
-
-        if (provider === "anthropic") {
-          const anthropicResp = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-            body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: messages.map((m: any) => ({ role: m.role, content: m.content })), stream: true }),
-          });
-          if (!anthropicResp.ok) throw new Error("Fallback AI error");
-          return new Response(anthropicResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
-        }
-
-        const url = provider === "custom" && customConfig.endpoint
-          ? customConfig.endpoint
-          : provider === "google"
-            ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-            : "https://api.openai.com/v1/chat/completions";
-
-        response = await fetch(url, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model, messages: allMessages, stream: true }),
-        });
-      } else if (!response || response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add your own API key in Admin → Settings → AI API." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    if (!response) {
+      return new Response(JSON.stringify({ error: "No AI provider available. Add an API key in Admin → Settings → AI API." }), {
+        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!response!.ok) {

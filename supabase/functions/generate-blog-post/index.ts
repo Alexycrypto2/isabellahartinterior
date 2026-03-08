@@ -65,8 +65,10 @@ serve(async (req) => {
               api_key: key,
               model: val.text_model || val.model,
               endpoint: val.text_endpoint,
+              priority: val.priority || "custom",
             };
           }
+          return { priority: val.priority || "custom" } as any;
         }
       } catch { /* no custom config */ }
       return null;
@@ -281,85 +283,107 @@ IMPORTANT REQUIREMENTS:
       { role: "user", content: userPrompt },
     ];
 
-    // Try Lovable AI first
-    let response: Response | null = null;
+    // Determine AI priority
+    const customConfig = await getCustomAiConfig();
+    const priority = customConfig?.priority || "custom";
+    const hasCustomKey = customConfig?.api_key;
 
-    if (LOVABLE_API_KEY) {
-      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    async function callLovable() {
+      if (!LOVABLE_API_KEY) return null;
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
       });
+      if (resp.status === 429) {
+        throw { status: 429, message: "Rate limit exceeded. Please try again in a moment." };
+      }
+      if (resp.status === 402) {
+        console.log("Lovable AI credits exhausted");
+        return null;
+      }
+      if (!resp.ok) return null;
+      return resp;
+    }
 
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+    async function callCustom() {
+      if (!hasCustomKey) return null;
+      const provider = customConfig.provider || "openai";
+      const model = customConfig.model || getDefaultModel(provider);
+      const url = getProviderUrl(provider, customConfig.endpoint);
+
+      if (provider === "anthropic") {
+        const anthropicResp = await fetch(url, {
+          method: "POST",
+          headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model, max_tokens: 8192, system: systemPrompt,
+            messages: [{ role: "user", content: userPrompt }],
+            tools: toolsDef.map(t => ({ name: t.function.name, description: t.function.description, input_schema: t.function.parameters })),
+            tool_choice: { type: "tool", name: "generate_blog_post" },
+          }),
+        });
+        if (!anthropicResp.ok) return null;
+        const anthropicData = await anthropicResp.json();
+        const toolUse = anthropicData.content?.find((b: any) => b.type === "tool_use");
+        if (!toolUse) return null;
+        return { anthropicResult: toolUse.input };
+      }
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${customConfig.api_key}` },
+        body: JSON.stringify({ model, messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
+      });
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    let response: Response | null = null;
+    let anthropicDirect: any = null;
+
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        // Custom first, Lovable fallback
+        const customResult = await callCustom();
+        if (customResult && 'anthropicResult' in customResult) {
+          anthropicDirect = customResult.anthropicResult;
+        } else if (customResult) {
+          response = customResult as Response;
+        } else {
+          response = await callLovable();
+        }
+      } else {
+        // Lovable first, custom fallback
+        response = await callLovable();
+        if (!response) {
+          const customResult = await callCustom();
+          if (customResult && 'anthropicResult' in customResult) {
+            anthropicDirect = customResult.anthropicResult;
+          } else if (customResult) {
+            response = customResult as Response;
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-
-      if (response.status === 402) {
-        console.log("Lovable AI credits exhausted, trying custom API key fallback...");
-        response = null;
-      }
+      throw e;
     }
 
-    // Fallback to custom API key
+    if (anthropicDirect) {
+      return new Response(JSON.stringify(anthropicDirect), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!response || !response.ok) {
-      const customConfig = await getCustomAiConfig();
-      if (customConfig) {
-        const provider = customConfig.provider || "openai";
-        const model = customConfig.model || getDefaultModel(provider);
-        const url = getProviderUrl(provider, customConfig.endpoint);
-
-        if (provider === "anthropic") {
-          const anthropicResp = await fetch(url, {
-            method: "POST",
-            headers: {
-              "x-api-key": customConfig.api_key,
-              "anthropic-version": "2023-06-01",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              model,
-              max_tokens: 8192,
-              system: systemPrompt,
-              messages: [{ role: "user", content: userPrompt }],
-              tools: toolsDef.map(t => ({ name: t.function.name, description: t.function.description, input_schema: t.function.parameters })),
-              tool_choice: { type: "tool", name: "generate_blog_post" },
-            }),
-          });
-
-          if (!anthropicResp.ok) {
-            const errText = await anthropicResp.text();
-            console.error("Anthropic fallback error:", anthropicResp.status, errText);
-            throw new Error("Fallback AI provider error");
-          }
-
-          const anthropicData = await anthropicResp.json();
-          const toolUse = anthropicData.content?.find((b: any) => b.type === "tool_use");
-          if (!toolUse) throw new Error("Anthropic did not return tool result");
-
-          return new Response(JSON.stringify(toolUse.input), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        // OpenAI / Google (OpenAI-compatible)
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${customConfig.api_key}`,
-        };
-
-        response = await fetch(url, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ model, messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
-        });
-      } else if (!response || response.status === 402) {
-        return new Response(JSON.stringify({
-          error: "AI credits exhausted. Add your own API key in Admin → Settings → AI API tab as a fallback.",
-        }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
+      return new Response(JSON.stringify({
+        error: "No AI provider available. Configure an API key in Admin → Settings → AI API tab.",
+      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (!response!.ok) {
