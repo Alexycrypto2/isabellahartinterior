@@ -504,6 +504,30 @@ const AiBlogWriter = ({
                 />
               )}
 
+              {/* Discovered Products Summary */}
+              {discoveredProducts.length > 0 && (
+                <div className="bg-background/80 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-accent" />
+                    {discoveredProducts.length} New Products Added to Shop (as drafts)
+                  </p>
+                  <div className="space-y-1.5">
+                    {discoveredProducts.map((p: any) => (
+                      <div key={p.id} className="flex items-center gap-2 text-xs">
+                        {p.image_url && (
+                          <img src={p.image_url} alt={p.name} className="w-8 h-8 rounded object-cover" />
+                        )}
+                        <span className="flex-1 truncate text-muted-foreground">{p.name}</span>
+                        <span className="text-foreground font-medium">{p.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Products are saved as inactive drafts. Go to Admin → Products to review and activate them.
+                  </p>
+                </div>
+              )}
+
               {/* SEO Score Preview */}
               <div className="bg-background/80 rounded-lg p-3 space-y-2">
                 <p className="text-xs font-semibold text-foreground">SEO Preview</p>
