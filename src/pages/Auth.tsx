@@ -9,6 +9,22 @@ import { useToast } from '@/hooks/use-toast';
 import PageTransition from '@/components/PageTransition';
 import { z } from 'zod';
 import { checkPasswordBreach } from '@/lib/passwordBreach';
+import { Progress } from '@/components/ui/progress';
+
+function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  if (score <= 1) return { score: 20, label: 'Weak', color: 'bg-destructive' };
+  if (score <= 2) return { score: 40, label: 'Fair', color: 'bg-orange-500' };
+  if (score <= 3) return { score: 60, label: 'Medium', color: 'bg-yellow-500' };
+  if (score <= 4) return { score: 80, label: 'Strong', color: 'bg-emerald-500' };
+  return { score: 100, label: 'Very Strong', color: 'bg-emerald-600' };
+}
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
