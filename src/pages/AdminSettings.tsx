@@ -179,6 +179,15 @@ const AdminSettings = () => {
       const digest = getSetting('weekly_digest') as Record<string, any>;
       setDigestEnabled(digest.enabled ?? true);
       setDigestEmail(digest.email || '');
+
+      // Exit intent popup
+      const exitPopup = getSetting('exit_intent_popup') as Record<string, any>;
+      setExitTitle(exitPopup.title || "Wait! Don't Leave Yet");
+      setExitDescription(exitPopup.description || 'Get our <strong>Free Room Styling Guide</strong> — packed with pro tips to transform any space into a magazine-worthy room.');
+      setExitButtonText(exitPopup.button_text || 'Get My Free Guide');
+      setExitPlaceholder(exitPopup.placeholder || 'Enter your email address');
+      setExitDisclaimer(exitPopup.disclaimer || 'No spam, ever. Unsubscribe anytime.');
+      setExitEnabled(exitPopup.enabled ?? true);
     }
   }, [settings]);
 
