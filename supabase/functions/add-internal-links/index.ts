@@ -103,7 +103,8 @@ CRITICAL RULES:
         if (data?.value) {
           const val = data.value as any;
           const key = val.text_api_key || val.api_key;
-          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint };
+          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint, priority: val.priority || "custom" };
+          return { priority: val.priority || "custom" } as any;
         }
       } catch {}
       return null;
@@ -124,51 +125,91 @@ CRITICAL RULES:
       { role: "user", content: userPrompt },
     ];
 
-    let response: Response | null = null;
+    const customConfig = await getCustomAiConfig();
+    const priority = customConfig?.priority || "custom";
+    const hasCustomKey = customConfig?.api_key;
 
-    if (LOVABLE_API_KEY) {
-      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    async function callLovable() {
+      if (!LOVABLE_API_KEY) return null;
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages }),
       });
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (resp.status === 429) throw { status: 429, message: "Rate limit exceeded. Please try again." };
+      if (resp.status === 402) { console.log("Credits exhausted"); return null; }
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    async function callCustom() {
+      if (!hasCustomKey) return null;
+      const provider = customConfig.provider || "openai";
+      const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
+      const url = getProviderUrl(provider, customConfig.endpoint);
+
+      if (provider === "anthropic") {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+          body: JSON.stringify({ model, max_tokens: 8192, system: systemPrompt, messages: [{ role: "user", content: userPrompt }] }),
+        });
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        const modifiedContent = data.content?.[0]?.text || content;
+        return { directResult: modifiedContent };
       }
-      if (response.status === 402) { console.log("Credits exhausted, trying fallback..."); response = null; }
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages }),
+      });
+      if (!resp.ok) return null;
+      return resp;
+    }
+
+    let response: Response | null = null;
+    let directContent: string | null = null;
+
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        const customResult = await callCustom();
+        if (customResult && 'directResult' in customResult) {
+          directContent = customResult.directResult;
+        } else if (customResult) {
+          response = customResult as Response;
+        } else {
+          response = await callLovable();
+        }
+      } else {
+        response = await callLovable();
+        if (!response) {
+          const customResult = await callCustom();
+          if (customResult && 'directResult' in customResult) {
+            directContent = customResult.directResult;
+          } else if (customResult) {
+            response = customResult as Response;
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      throw e;
+    }
+
+    if (directContent) {
+      const linksAdded = Math.max(0, (directContent.match(/<a href=/g) || []).length - (content.match(/<a href=/g) || []).length);
+      const productsAdded = Math.max(0, (directContent.match(/class="product-embed"/g) || []).length - (content.match(/class="product-embed"/g) || []).length);
+      return new Response(JSON.stringify({ content: directContent, linksAdded, productsAdded }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!response || !response.ok) {
-      const customConfig = await getCustomAiConfig();
-      if (customConfig) {
-        const provider = customConfig.provider || "openai";
-        const model = customConfig.model || (provider === "openai" ? "gpt-4o-mini" : provider === "google" ? "gemini-2.0-flash" : "claude-sonnet-4-20250514");
-        const url = getProviderUrl(provider, customConfig.endpoint);
-
-        if (provider === "anthropic") {
-          const resp = await fetch(url, {
-            method: "POST",
-            headers: { "x-api-key": customConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-            body: JSON.stringify({ model, max_tokens: 8192, system: systemPrompt, messages: [{ role: "user", content: userPrompt }] }),
-          });
-          if (!resp.ok) throw new Error("Fallback AI error");
-          const data = await resp.json();
-          const modifiedContent = data.content?.[0]?.text || content;
-          const linksAdded = Math.max(0, (modifiedContent.match(/<a href=/g) || []).length - (content.match(/<a href=/g) || []).length);
-          const productsAdded = (modifiedContent.match(/class="product-embed"/g) || []).length - (content.match(/class="product-embed"/g) || []).length;
-          return new Response(JSON.stringify({ content: modifiedContent, linksAdded, productsAdded: Math.max(0, productsAdded) }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        response = await fetch(url, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${customConfig.api_key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model, messages }),
-        });
-      } else if (!response || response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add API key in Settings → AI API." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
+      return new Response(JSON.stringify({ error: "No AI provider available. Configure an API key in Settings → AI API." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (!response!.ok) {
