@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import PageTransition from '@/components/PageTransition';
 import { z } from 'zod';
+import { checkPasswordBreach } from '@/lib/passwordBreach';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -20,6 +21,8 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [breachCount, setBreachCount] = useState<number>(0);
+  const [isCheckingBreach, setIsCheckingBreach] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
   const { signIn, signUp, user, isAdmin } = useAuth();
