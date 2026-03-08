@@ -9,7 +9,7 @@ import BlogCategoryLinks from "@/components/BlogCategoryLinks";
 import BlogProductShowcase from "@/components/BlogProductShowcase";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
-import { ArrowLeft, Calendar, Clock, User, ChevronDown } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackBlogView } from "@/lib/analytics";
