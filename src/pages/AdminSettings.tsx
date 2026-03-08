@@ -77,6 +77,9 @@ const AdminSettings = () => {
   const [newsletterScroll, setNewsletterScroll] = useState(DEFAULT_NEWSLETTER_SETTINGS.scroll_threshold);
   const [newsletterExpiry, setNewsletterExpiry] = useState(DEFAULT_NEWSLETTER_SETTINGS.expiry_days);
 
+  // AI priority toggle
+  const [aiPriority, setAiPriority] = useState<'custom' | 'lovable'>('custom');
+
   // AI API settings - Text
   const [aiTextProvider, setAiTextProvider] = useState('openai');
   const [aiTextKey, setAiTextKey] = useState('');
