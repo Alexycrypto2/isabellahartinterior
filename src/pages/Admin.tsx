@@ -180,67 +180,67 @@ const Admin = () => {
           <TabsContent value="overview" className="space-y-6">
             {/* Premium Stats Grid */}
             <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
-              <Card className="relative overflow-hidden border-border/50 bg-gradient-to-br from-violet-500/10 to-violet-600/5 shadow-sm">
+              <Card className="relative overflow-hidden border-border/30 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent shadow-sm rounded-2xl">
                 <CardContent className="p-4 md:p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1.5">
-                      <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">Blog Posts</p>
+                      <p className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">Blog Posts</p>
                       <p className="text-2xl md:text-3xl font-bold tracking-tight font-display">{posts?.length || 0}</p>
                     </div>
-                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-xl bg-violet-500 flex items-center justify-center shadow-lg">
+                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
                       <FileText className="h-5 w-5 text-white" />
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-3 text-xs">
-                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 text-[10px]">{publishedCount} live</Badge>
-                    <Badge variant="outline" className="text-[10px] border-border/50">{draftCount} drafts</Badge>
+                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 text-[10px] rounded-lg">{publishedCount} live</Badge>
+                    <Badge variant="outline" className="text-[10px] border-border/40 rounded-lg">{draftCount} drafts</Badge>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-border/50 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 shadow-sm">
+              <Card className="relative overflow-hidden border-border/30 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent shadow-sm rounded-2xl">
                 <CardContent className="p-4 md:p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1.5">
-                      <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">Products</p>
+                      <p className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">Products</p>
                       <p className="text-2xl md:text-3xl font-bold tracking-tight font-display">{products?.length || 0}</p>
                     </div>
-                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg">
+                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                       <Package className="h-5 w-5 text-white" />
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-3 text-xs">
-                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 text-[10px]">{activeProducts} active</Badge>
-                    <Badge variant="outline" className="text-[10px] border-border/50">{featuredProducts} featured</Badge>
+                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 text-[10px] rounded-lg">{activeProducts} active</Badge>
+                    <Badge variant="outline" className="text-[10px] border-border/40 rounded-lg">{featuredProducts} featured</Badge>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-border/50 bg-gradient-to-br from-blue-500/10 to-blue-600/5 shadow-sm">
+              <Card className="relative overflow-hidden border-border/30 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent shadow-sm rounded-2xl">
                 <CardContent className="p-4 md:p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1.5">
-                      <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">Subscribers</p>
+                      <p className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">Subscribers</p>
                       <p className="text-2xl md:text-3xl font-bold tracking-tight font-display">{subscribers?.length || 0}</p>
                     </div>
-                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg">
+                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
                       <Mail className="h-5 w-5 text-white" />
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-3 text-xs">
-                    <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/20 text-[10px]">{activeSubscribers} active</Badge>
+                    <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/20 text-[10px] rounded-lg">{activeSubscribers} active</Badge>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-border/50 bg-gradient-to-br from-accent/15 to-accent/5 shadow-sm">
+              <Card className="relative overflow-hidden border-border/30 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-sm rounded-2xl">
                 <CardContent className="p-4 md:p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1.5">
-                      <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">Activity</p>
+                      <p className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">Activity</p>
                       <p className="text-2xl md:text-3xl font-bold tracking-tight font-display">{activityLogs?.length || 0}</p>
                     </div>
-                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-xl bg-accent flex items-center justify-center shadow-lg">
+                    <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shadow-lg shadow-accent/25">
                       <TrendingUp className="h-5 w-5 text-accent-foreground" />
                     </div>
                   </div>
