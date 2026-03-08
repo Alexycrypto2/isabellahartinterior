@@ -391,6 +391,7 @@ const AdminSettings = () => {
       await updateMutation.mutateAsync({
         key: 'ai_api',
         value: {
+          priority: aiPriority,
           text_provider: aiTextProvider,
           text_api_key: aiTextKey,
           text_model: aiTextModel,
