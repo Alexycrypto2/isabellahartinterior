@@ -291,7 +291,15 @@ const Auth = () => {
             </button>
           </div>
 
-          <div className="mt-8 text-center">
+          {/* Admin access notice */}
+          <div className="mt-6 rounded-xl border border-border/50 bg-muted/30 px-4 py-3 text-center">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-medium text-foreground/70">🔒 Admin access is invite-only.</span>{' '}
+              Creating an account does not grant admin privileges. You must be invited by an existing administrator to access the dashboard.
+            </p>
+          </div>
+
+          <div className="mt-6 text-center">
             <button
               type="button"
               onClick={() => navigate('/')}
