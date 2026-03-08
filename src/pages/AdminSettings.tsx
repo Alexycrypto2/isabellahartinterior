@@ -91,6 +91,14 @@ const AdminSettings = () => {
   const [digestEnabled, setDigestEnabled] = useState(true);
   const [digestEmail, setDigestEmail] = useState('');
 
+  // Exit intent popup settings
+  const [exitTitle, setExitTitle] = useState("Wait! Don't Leave Yet");
+  const [exitDescription, setExitDescription] = useState('Get our <strong>Free Room Styling Guide</strong> — packed with pro tips to transform any space into a magazine-worthy room.');
+  const [exitButtonText, setExitButtonText] = useState('Get My Free Guide');
+  const [exitPlaceholder, setExitPlaceholder] = useState('Enter your email address');
+  const [exitDisclaimer, setExitDisclaimer] = useState('No spam, ever. Unsubscribe anytime.');
+  const [exitEnabled, setExitEnabled] = useState(true);
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
