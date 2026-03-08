@@ -561,15 +561,13 @@ const AiBlogWriter = ({
               <div className="flex items-center gap-3">
                 {step === "generating-image" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
-                ) : step !== "done" ? (
-                  <div className="w-5 h-5 rounded-full border-2 border-border" />
                 ) : (
-                  <CheckCircle2 className="w-5 h-5 text-accent" />
+                  <div className="w-5 h-5 rounded-full border-2 border-border" />
                 )}
                 <div>
                   <p
                     className={`text-sm font-medium ${
-                      step !== "generating-image" && step !== "done" ? "text-muted-foreground" : ""
+                      step !== "generating-image" ? "text-muted-foreground" : ""
                     }`}
                   >
                     {step === "generating-image"
