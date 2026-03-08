@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2, ShoppingBag, Crop } from 'lucide-react';
 import AiBlogWriter from '@/components/AiBlogWriter';
 import FeaturedImageEditor from '@/components/FeaturedImageEditor';
+import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 
 const generateSlug = (title: string) => {
   return title
