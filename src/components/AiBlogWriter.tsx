@@ -358,6 +358,65 @@ const AiBlogWriter = ({
     setTitleIdeas([]);
     setSelectedTitle("");
     setIsGeneratingTitles(false);
+    setFixResults([]);
+  };
+
+  const handleFixSeo = async (mode: "fix" | "optimize") => {
+    if (!generatedData) return;
+    const seo = analyzeSeoScore(generatedData, keywords);
+    const failedChecks = mode === "fix"
+      ? seo.checks.filter(c => !c.pass)
+      : seo.checks; // optimize sends all checks so AI can improve everything
+
+    if (mode === "fix" && failedChecks.length === 0) {
+      toast.success("All SEO checks are already passing! 🎉");
+      return;
+    }
+
+    mode === "fix" ? setIsFixingSeo(true) : setIsOptimizing(true);
+    setFixResults([]);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("fix-seo-issues", {
+        body: {
+          blogData: {
+            title: generatedData.title,
+            meta_title: generatedData.meta_title,
+            meta_description: generatedData.meta_description,
+            excerpt: generatedData.excerpt,
+            content: generatedData.content,
+            slug: generatedData.slug,
+          },
+          failedChecks: failedChecks.map(c => ({ label: c.label, fix: c.fix })),
+          mode,
+          keywords,
+        },
+      });
+
+      if (error) throw new Error(error.message || "AI optimization failed");
+      if (data?.error) throw new Error(data.error);
+
+      // Update generated data with fixes
+      setGeneratedData(prev => prev ? {
+        ...prev,
+        title: data.title || prev.title,
+        meta_title: data.meta_title || prev.meta_title,
+        meta_description: data.meta_description || prev.meta_description,
+        excerpt: data.excerpt || prev.excerpt,
+        content: data.content || prev.content,
+        slug: data.slug || prev.slug,
+      } : prev);
+
+      const fixes = data.fixes_applied || [];
+      setFixResults(fixes);
+      toast.success(`${mode === "fix" ? "SEO issues fixed" : "Post auto-optimized"}! ${fixes.length} improvement${fixes.length !== 1 ? "s" : ""} applied.`);
+    } catch (err) {
+      console.error("SEO fix error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to fix SEO issues");
+    } finally {
+      setIsFixingSeo(false);
+      setIsOptimizing(false);
+    }
   };
 
   const handleClose = () => {
