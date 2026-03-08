@@ -205,6 +205,9 @@ Please fix the issues listed above and return the corrected JSON.`;
             const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
             result = JSON.parse(cleaned);
           }
+        } else {
+          const errText = await resp.text();
+          console.error("Lovable AI error:", resp.status, errText);
         }
       } catch (e) {
         console.error("Lovable AI failed:", e);
