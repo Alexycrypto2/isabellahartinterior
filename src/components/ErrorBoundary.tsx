@@ -23,10 +23,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Only log in development
-    if (import.meta.env.DEV) {
-      console.error("ErrorBoundary caught an error:", error, errorInfo);
-    }
+    console.error("ErrorBoundary caught an error:", error?.message, error?.stack, "Component:", errorInfo?.componentStack);
   }
 
   handleRetry = () => {
@@ -54,6 +51,14 @@ class ErrorBoundary extends Component<Props, State> {
               <p className="text-muted-foreground">
                 We're sorry, but something unexpected happened. Please try refreshing the page.
               </p>
+              {this.state.error && (
+                <details className="mt-2 text-left">
+                  <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">Show error details</summary>
+                  <pre className="mt-2 text-[10px] text-destructive bg-destructive/5 p-3 rounded-lg overflow-auto max-h-32 whitespace-pre-wrap break-words">
+                    {this.state.error.message}
+                  </pre>
+                </details>
+              )}
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button onClick={this.handleRetry} variant="default">
