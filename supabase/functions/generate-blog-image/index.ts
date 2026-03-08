@@ -116,9 +116,12 @@ serve(async (req) => {
     }
 
     let imageData: string | null = null;
+    const customConfig = await getCustomImageConfig();
+    const priority = customConfig?.priority || "custom";
+    const hasCustomKey = customConfig?.api_key;
 
-    // Try Lovable AI first
-    if (LOVABLE_API_KEY) {
+    async function tryLovable() {
+      if (!LOVABLE_API_KEY) return null;
       try {
         const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
@@ -129,51 +132,55 @@ serve(async (req) => {
             modalities: ["image", "text"],
           }),
         });
-
         if (response.status === 429) {
-          return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          throw { status: 429, message: "Rate limit exceeded. Please try again in a moment." };
         }
-
         if (response.ok) {
           const data = await response.json();
-          imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
-        } else if (response.status === 402) {
-          console.log("Lovable AI credits exhausted for image gen, trying fallback...");
-        } else {
-          const errorText = await response.text();
-          console.error("Lovable AI image error:", response.status, errorText);
+          return data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
         }
-      } catch (lovableErr) {
-        console.error("Lovable AI image request failed:", lovableErr);
+        if (response.status === 402) { console.log("Lovable AI credits exhausted for image gen"); }
+        return null;
+      } catch (e: any) {
+        if (e?.status === 429) throw e;
+        console.error("Lovable AI image request failed:", e);
+        return null;
       }
     }
 
-    // Fallback to custom image API
-    if (!imageData) {
-      const customConfig = await getCustomImageConfig();
-      if (customConfig) {
-        console.log(`Using fallback image provider: ${customConfig.provider}, model: ${customConfig.model}`);
-        
-        if (customConfig.provider === "google") {
-          // Use Gemini generateContent API (not Imagen predict)
-          imageData = await generateWithGeminiImage(
-            customConfig.api_key,
-            customConfig.model,
-            prompt,
-            customConfig.endpoint
-          );
-        } else if (customConfig.provider === "custom" && customConfig.endpoint) {
-          imageData = await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);
-        } else {
-          imageData = await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt);
-        }
+    async function tryCustomImage() {
+      if (!hasCustomKey) return null;
+      console.log(`Using custom image provider: ${customConfig.provider}, model: ${customConfig.model}`);
+      if (customConfig.provider === "google") {
+        return await generateWithGeminiImage(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);
+      } else if (customConfig.provider === "custom" && customConfig.endpoint) {
+        return await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);
       } else {
-        return new Response(JSON.stringify({
-          error: "AI credits exhausted. Add an Image AI API key in Admin → Settings → AI API to generate images.",
-        }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt);
       }
+    }
+
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        imageData = await tryCustomImage();
+        if (!imageData) imageData = await tryLovable();
+      } else {
+        imageData = await tryLovable();
+        if (!imageData) imageData = await tryCustomImage();
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw e;
+    }
+
+    if (!imageData) {
+      return new Response(JSON.stringify({
+        error: "No AI image provider available. Add an Image AI API key in Admin → Settings → AI API.",
+      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (!imageData) {
