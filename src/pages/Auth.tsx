@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import PageTransition from '@/components/PageTransition';
 import { z } from 'zod';
+import { checkPasswordBreach } from '@/lib/passwordBreach';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -20,6 +21,8 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [breachCount, setBreachCount] = useState<number>(0);
+  const [isCheckingBreach, setIsCheckingBreach] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
   const { signIn, signUp, user, isAdmin } = useAuth();
@@ -84,6 +87,22 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // Check for breached password on signup
+      if (!isLogin) {
+        setIsCheckingBreach(true);
+        const count = await checkPasswordBreach(password);
+        setBreachCount(count);
+        setIsCheckingBreach(false);
+        if (count > 0) {
+          toast({
+            title: '⚠️ Compromised Password',
+            description: `This password has appeared in ${count.toLocaleString()} data breaches. Please choose a different one.`,
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
@@ -208,6 +227,12 @@ const Auth = () => {
               />
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password}</p>
+              )}
+              {!isLogin && breachCount > 0 && (
+                <div className="flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 text-sm text-destructive">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                  This password was found in {breachCount.toLocaleString()} data breaches. Choose a stronger one.
+                </div>
               )}
             </div>
 
