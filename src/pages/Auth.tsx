@@ -10,6 +10,21 @@ import PageTransition from '@/components/PageTransition';
 import { z } from 'zod';
 import { checkPasswordBreach } from '@/lib/passwordBreach';
 
+function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  if (score <= 1) return { score: 20, label: 'Weak', color: 'bg-destructive' };
+  if (score <= 2) return { score: 40, label: 'Fair', color: 'bg-orange-500' };
+  if (score <= 3) return { score: 60, label: 'Medium', color: 'bg-yellow-500' };
+  if (score <= 4) return { score: 80, label: 'Strong', color: 'bg-emerald-500' };
+  return { score: 100, label: 'Very Strong', color: 'bg-emerald-600' };
+}
+
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -228,6 +243,22 @@ const Auth = () => {
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password}</p>
               )}
+              {!isLogin && password.length > 0 && (() => {
+                const strength = getPasswordStrength(password);
+                return (
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">Password strength</span>
+                      <span className={`text-xs font-medium ${strength.score <= 40 ? 'text-destructive' : strength.score <= 60 ? 'text-yellow-600' : 'text-emerald-600'}`}>
+                        {strength.label}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-300 ${strength.color}`} style={{ width: `${strength.score}%` }} />
+                    </div>
+                  </div>
+                );
+              })()}
               {!isLogin && breachCount > 0 && (
                 <div className="flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 text-sm text-destructive">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
