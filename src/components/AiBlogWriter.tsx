@@ -194,10 +194,13 @@ const AiBlogWriter = ({
   onClose,
   onGenerated,
   categories,
+  initialTopic = "",
+  initialKeywords = "",
+  initialCategory = "",
 }: AiBlogWriterProps) => {
-  const [topic, setTopic] = useState("");
-  const [category, setCategory] = useState("");
-  const [keywords, setKeywords] = useState("");
+  const [topic, setTopic] = useState(initialTopic);
+  const [category, setCategory] = useState(initialCategory);
+  const [keywords, setKeywords] = useState(initialKeywords);
   const [targetWordCount, setTargetWordCount] = useState(1500);
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
