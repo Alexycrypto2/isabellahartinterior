@@ -213,6 +213,13 @@ const AiBlogWriter = ({
   const [isGeneratingTitles, setIsGeneratingTitles] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
 
+  // Update state when initial values change (for trend pre-fill)
+  useEffect(() => {
+    if (initialTopic) setTopic(initialTopic);
+    if (initialKeywords) setKeywords(initialKeywords);
+    if (initialCategory) setCategory(initialCategory);
+  }, [initialTopic, initialKeywords, initialCategory]);
+
   // Get recommendation when topic changes
   const recommendation = topic.trim() ? getRecommendedWordCount(topic) : null;
 
