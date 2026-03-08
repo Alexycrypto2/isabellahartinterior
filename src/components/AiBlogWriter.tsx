@@ -201,6 +201,11 @@ const AiBlogWriter = ({
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
   const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // SEO Title Generator state
+  const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
+  const [isGeneratingTitles, setIsGeneratingTitles] = useState(false);
+  const [selectedTitle, setSelectedTitle] = useState("");
 
   // Get recommendation when topic changes
   const recommendation = topic.trim() ? getRecommendedWordCount(topic) : null;
