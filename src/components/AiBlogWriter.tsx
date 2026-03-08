@@ -210,6 +210,7 @@ const AiBlogWriter = ({
   const [isFixingSeo, setIsFixingSeo] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [fixResults, setFixResults] = useState<string[]>([]);
+  const [lastProvider, setLastProvider] = useState<{ name: string; fallback: boolean } | null>(null);
   
   // SEO Title Generator state
   const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
@@ -359,6 +360,7 @@ const AiBlogWriter = ({
     setSelectedTitle("");
     setIsGeneratingTitles(false);
     setFixResults([]);
+    setLastProvider(null);
   };
 
   const handleFixSeo = async (mode: "fix" | "optimize") => {
@@ -420,6 +422,7 @@ const AiBlogWriter = ({
 
       const fixes = data.fixes_applied || [];
       setFixResults(fixes);
+      setLastProvider({ name: data._provider || "AI", fallback: !!data._fallback });
       toast.success(`${mode === "fix" ? "SEO issues fixed" : "Post auto-optimized"}! ${fixes.length} improvement${fixes.length !== 1 ? "s" : ""} applied.`);
     } catch (err) {
       console.error("SEO fix error:", err);
@@ -1069,6 +1072,15 @@ const AiBlogWriter = ({
                     </li>
                   ))}
                 </ul>
+                {lastProvider && (
+                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-accent/10">
+                    <span className={`w-1.5 h-1.5 rounded-full ${lastProvider.fallback ? "bg-amber-500" : "bg-emerald-500"}`} />
+                    <span className="text-[10px] text-muted-foreground">
+                      Powered by <span className="font-medium text-foreground">{lastProvider.name}</span>
+                      {lastProvider.fallback && <span className="text-amber-600 ml-1">(fallback)</span>}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 

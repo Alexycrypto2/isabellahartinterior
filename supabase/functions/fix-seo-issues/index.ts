@@ -330,7 +330,14 @@ Please apply the SEO updates.`;
 
     const success = attempts.find((a) => a.ok) as Extract<AttemptResult, { ok: true }> | undefined;
     if (success) {
-      return new Response(JSON.stringify(success.data), {
+      const usedFallback = attempts.length > 1;
+      const providerLabel = success.provider === "custom" ? "Your API Key" : "Built-in AI";
+      const responseData = {
+        ...success.data,
+        _provider: providerLabel,
+        _fallback: usedFallback,
+      };
+      return new Response(JSON.stringify(responseData), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
