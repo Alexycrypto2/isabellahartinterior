@@ -270,6 +270,11 @@ const BlogPost = () => {
           <div className="max-w-3xl mx-auto">
             <BlogCategoryLinks category={post.category} />
           </div>
+
+          {/* Comments Section */}
+          <div className="max-w-3xl mx-auto mt-16">
+            <BlogComments blogPostId={post.id} />
+          </div>
         </div>
       </section>
 
