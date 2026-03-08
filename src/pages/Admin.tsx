@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
+import WidgetErrorBoundary from '@/components/WidgetErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -170,11 +171,15 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="analytics">
-            <AnalyticsDashboard />
+            <WidgetErrorBoundary name="Analytics Dashboard">
+              <AnalyticsDashboard />
+            </WidgetErrorBoundary>
           </TabsContent>
 
           <TabsContent value="affiliates">
-            <AffiliateClicksDashboard />
+            <WidgetErrorBoundary name="Affiliate Clicks">
+              <AffiliateClicksDashboard />
+            </WidgetErrorBoundary>
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
@@ -331,14 +336,22 @@ const Admin = () => {
 
             {/* Weekly Trends & Revenue */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <WeeklyTrendsCard />
-              <RevenueTracker />
+              <WidgetErrorBoundary name="Weekly Trends">
+                <WeeklyTrendsCard />
+              </WidgetErrorBoundary>
+              <WidgetErrorBoundary name="Revenue Tracker">
+                <RevenueTracker />
+              </WidgetErrorBoundary>
             </div>
 
             {/* Broken Links & Exit Intent Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <BrokenLinksChecker />
-              <ExitIntentStats />
+              <WidgetErrorBoundary name="Broken Links">
+                <BrokenLinksChecker />
+              </WidgetErrorBoundary>
+              <WidgetErrorBoundary name="Exit Intent Stats">
+                <ExitIntentStats />
+              </WidgetErrorBoundary>
             </div>
 
             {/* Quick Actions & Recent Activity */}
