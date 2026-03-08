@@ -210,6 +210,7 @@ const AiBlogWriter = ({
   const [isFixingSeo, setIsFixingSeo] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [fixResults, setFixResults] = useState<string[]>([]);
+  const [lastProvider, setLastProvider] = useState<{ name: string; fallback: boolean } | null>(null);
   
   // SEO Title Generator state
   const [titleIdeas, setTitleIdeas] = useState<{title: string; seo_score: number; reasoning: string}[]>([]);
