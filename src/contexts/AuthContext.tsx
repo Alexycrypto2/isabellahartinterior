@@ -72,11 +72,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const logSecurityEvent = async (userId: string, eventType: string) => {
+    try {
+      await supabase.from('security_logs').insert({
+        user_id: userId,
+        event_type: eventType,
+        user_agent: navigator.userAgent,
+        is_new_device: false, // Could be enhanced with device fingerprinting
+      });
+
+      // Update last login timestamp
+      await supabase.from('user_roles').update({ 
+        last_login: new Date().toISOString() 
+      }).eq('user_id', userId);
+    } catch (error) {
+      console.error('Error logging security event:', error);
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    if (!error && data.user) {
+      logSecurityEvent(data.user.id, 'login');
+    }
+    
     return { error: error as Error | null };
   };
 
@@ -94,6 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    if (user) {
+      logSecurityEvent(user.id, 'logout');
+    }
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
