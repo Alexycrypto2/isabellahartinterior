@@ -168,6 +168,7 @@ const AiBlogWriter = ({
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
+  const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const tones = [
