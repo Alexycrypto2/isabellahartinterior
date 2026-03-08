@@ -138,7 +138,8 @@ serve(async (req) => {
         if (data?.value) {
           const val = data.value as any;
           const key = val.text_api_key || val.api_key;
-          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint };
+          if (key) return { provider: val.text_provider || val.provider || "openai", api_key: key, model: val.text_model || val.model, endpoint: val.text_endpoint, priority: val.priority || "custom" };
+          return { priority: val.priority || "custom" } as any;
         }
       } catch { /* no config */ }
       return null;
