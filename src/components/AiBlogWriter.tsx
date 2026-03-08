@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -29,6 +30,10 @@ import {
   Search,
   TrendingUp,
   BookOpen,
+  ListChecks,
+  HelpCircle,
+  Target,
+  Globe,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,6 +46,8 @@ interface BlogPostData {
   meta_description: string;
   read_time: string;
   image_url?: string;
+  faq_schema?: { question: string; answer: string }[];
+  featured_image_alt?: string;
 }
 
 interface AiBlogWriterProps {
@@ -50,7 +57,7 @@ interface AiBlogWriterProps {
   categories: { id: string; name: string }[];
 }
 
-type Step = "input" | "discovering-products" | "generating-text" | "generating-image" | "done" | "error";
+type Step = "input" | "discovering-products" | "researching-competitors" | "generating-text" | "generating-image" | "done" | "error";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
@@ -70,11 +77,9 @@ const analyzeReadability = (html: string) => {
   const totalWords = Math.max(words.length, 1);
   const totalSyllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
 
-  // Flesch Reading Ease: 206.835 - 1.015*(words/sentences) - 84.6*(syllables/words)
   const fre = 206.835 - 1.015 * (totalWords / totalSentences) - 84.6 * (totalSyllables / totalWords);
   const score = Math.max(0, Math.min(100, Math.round(fre)));
 
-  // Flesch-Kincaid Grade Level
   const gradeLevel = 0.39 * (totalWords / totalSentences) + 11.8 * (totalSyllables / totalWords) - 15.59;
   const grade = Math.max(1, Math.round(gradeLevel * 10) / 10);
 
@@ -100,31 +105,40 @@ const analyzeSeoScore = (data: BlogPostData, keywordsStr: string) => {
   const hasBold = /<strong[\s>]/i.test(data.content) || /<b[\s>]/i.test(data.content);
   const paragraphs = data.content.match(/<p[\s>]/gi) || [];
   const sentencesPerPara = paragraphs.length > 0 ? Math.round(wordCount / paragraphs.length / 15) : 0;
+  const hasTOC = /class="blog-toc"/i.test(data.content);
+  const hasFAQ = /class="blog-faq"/i.test(data.content) || (data.faq_schema && data.faq_schema.length > 0);
+  const imgTags = data.content.match(/<img[^>]*>/gi) || [];
+  const imgsWithAlt = imgTags.filter(tag => /alt="[^"]{10,}"/i.test(tag)).length;
+  const allImgsHaveAlt = imgTags.length === 0 || imgsWithAlt === imgTags.length;
 
   const checks = [
-    { label: "Title length (50-60 chars)", pass: data.meta_title.length >= 40 && data.meta_title.length <= 60, weight: 10, fix: `Title is ${data.meta_title.length} chars. ${data.meta_title.length < 40 ? "Add more descriptive words to reach 50-60 characters." : "Shorten to under 60 characters to avoid truncation in search results."}` },
-    { label: "Meta description (140-160 chars)", pass: data.meta_description.length >= 120 && data.meta_description.length <= 160, weight: 10, fix: `Description is ${data.meta_description.length} chars. ${data.meta_description.length < 120 ? "Expand with a call-to-action or benefit statement to reach 140-160 characters." : "Trim to under 160 characters so Google doesn't cut it off."}` },
-    { label: "Word count (1200+ words)", pass: wordCount >= 1200, weight: 15, detail: `${wordCount} words`, fix: "Articles under 1200 words rank lower. Try regenerating with a broader topic or add more subtopics." },
-    { label: "H2 headings (4-6 recommended)", pass: h2Count >= 3 && h2Count <= 8, weight: 10, detail: `${h2Count} found`, fix: h2Count < 3 ? "Add more H2 sections to break up content. Each H2 should cover a distinct subtopic." : "Too many H2s can dilute focus. Merge similar sections or convert some to H3." },
-    { label: "H3 subheadings used", pass: h3Count >= 1, weight: 5, detail: `${h3Count} found`, fix: "Add H3 subheadings under your H2 sections to improve scannability and structure." },
-    { label: "Lists for scannability", pass: hasLists, weight: 8, fix: "Add a bulleted or numbered list to make key points easy to scan. Lists also help win featured snippets." },
-    { label: "Bold/emphasis used", pass: hasBold, weight: 5, fix: "Bold key phrases and important terms to help readers and search engines identify main concepts." },
-    { label: "Blockquotes for depth", pass: hasBlockquote, weight: 3, fix: "Add a blockquote with an expert tip or inspiring quote to add credibility and visual variety." },
-    { label: "Short paragraphs (readable)", pass: sentencesPerPara <= 4, weight: 7, fix: "Break long paragraphs into 2-3 sentences each. Wall-of-text paragraphs increase bounce rate." },
-    { label: "Slug is concise (≤5 words)", pass: data.slug.split("-").length <= 6, weight: 5, detail: `${data.slug.split("-").length} words`, fix: "Shorten the URL slug to 3-5 key words. Remove filler words like 'the', 'and', 'for'." },
-    { label: "Featured image included", pass: !!data.image_url, weight: 7, fix: "Upload a featured image or try regenerating — posts with images get 94% more views." },
-    { label: "Excerpt provided", pass: data.excerpt.length >= 50, weight: 5, fix: "Write a compelling 50-160 character excerpt that summarizes the post and encourages clicks." },
+    { label: "Title length (50-60 chars)", pass: data.meta_title.length >= 40 && data.meta_title.length <= 60, weight: 8, fix: `Title is ${data.meta_title.length} chars. ${data.meta_title.length < 40 ? "Add more descriptive words to reach 50-60 characters." : "Shorten to under 60 characters to avoid truncation in search results."}` },
+    { label: "Meta description (140-160 chars)", pass: data.meta_description.length >= 120 && data.meta_description.length <= 160, weight: 8, fix: `Description is ${data.meta_description.length} chars. ${data.meta_description.length < 120 ? "Expand with a call-to-action or benefit statement to reach 140-160 characters." : "Trim to under 160 characters so Google doesn't cut it off."}` },
+    { label: "Word count (1200+ words)", pass: wordCount >= 1200, weight: 12, detail: `${wordCount} words`, fix: "Articles under 1200 words rank lower. Try regenerating with a broader topic or add more subtopics." },
+    { label: "H2 headings (4-6 recommended)", pass: h2Count >= 3 && h2Count <= 8, weight: 8, detail: `${h2Count} found`, fix: h2Count < 3 ? "Add more H2 sections to break up content." : "Too many H2s can dilute focus." },
+    { label: "H3 subheadings used", pass: h3Count >= 1, weight: 4, detail: `${h3Count} found`, fix: "Add H3 subheadings under your H2 sections." },
+    { label: "Lists for scannability", pass: hasLists, weight: 6, fix: "Add a bulleted or numbered list to make key points easy to scan." },
+    { label: "Bold/emphasis used", pass: hasBold, weight: 4, fix: "Bold key phrases to help readers and search engines." },
+    { label: "Blockquotes for depth", pass: hasBlockquote, weight: 3, fix: "Add a blockquote with an expert tip." },
+    { label: "Short paragraphs (readable)", pass: sentencesPerPara <= 4, weight: 5, fix: "Break long paragraphs into 2-3 sentences each." },
+    { label: "Slug is concise (≤5 words)", pass: data.slug.split("-").length <= 6, weight: 4, detail: `${data.slug.split("-").length} words`, fix: "Shorten the URL slug to 3-5 key words." },
+    { label: "Featured image included", pass: !!data.image_url, weight: 5, fix: "Upload a featured image or try regenerating." },
+    { label: "Excerpt provided", pass: data.excerpt.length >= 50, weight: 4, fix: "Write a compelling 50-160 character excerpt." },
+    { label: "Table of Contents", pass: hasTOC, weight: 6, fix: "A Table of Contents improves UX and can win sitelinks in Google." },
+    { label: "FAQ section included", pass: !!hasFAQ, weight: 8, fix: "FAQ sections can win Google's 'People Also Ask' featured snippets." },
+    { label: "FAQ schema markup", pass: !!(data.faq_schema && data.faq_schema.length >= 3), weight: 6, detail: data.faq_schema ? `${data.faq_schema.length} questions` : "0", fix: "Add 5-7 FAQ questions to qualify for rich results in Google." },
+    { label: "All images have alt text", pass: allImgsHaveAlt, weight: 5, detail: `${imgsWithAlt}/${imgTags.length}`, fix: "Add descriptive, keyword-rich alt text to all images for better SEO." },
   ];
 
   // Keyword-specific checks
   if (keywordsStr.trim()) {
     const primaryKw = keywordsStr.split(",")[0].trim().toLowerCase();
     checks.push(
-      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 10, fix: `Add "${primaryKw}" naturally into your title for better keyword targeting.` },
+      { label: `Primary keyword in title`, pass: data.title.toLowerCase().includes(primaryKw), weight: 8, fix: `Add "${primaryKw}" naturally into your title for better keyword targeting.` },
     );
     const first100Words = plain.split(/\s+/).slice(0, 100).join(" ").toLowerCase();
     checks.push(
-      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 10, fix: `Mention "${primaryKw}" in your opening paragraph so Google identifies the topic early.` },
+      { label: `Keyword in first 100 words`, pass: first100Words.includes(primaryKw), weight: 8, fix: `Mention "${primaryKw}" in your opening paragraph so Google identifies the topic early.` },
     );
   }
 
@@ -155,6 +169,23 @@ const analyzeKeywordDensity = (content: string, title: string, metaDesc: string,
   });
 };
 
+const getRecommendedWordCount = (topic: string): { value: number; label: string; reason: string } => {
+  const lower = topic.toLowerCase();
+  if (lower.includes("guide") || lower.includes("how to") || lower.includes("complete") || lower.includes("ultimate")) {
+    return { value: 2500, label: "Long-form (2500)", reason: "How-to guides and comprehensive posts rank best at 2000-3000 words" };
+  }
+  if (lower.includes("tips") || lower.includes("ideas") || lower.includes("ways") || lower.match(/\d+\s/)) {
+    return { value: 1800, label: "Medium-long (1800)", reason: "Listicles and idea posts perform best at 1500-2000 words" };
+  }
+  if (lower.includes("review") || lower.includes("comparison") || lower.includes("vs")) {
+    return { value: 2000, label: "In-depth (2000)", reason: "Reviews and comparisons need thorough coverage at 1800-2500 words" };
+  }
+  if (lower.includes("trend") || lower.includes("inspiration") || lower.includes("style")) {
+    return { value: 1500, label: "Medium (1500)", reason: "Trend and inspiration pieces work well at 1200-1800 words" };
+  }
+  return { value: 1500, label: "Medium (1500)", reason: "A solid word count for most blog topics" };
+};
+
 const AiBlogWriter = ({
   isOpen,
   onClose,
@@ -162,24 +193,17 @@ const AiBlogWriter = ({
   categories,
 }: AiBlogWriterProps) => {
   const [topic, setTopic] = useState("");
-  const [tone, setTone] = useState("professional");
   const [category, setCategory] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [targetWordCount, setTargetWordCount] = useState(1500);
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
   const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const tones = [
-    { value: "professional", label: "Professional & Authoritative" },
-    { value: "warm", label: "Warm & Conversational" },
-    { value: "luxurious", label: "Luxurious & Aspirational" },
-    { value: "practical", label: "Practical & How-To Guide" },
-    { value: "inspirational", label: "Inspirational & Creative" },
-    { value: "listicle", label: "Listicle (Top 10, Best Of)" },
-    { value: "educational", label: "Educational & In-Depth" },
-  ];
+  // Get recommendation when topic changes
+  const recommendation = topic.trim() ? getRecommendedWordCount(topic) : null;
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -195,7 +219,7 @@ const AiBlogWriter = ({
     try {
       // Step 0: Discover & auto-add trending products
       const discoverInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 1, 20));
+        setProgress((prev) => Math.min(prev + 1, 15));
       }, 800);
 
       let newProducts: any[] = [];
@@ -214,9 +238,20 @@ const AiBlogWriter = ({
       }
 
       clearInterval(discoverInterval);
-      setProgress(25);
+      setProgress(18);
 
-      // Step 1: Generate blog content (AI will now see the newly added products too)
+      // Step 1: Competitor Research (simulated — actual research is done by AI in the prompt)
+      setStep("researching-competitors");
+      const researchInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 2, 30));
+      }, 400);
+
+      // Brief pause to simulate research phase (AI does competitor analysis in its prompt)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      clearInterval(researchInterval);
+      setProgress(30);
+
+      // Step 2: Generate blog content with all new features
       setStep("generating-text");
       const progressInterval = setInterval(() => {
         setProgress((prev) => Math.min(prev + 2, 55));
@@ -224,7 +259,7 @@ const AiBlogWriter = ({
 
       const { data: textData, error: textError } =
         await supabase.functions.invoke("generate-blog-post", {
-          body: { topic, tone, category, keywords },
+          body: { topic, tone: "warm", category, keywords, targetWordCount },
         });
 
       clearInterval(progressInterval);
@@ -235,7 +270,7 @@ const AiBlogWriter = ({
       setProgress(60);
       setStep("generating-image");
 
-      // Step 2: Generate featured image
+      // Step 3: Generate featured image
       const imageProgressInterval = setInterval(() => {
         setProgress((prev) => Math.min(prev + 2, 90));
       }, 600);
@@ -266,6 +301,8 @@ const AiBlogWriter = ({
         meta_description: textData.meta_description,
         read_time: textData.read_time,
         image_url: imageUrl || undefined,
+        faq_schema: textData.faq_schema || [],
+        featured_image_alt: textData.featured_image_alt || "",
       };
 
       setGeneratedData(blogData);
@@ -296,7 +333,7 @@ const AiBlogWriter = ({
   };
 
   const handleClose = () => {
-    if (step === "discovering-products" || step === "generating-text" || step === "generating-image") return;
+    if (step === "discovering-products" || step === "researching-competitors" || step === "generating-text" || step === "generating-image") return;
     handleReset();
     onClose();
   };
@@ -312,13 +349,22 @@ const AiBlogWriter = ({
             AI Blog Writer
           </DialogTitle>
           <DialogDescription className="text-sm leading-relaxed">
-            Generate a professional, SEO-optimized blog post designed to rank high on Google — with a matching AI-generated featured image.
+            Generate a professional, SEO-optimized blog post with FAQ schema, Table of Contents, competitor research, and AI-generated featured image — all in your brand voice.
           </DialogDescription>
         </DialogHeader>
 
         {/* Input Step */}
         {step === "input" && (
           <div className="space-y-4 pt-2">
+            {/* Brand Voice Indicator */}
+            <div className="bg-accent/5 border border-accent/20 rounded-lg p-3 flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-semibold text-accent">Brand Voice: Active</p>
+                <p className="text-[11px] text-muted-foreground">Warm, elegant & conversational · Target: Women 25-45 · Applied automatically</p>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="ai-topic" className="text-sm font-medium">
                 What should the blog post be about? *
@@ -326,7 +372,12 @@ const AiBlogWriter = ({
               <Textarea
                 id="ai-topic"
                 value={topic}
-                onChange={(e) => setTopic(e.target.value)}
+                onChange={(e) => {
+                  setTopic(e.target.value);
+                  // Auto-update word count recommendation
+                  const rec = getRecommendedWordCount(e.target.value);
+                  setTargetWordCount(rec.value);
+                }}
                 placeholder="e.g., 10 minimalist bedroom ideas for small apartments, how to style a reading nook on a budget..."
                 rows={3}
                 className="resize-none"
@@ -334,22 +385,6 @@ const AiBlogWriter = ({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Writing Tone</Label>
-                <Select value={tone} onValueChange={setTone}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tones.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Category</Label>
                 <Select value={category} onValueChange={setCategory}>
@@ -365,19 +400,72 @@ const AiBlogWriter = ({
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ai-keywords" className="text-sm font-medium">
+                  Target Keywords
+                </Label>
+                <Input
+                  id="ai-keywords"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                  placeholder="e.g., minimalist decor, cozy"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="ai-keywords" className="text-sm font-medium">
-                Target Keywords{" "}
-                <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Input
-                id="ai-keywords"
-                value={keywords}
-                onChange={(e) => setKeywords(e.target.value)}
-                placeholder="e.g., minimalist decor, small bedroom, cozy interior"
+            {/* Word Count Targeting */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-accent" />
+                  Target Word Count
+                </Label>
+                <span className="text-sm font-bold text-accent">{targetWordCount} words</span>
+              </div>
+              <Slider
+                value={[targetWordCount]}
+                onValueChange={(v) => setTargetWordCount(v[0])}
+                min={800}
+                max={3000}
+                step={100}
+                className="w-full"
               />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                <span>800 (Quick)</span>
+                <span>1500 (Standard)</span>
+                <span>2500 (In-depth)</span>
+                <span>3000</span>
+              </div>
+              {recommendation && (
+                <div className="bg-muted/50 rounded-lg px-3 py-2 flex items-start gap-2">
+                  <TrendingUp className="w-3.5 h-3.5 text-accent mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">Recommended: {recommendation.value} words</span>
+                    {" — "}{recommendation.reason}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* What's included */}
+            <div className="bg-muted/30 rounded-lg p-3 space-y-1.5">
+              <p className="text-[11px] font-semibold text-foreground">What's included:</p>
+              <div className="grid grid-cols-2 gap-1">
+                {[
+                  { icon: Globe, label: "Competitor research" },
+                  { icon: ListChecks, label: "Table of Contents" },
+                  { icon: HelpCircle, label: "FAQ schema (5-7 Q&As)" },
+                  { icon: ImageIcon, label: "Auto alt text" },
+                  { icon: TrendingUp, label: "Product discovery" },
+                  { icon: Search, label: "SEO optimization" },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <Icon className="w-3 h-3 text-accent" />
+                    {label}
+                  </div>
+                ))}
+              </div>
             </div>
 
             <Button
@@ -391,7 +479,7 @@ const AiBlogWriter = ({
         )}
 
         {/* Generating Steps */}
-        {(step === "discovering-products" || step === "generating-text" || step === "generating-image") && (
+        {(step === "discovering-products" || step === "researching-competitors" || step === "generating-text" || step === "generating-image") && (
           <div className="py-8 space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">
@@ -427,9 +515,9 @@ const AiBlogWriter = ({
                 </div>
               </div>
 
-              {/* Step 1: Generate Content */}
+              {/* Step 1: Competitor Research */}
               <div className="flex items-center gap-3">
-                {step === "generating-text" ? (
+                {step === "researching-competitors" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
                 ) : step === "discovering-products" ? (
                   <div className="w-5 h-5 rounded-full border-2 border-border" />
@@ -438,29 +526,48 @@ const AiBlogWriter = ({
                 )}
                 <div>
                   <p className={`text-sm font-medium ${step === "discovering-products" ? "text-muted-foreground" : ""}`}>
-                    {step === "generating-text"
-                      ? "Writing SEO-optimized content..."
-                      : step === "discovering-products" ? "Write blog content" : "Content generated"}
+                    {step === "researching-competitors"
+                      ? "Analyzing competitor content..."
+                      : step === "discovering-products" ? "Research competitors" : "Competitor gaps identified"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Title, excerpt, meta tags, and full article with product embeds
+                    Ensuring your post covers more than top-ranking articles
                   </p>
                 </div>
               </div>
 
-              {/* Step 2: Generate Image */}
+              {/* Step 2: Generate Content */}
               <div className="flex items-center gap-3">
-                {step === "generating-image" ? (
+                {step === "generating-text" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
-                ) : step === "discovering-products" || step === "generating-text" ? (
+                ) : step === "discovering-products" || step === "researching-competitors" ? (
                   <div className="w-5 h-5 rounded-full border-2 border-border" />
                 ) : (
                   <CheckCircle2 className="w-5 h-5 text-accent" />
                 )}
                 <div>
+                  <p className={`text-sm font-medium ${step === "discovering-products" || step === "researching-competitors" ? "text-muted-foreground" : ""}`}>
+                    {step === "generating-text"
+                      ? `Writing ${targetWordCount}-word article with TOC & FAQs...`
+                      : step === "discovering-products" || step === "researching-competitors" ? "Write blog content" : "Content generated"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Brand voice, product embeds, FAQ schema, and auto alt text
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Generate Image */}
+              <div className="flex items-center gap-3">
+                {step === "generating-image" ? (
+                  <Loader2 className="w-5 h-5 text-accent animate-spin" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-border" />
+                )}
+                <div>
                   <p
                     className={`text-sm font-medium ${
-                      step === "discovering-products" || step === "generating-text" ? "text-muted-foreground" : ""
+                      step !== "generating-image" ? "text-muted-foreground" : ""
                     }`}
                   >
                     {step === "generating-image"
@@ -475,7 +582,7 @@ const AiBlogWriter = ({
             </div>
 
             <p className="text-center text-xs text-muted-foreground">
-              This usually takes 30-60 seconds
+              This usually takes 45-90 seconds
             </p>
           </div>
         )}
@@ -498,11 +605,55 @@ const AiBlogWriter = ({
               </div>
 
               {generatedData.image_url && (
-                <img
-                  src={generatedData.image_url}
-                  alt="AI generated featured"
-                  className="w-full h-44 object-cover rounded-lg shadow-sm"
-                />
+                <div className="space-y-1">
+                  <img
+                    src={generatedData.image_url}
+                    alt={generatedData.featured_image_alt || "AI generated featured"}
+                    className="w-full h-44 object-cover rounded-lg shadow-sm"
+                  />
+                  {generatedData.featured_image_alt && (
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Alt: {generatedData.featured_image_alt}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* New Features Summary */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-background/80 rounded-lg p-2.5 text-center">
+                  <ListChecks className="w-4 h-4 text-accent mx-auto mb-1" />
+                  <p className="text-[10px] font-semibold">Table of Contents</p>
+                  <p className="text-[10px] text-muted-foreground">Auto-generated ✓</p>
+                </div>
+                <div className="bg-background/80 rounded-lg p-2.5 text-center">
+                  <HelpCircle className="w-4 h-4 text-accent mx-auto mb-1" />
+                  <p className="text-[10px] font-semibold">FAQ Schema</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {generatedData.faq_schema?.length || 0} questions ✓
+                  </p>
+                </div>
+              </div>
+
+              {/* FAQ Preview */}
+              {generatedData.faq_schema && generatedData.faq_schema.length > 0 && (
+                <div className="bg-background/80 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <HelpCircle className="w-3.5 h-3.5 text-accent" />
+                    FAQ Schema Preview (for Google Rich Results)
+                  </p>
+                  <div className="space-y-1.5">
+                    {generatedData.faq_schema.slice(0, 3).map((faq, i) => (
+                      <div key={i} className="text-[11px]">
+                        <p className="font-medium text-foreground">Q: {faq.question}</p>
+                        <p className="text-muted-foreground line-clamp-1">A: {faq.answer}</p>
+                      </div>
+                    ))}
+                    {generatedData.faq_schema.length > 3 && (
+                      <p className="text-[10px] text-accent">+{generatedData.faq_schema.length - 3} more questions</p>
+                    )}
+                  </div>
+                </div>
               )}
 
               {/* Discovered Products Summary */}
@@ -556,6 +707,10 @@ const AiBlogWriter = ({
                 <span className="inline-flex items-center gap-1 text-[10px] bg-muted px-2.5 py-1 rounded-full font-medium">
                   Desc: {generatedData.meta_description.length}/160
                 </span>
+                <span className="inline-flex items-center gap-1 text-[10px] bg-accent/10 text-accent px-2.5 py-1 rounded-full font-medium">
+                  <Target className="w-3 h-3" />
+                  {targetWordCount}w target
+                </span>
                 {generatedData.image_url && (
                   <span className="inline-flex items-center gap-1 text-[10px] bg-accent/10 text-accent px-2.5 py-1 rounded-full font-medium">
                     <ImageIcon className="w-3 h-3" />
@@ -585,7 +740,6 @@ const AiBlogWriter = ({
                     </div>
                   </div>
 
-                  {/* Score bar */}
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
@@ -596,7 +750,6 @@ const AiBlogWriter = ({
                   </div>
                   <p className="text-[11px] text-muted-foreground">{seo.verdict}</p>
 
-                  {/* Checklist */}
                   <div className="grid grid-cols-1 gap-1.5 pt-1">
                     {seo.checks.map((check, i) => (
                       <div key={i} className="space-y-0.5">

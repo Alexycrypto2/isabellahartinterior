@@ -318,4 +318,76 @@
     box-shadow: 0 4px 20px -4px hsl(var(--foreground) / 0.08);
     display: block;
   }
+
+  /* Blog Table of Contents — collapsible on mobile */
+  .prose .blog-toc {
+    @apply rounded-xl border-l-4 border-accent;
+    background: hsl(var(--muted));
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+  .prose .blog-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .prose .blog-toc li {
+    margin-bottom: 6px;
+    padding: 0;
+  }
+  .prose .blog-toc a {
+    color: hsl(var(--accent));
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  .prose .blog-toc a:hover {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+  }
+  @media (max-width: 768px) {
+    .prose .blog-toc ul {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .prose .blog-toc.toc-open ul {
+      max-height: 500px;
+    }
+  }
+
+  /* Blog FAQ Section */
+  .prose .blog-faq {
+    @apply rounded-xl;
+    background: hsl(var(--muted));
+    padding: 24px;
+    margin: 32px 0;
+  }
+  .prose .blog-faq h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+  .prose .blog-faq .faq-item {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .prose .blog-faq .faq-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .prose .blog-faq h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-top: 0;
+  }
+  .prose .blog-faq p {
+    font-size: 14px;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.6;
+    margin: 0;
+  }
 }
+
