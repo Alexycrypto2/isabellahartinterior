@@ -87,6 +87,22 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // Check for breached password on signup
+      if (!isLogin) {
+        setIsCheckingBreach(true);
+        const count = await checkPasswordBreach(password);
+        setBreachCount(count);
+        setIsCheckingBreach(false);
+        if (count > 0) {
+          toast({
+            title: '⚠️ Compromised Password',
+            description: `This password has appeared in ${count.toLocaleString()} data breaches. Please choose a different one.`,
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
