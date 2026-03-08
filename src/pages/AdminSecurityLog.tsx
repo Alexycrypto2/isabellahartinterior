@@ -16,8 +16,8 @@ interface SecurityLog {
   event_type: string;
   ip_address: string | null;
   user_agent: string | null;
-  device_info: Record<string, any> | null;
-  is_new_device: boolean;
+  device_info: unknown;
+  is_new_device: boolean | null;
   created_at: string;
 }
 
