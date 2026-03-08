@@ -72,10 +72,12 @@ const WeeklyTrendsCard = () => {
   // Check if a trend has already been published as a blog post
   const getPublishedPost = (trend: Trend) => {
     if (!blogPosts) return null;
-    
-    // Match by checking if the suggested title or trend name appears in any published post title
-    const trendWords = trend.suggested_title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-    const trendKeywords = trend.keywords.map(k => k.toLowerCase());
+
+    const suggestedTitle = (trend.suggested_title || trend.trend || '').toLowerCase();
+    const trendWords = suggestedTitle.split(/\s+/).filter(w => w.length > 3);
+    const trendKeywords = Array.isArray(trend.keywords)
+      ? trend.keywords.map(k => String(k).toLowerCase())
+      : [];
     
     for (const post of blogPosts) {
       const postTitle = post.title.toLowerCase();
