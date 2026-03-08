@@ -319,11 +319,24 @@ const Shop = () => {
                       
                       {/* Badge */}
                       {product.badge && (
-                        <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ${
+                        <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
                           product.badge === 'Sale' 
-                            ? 'bg-accent text-accent-foreground' 
+                            ? 'bg-red-500 text-white' 
+                            : product.badge === 'Bestseller'
+                            ? 'bg-amber-500 text-white'
+                            : product.badge === "Editor's Pick"
+                            ? 'bg-violet-500 text-white'
+                            : product.badge === 'New Arrival'
+                            ? 'bg-emerald-500 text-white'
+                            : product.badge === 'Most Saved'
+                            ? 'bg-pink-500 text-white'
                             : 'bg-secondary text-secondary-foreground'
                         }`}>
+                          {product.badge === 'Bestseller' && '🏆 '}
+                          {product.badge === "Editor's Pick" && '⭐ '}
+                          {product.badge === 'New Arrival' && '✨ '}
+                          {product.badge === 'Most Saved' && '❤️ '}
+                          {product.badge === 'Sale' && '🔥 '}
                           {product.badge}
                         </span>
                       )}
