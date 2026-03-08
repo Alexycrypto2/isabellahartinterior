@@ -200,6 +200,11 @@ const AdminSettings = () => {
       setExitPlaceholder(exitPopup.placeholder || 'Enter your email address');
       setExitDisclaimer(exitPopup.disclaimer || 'No spam, ever. Unsubscribe anytime.');
       setExitEnabled(exitPopup.enabled ?? true);
+      setExitIcon(exitPopup.icon || 'Gift');
+      setExitGradientFrom(exitPopup.gradient_from || '#8B5CF6');
+      setExitGradientTo(exitPopup.gradient_to || '#D946EF');
+      setExitAbEnabled(exitPopup.ab_enabled ?? false);
+      setExitVariants(exitPopup.variants || []);
     }
   }, [settings]);
 
