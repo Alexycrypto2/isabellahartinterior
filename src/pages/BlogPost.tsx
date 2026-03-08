@@ -7,6 +7,7 @@ import PinterestSaveButton from "@/components/PinterestSaveButton";
 import PageTransition from "@/components/PageTransition";
 import BlogCategoryLinks from "@/components/BlogCategoryLinks";
 import BlogProductShowcase from "@/components/BlogProductShowcase";
+import ShopTheLookInline from "@/components/ShopTheLookInline";
 import JsonLd from "@/components/JsonLd";
 import { useBlogPostBySlug, usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
@@ -250,6 +251,15 @@ const BlogPost = () => {
             className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent blog-content"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
+
+          {/* Shop the Look - inline smart matching */}
+          <div className="max-w-3xl mx-auto">
+            <ShopTheLookInline 
+              blogTitle={post.title}
+              blogContent={post.content}
+              category={post.category}
+            />
+          </div>
 
           {/* Product Showcase */}
           <div className="max-w-4xl mx-auto">

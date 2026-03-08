@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Star, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSetting } from "@/hooks/useSiteSettings";
+import { useActiveSeasonalBanner } from "@/hooks/useSeasonalBanners";
 
 // Get random image path - we'll lazy load the actual image
 const heroImagePaths = [
@@ -16,6 +17,7 @@ const heroImagePaths = [
 const Hero = memo(() => {
   const { data: heroSetting } = useSiteSetting('hero');
   const hero = (heroSetting?.value || {}) as Record<string, string>;
+  const { data: seasonalBanner } = useActiveSeasonalBanner();
   
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>("");
@@ -128,7 +130,7 @@ const Hero = memo(() => {
           >
             <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md text-white text-sm font-medium mb-8 border border-white/25 shadow-lg">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              Top-Rated Finds on Amazon
+              {seasonalBanner?.badge_text || 'Top-Rated Finds on Amazon'}
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             </span>
           </motion.div>
@@ -143,7 +145,7 @@ const Hero = memo(() => {
               className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium leading-[1.05] mb-4"
               style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
             >
-              <span className="text-white">{hero.title ? hero.title.split(' ')[0] || 'Discover' : 'Discover'}</span>
+              <span className="text-white">{seasonalBanner?.title?.split(' ')[0] || hero.title?.split(' ')[0] || 'Discover'}</span>
               <br />
               <span className="relative inline-block">
                 <motion.span
@@ -158,13 +160,13 @@ const Hero = memo(() => {
                   {rotatingWords[currentWord]}
                 </motion.span>
               </span>{" "}
-              <span className="text-white">{hero.title ? hero.title.split(' ').slice(1).join(' ') || 'Living' : 'Living'}</span>
+              <span className="text-white">{seasonalBanner?.title?.split(' ').slice(1).join(' ') || hero.title?.split(' ').slice(1).join(' ') || 'Living'}</span>
             </h1>
             <h2 
               className="font-script text-3xl md:text-4xl lg:text-5xl text-white/90 font-light italic mb-8 tracking-wide"
               style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
             >
-              {hero.subtitle || 'Transform your space with our handpicked collection of beautiful, affordable home décor pieces.'}
+              {seasonalBanner?.subtitle || hero.subtitle || 'Transform your space with our handpicked collection of beautiful, affordable home décor pieces.'}
             </h2>
           </motion.div>
           
@@ -187,13 +189,13 @@ const Hero = memo(() => {
             transition={{ duration: 0.7, delay: 0.6 }}
             className="flex flex-wrap gap-4 mb-8"
           >
-            <Link to="/shop">
+            <Link to={seasonalBanner?.cta_link || "/shop"}>
               <Button 
                 size="lg" 
                 className="group relative rounded-full px-8 py-6 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold tracking-wide transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-amber-500/30 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center">
-                  Shop Collection
+                  {seasonalBanner?.cta_text || 'Shop Collection'}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </Button>

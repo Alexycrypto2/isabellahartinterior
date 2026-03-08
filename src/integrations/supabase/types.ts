@@ -376,6 +376,51 @@ export type Database = {
         }
         Relationships: []
       }
+      seasonal_banners: {
+        Row: {
+          badge_text: string | null
+          created_at: string | null
+          cta_link: string | null
+          cta_text: string | null
+          end_date: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          priority: number | null
+          start_date: string
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          badge_text?: string | null
+          created_at?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          end_date: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          priority?: number | null
+          start_date: string
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          badge_text?: string | null
+          created_at?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          end_date?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          priority?: number | null
+          start_date?: string
+          subtitle?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string

@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Camera,
   FileText,
+  Calendar,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -143,6 +144,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         <Separator className="my-3" />
         <p className="text-xs font-medium text-muted-foreground px-3 py-2">SETTINGS</p>
+        <Link to="/admin/seasonal-banners">
+          <Button variant={isActive('/admin/seasonal-banners') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Calendar className="mr-2 h-4 w-4" />
+            Seasonal Banners
+          </Button>
+        </Link>
         <Link to="/admin/appearance">
           <Button variant={isActive('/admin/appearance') ? 'secondary' : 'ghost'} className="w-full justify-start">
             <Palette className="mr-2 h-4 w-4" />
