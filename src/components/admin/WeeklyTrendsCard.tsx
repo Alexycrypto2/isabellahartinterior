@@ -182,10 +182,10 @@ const WeeklyTrendsCard = () => {
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{trend.description}</p>
                         <div className="mt-2 p-2 bg-muted/40 rounded-lg border-l-2 border-accent/50">
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Suggested Title</p>
-                          <p className="text-xs font-medium mt-0.5 line-clamp-1">{trend.suggested_title}</p>
+                          <p className="text-xs font-medium mt-0.5 line-clamp-1">{trend.suggested_title || trend.trend}</p>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {trend.keywords.map((kw) => (
+                          {(Array.isArray(trend.keywords) ? trend.keywords : []).map((kw) => (
                             <Badge key={kw} variant="secondary" className="text-[10px] bg-accent/5 text-accent border-accent/20 px-1.5 py-0">
                               {kw}
                             </Badge>
