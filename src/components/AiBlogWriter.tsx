@@ -50,7 +50,7 @@ interface AiBlogWriterProps {
   categories: { id: string; name: string }[];
 }
 
-type Step = "input" | "generating-text" | "generating-image" | "done" | "error";
+type Step = "input" | "discovering-products" | "generating-text" | "generating-image" | "done" | "error";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
