@@ -55,6 +55,9 @@ interface AiBlogWriterProps {
   onClose: () => void;
   onGenerated: (data: BlogPostData) => void;
   categories: { id: string; name: string }[];
+  initialTopic?: string;
+  initialKeywords?: string;
+  initialCategory?: string;
 }
 
 type Step = "input" | "discovering-products" | "researching-competitors" | "generating-text" | "generating-image" | "done" | "error";
