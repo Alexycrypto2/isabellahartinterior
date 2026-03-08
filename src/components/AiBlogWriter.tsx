@@ -291,6 +291,7 @@ const AiBlogWriter = ({
     setStep("input");
     setProgress(0);
     setGeneratedData(null);
+    setDiscoveredProducts([]);
     setErrorMessage("");
   };
 
