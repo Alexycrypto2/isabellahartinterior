@@ -11,7 +11,24 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift, Heart, Star, Sparkles, Tag, Percent, Megaphone, PartyPopper, Plus, Trash2, FlaskConical } from 'lucide-react';
+
+const ICON_OPTIONS = [
+  { value: 'Gift', label: 'Gift', icon: Gift },
+  { value: 'Heart', label: 'Heart', icon: Heart },
+  { value: 'Star', label: 'Star', icon: Star },
+  { value: 'Sparkles', label: 'Sparkles', icon: Sparkles },
+  { value: 'Tag', label: 'Tag', icon: Tag },
+  { value: 'Percent', label: 'Percent', icon: Percent },
+  { value: 'Megaphone', label: 'Megaphone', icon: Megaphone },
+  { value: 'PartyPopper', label: 'Party', icon: PartyPopper },
+  { value: 'Bell', label: 'Bell', icon: Bell },
+  { value: 'Zap', label: 'Zap', icon: Zap },
+] as const;
+
+const getIconComponent = (name: string) => {
+  return ICON_OPTIONS.find(i => i.value === name)?.icon || Gift;
+};
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
@@ -98,6 +115,18 @@ const AdminSettings = () => {
   const [exitPlaceholder, setExitPlaceholder] = useState('Enter your email address');
   const [exitDisclaimer, setExitDisclaimer] = useState('No spam, ever. Unsubscribe anytime.');
   const [exitEnabled, setExitEnabled] = useState(true);
+  const [exitIcon, setExitIcon] = useState('Gift');
+  const [exitGradientFrom, setExitGradientFrom] = useState('#8B5CF6');
+  const [exitGradientTo, setExitGradientTo] = useState('#D946EF');
+  const [exitAbEnabled, setExitAbEnabled] = useState(false);
+  const [exitVariants, setExitVariants] = useState<Array<{
+    id: string;
+    name: string;
+    title: string;
+    description: string;
+    button_text: string;
+    weight: number;
+  }>>([]);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
@@ -188,6 +217,11 @@ const AdminSettings = () => {
       setExitPlaceholder(exitPopup.placeholder || 'Enter your email address');
       setExitDisclaimer(exitPopup.disclaimer || 'No spam, ever. Unsubscribe anytime.');
       setExitEnabled(exitPopup.enabled ?? true);
+      setExitIcon(exitPopup.icon || 'Gift');
+      setExitGradientFrom(exitPopup.gradient_from || '#8B5CF6');
+      setExitGradientTo(exitPopup.gradient_to || '#D946EF');
+      setExitAbEnabled(exitPopup.ab_enabled ?? false);
+      setExitVariants(exitPopup.variants || []);
     }
   }, [settings]);
 
@@ -1280,92 +1314,318 @@ const AdminSettings = () => {
 
           {/* Exit Intent Popup */}
           <TabsContent value="exit-popup">
-            <Card>
-              <CardHeader>
-                <CardTitle>Exit Intent Popup</CardTitle>
-                <CardDescription>Customize the popup that appears when visitors are about to leave your site</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Enable Exit Popup</Label>
-                    <p className="text-xs text-muted-foreground">Show the popup when visitors move to leave</p>
-                  </div>
-                  <Switch checked={exitEnabled} onCheckedChange={setExitEnabled} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Title</Label>
-                  <Input value={exitTitle} onChange={(e) => setExitTitle(e.target.value)} placeholder="Wait! Don't Leave Yet" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Description</Label>
-                  <Textarea value={exitDescription} onChange={(e) => setExitDescription(e.target.value)} placeholder="Get our Free Room Styling Guide..." rows={3} />
-                  <p className="text-xs text-muted-foreground">You can use &lt;strong&gt;bold text&lt;/strong&gt; for emphasis</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Email Placeholder</Label>
-                  <Input value={exitPlaceholder} onChange={(e) => setExitPlaceholder(e.target.value)} placeholder="Enter your email address" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Button Text</Label>
-                  <Input value={exitButtonText} onChange={(e) => setExitButtonText(e.target.value)} placeholder="Get My Free Guide" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Disclaimer Text</Label>
-                  <Input value={exitDisclaimer} onChange={(e) => setExitDisclaimer(e.target.value)} placeholder="No spam, ever. Unsubscribe anytime." />
-                </div>
-
-                {/* Live Preview */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Preview</Label>
-                  <div className="border border-border rounded-lg p-6 bg-gradient-to-br from-primary/10 via-background to-accent/10 text-center">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
-                      <Gift className="h-6 w-6 text-primary" />
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Exit Intent Popup</CardTitle>
+                  <CardDescription>Customize the popup that appears when visitors are about to leave your site</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">Enable Exit Popup</Label>
+                      <p className="text-xs text-muted-foreground">Show the popup when visitors move to leave</p>
                     </div>
-                    <h3 className="text-lg font-bold mb-1">{exitTitle}</h3>
-                    <p className="text-sm text-muted-foreground mb-4" dangerouslySetInnerHTML={{ __html: exitDescription }} />
-                    <div className="max-w-xs mx-auto space-y-2">
-                      <Input disabled placeholder={exitPlaceholder} className="bg-background text-sm" />
-                      <Button disabled className="w-full text-sm">{exitButtonText}</Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-3">{exitDisclaimer}</p>
+                    <Switch checked={exitEnabled} onCheckedChange={setExitEnabled} />
                   </div>
-                </div>
 
-                <div className="pt-2 border-t border-border">
-                  <Button
-                    onClick={async () => {
-                      try {
-                        await updateMutation.mutateAsync({
-                          key: 'exit_intent_popup',
-                          value: {
-                            enabled: exitEnabled,
-                            title: exitTitle,
-                            description: exitDescription,
-                            button_text: exitButtonText,
-                            placeholder: exitPlaceholder,
-                            disclaimer: exitDisclaimer,
-                          },
-                        });
-                        toast({ title: 'Saved', description: 'Exit popup settings updated successfully.' });
-                      } catch (error) {
-                        toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
-                      }
-                    }}
-                    disabled={updateMutation.isPending}
-                    className="rounded-full"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Exit Popup Settings
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Title</Label>
+                    <Input value={exitTitle} onChange={(e) => setExitTitle(e.target.value)} placeholder="Wait! Don't Leave Yet" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Description</Label>
+                    <Textarea value={exitDescription} onChange={(e) => setExitDescription(e.target.value)} placeholder="Get our Free Room Styling Guide..." rows={3} />
+                    <p className="text-xs text-muted-foreground">You can use &lt;strong&gt;bold text&lt;/strong&gt; for emphasis</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Email Placeholder</Label>
+                    <Input value={exitPlaceholder} onChange={(e) => setExitPlaceholder(e.target.value)} placeholder="Enter your email address" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Button Text</Label>
+                    <Input value={exitButtonText} onChange={(e) => setExitButtonText(e.target.value)} placeholder="Get My Free Guide" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Disclaimer Text</Label>
+                    <Input value={exitDisclaimer} onChange={(e) => setExitDisclaimer(e.target.value)} placeholder="No spam, ever. Unsubscribe anytime." />
+                  </div>
+
+                  {/* Icon Selector */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Popup Icon</Label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {ICON_OPTIONS.map((opt) => {
+                        const IconComp = opt.icon;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setExitIcon(opt.value)}
+                            className={`flex flex-col items-center gap-1 p-3 rounded-lg border transition-all ${
+                              exitIcon === opt.value
+                                ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                          >
+                            <IconComp className="h-5 w-5" />
+                            <span className="text-xs">{opt.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Gradient Colors */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Background Gradient</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">From Color</Label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={exitGradientFrom}
+                            onChange={(e) => setExitGradientFrom(e.target.value)}
+                            className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                          />
+                          <Input
+                            value={exitGradientFrom}
+                            onChange={(e) => setExitGradientFrom(e.target.value)}
+                            placeholder="#8B5CF6"
+                            className="flex-1 text-sm font-mono"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">To Color</Label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={exitGradientTo}
+                            onChange={(e) => setExitGradientTo(e.target.value)}
+                            className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                          />
+                          <Input
+                            value={exitGradientTo}
+                            onChange={(e) => setExitGradientTo(e.target.value)}
+                            placeholder="#D946EF"
+                            className="flex-1 text-sm font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Preview */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Preview</Label>
+                    <div
+                      className="border border-border rounded-lg p-6 text-center"
+                      style={{
+                        background: `linear-gradient(135deg, ${exitGradientFrom}15, transparent, ${exitGradientTo}15)`,
+                      }}
+                    >
+                      <div
+                        className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+                        style={{ backgroundColor: `${exitGradientFrom}20` }}
+                      >
+                        {(() => {
+                          const IconComp = getIconComponent(exitIcon);
+                          return <IconComp className="h-6 w-6" style={{ color: exitGradientFrom }} />;
+                        })()}
+                      </div>
+                      <h3 className="text-lg font-bold mb-1">{exitTitle}</h3>
+                      <p className="text-sm text-muted-foreground mb-4" dangerouslySetInnerHTML={{ __html: exitDescription }} />
+                      <div className="max-w-xs mx-auto space-y-2">
+                        <Input disabled placeholder={exitPlaceholder} className="bg-background text-sm" />
+                        <Button disabled className="w-full text-sm" style={{ backgroundColor: exitGradientFrom }}>{exitButtonText}</Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-3">{exitDisclaimer}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-border">
+                    <Button
+                      onClick={async () => {
+                        try {
+                          await updateMutation.mutateAsync({
+                            key: 'exit_intent_popup',
+                            value: {
+                              enabled: exitEnabled,
+                              title: exitTitle,
+                              description: exitDescription,
+                              button_text: exitButtonText,
+                              placeholder: exitPlaceholder,
+                              disclaimer: exitDisclaimer,
+                              icon: exitIcon,
+                              gradient_from: exitGradientFrom,
+                              gradient_to: exitGradientTo,
+                              ab_enabled: exitAbEnabled,
+                              variants: exitVariants,
+                            },
+                          });
+                          toast({ title: 'Saved', description: 'Exit popup settings updated successfully.' });
+                        } catch (error) {
+                          toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
+                        }
+                      }}
+                      disabled={updateMutation.isPending}
+                      className="rounded-full"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Exit Popup Settings
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* A/B Testing */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FlaskConical className="h-5 w-5" />
+                    A/B Testing
+                  </CardTitle>
+                  <CardDescription>Create multiple copy variants and compare conversion rates</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">Enable A/B Testing</Label>
+                      <p className="text-xs text-muted-foreground">When enabled, visitors will randomly see different copy variants</p>
+                    </div>
+                    <Switch checked={exitAbEnabled} onCheckedChange={setExitAbEnabled} />
+                  </div>
+
+                  {exitAbEnabled && (
+                    <>
+                      <p className="text-xs text-muted-foreground">
+                        The default copy above serves as <strong>Variant A (Control)</strong>. Add additional variants below to test against it.
+                      </p>
+
+                      {exitVariants.map((variant, idx) => (
+                        <div key={variant.id} className="border border-border rounded-lg p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-bold">Variant {String.fromCharCode(66 + idx)}: {variant.name}</Label>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setExitVariants(exitVariants.filter(v => v.id !== variant.id))}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Variant Name</Label>
+                            <Input
+                              value={variant.name}
+                              onChange={(e) => {
+                                const updated = [...exitVariants];
+                                updated[idx] = { ...updated[idx], name: e.target.value };
+                                setExitVariants(updated);
+                              }}
+                              placeholder="e.g. Urgency variant"
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Title</Label>
+                            <Input
+                              value={variant.title}
+                              onChange={(e) => {
+                                const updated = [...exitVariants];
+                                updated[idx] = { ...updated[idx], title: e.target.value };
+                                setExitVariants(updated);
+                              }}
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Description</Label>
+                            <Textarea
+                              value={variant.description}
+                              onChange={(e) => {
+                                const updated = [...exitVariants];
+                                updated[idx] = { ...updated[idx], description: e.target.value };
+                                setExitVariants(updated);
+                              }}
+                              rows={2}
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Button Text</Label>
+                            <Input
+                              value={variant.button_text}
+                              onChange={(e) => {
+                                const updated = [...exitVariants];
+                                updated[idx] = { ...updated[idx], button_text: e.target.value };
+                                setExitVariants(updated);
+                              }}
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Traffic Weight (%)</Label>
+                            <div className="flex items-center gap-3">
+                              <Slider
+                                value={[variant.weight]}
+                                onValueChange={([val]) => {
+                                  const updated = [...exitVariants];
+                                  updated[idx] = { ...updated[idx], weight: val };
+                                  setExitVariants(updated);
+                                }}
+                                max={100}
+                                min={5}
+                                step={5}
+                                className="flex-1"
+                              />
+                              <span className="text-sm font-mono w-12 text-right">{variant.weight}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {exitVariants.length < 3 && (
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setExitVariants([
+                              ...exitVariants,
+                              {
+                                id: crypto.randomUUID(),
+                                name: `Variant ${String.fromCharCode(66 + exitVariants.length)}`,
+                                title: exitTitle,
+                                description: exitDescription,
+                                button_text: exitButtonText,
+                                weight: 50,
+                              },
+                            ]);
+                          }}
+                          className="w-full rounded-full"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Variant ({exitVariants.length + 1}/4 total)
+                        </Button>
+                      )}
+
+                      <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
+                        <strong>Traffic split:</strong> Control (A) gets{' '}
+                        {Math.max(0, 100 - exitVariants.reduce((sum, v) => sum + v.weight, 0))}%
+                        {exitVariants.map((v, i) => (
+                          <span key={v.id}> · {String.fromCharCode(66 + i)} gets {v.weight}%</span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
