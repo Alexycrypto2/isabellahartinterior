@@ -28,6 +28,35 @@ const BlogPost = () => {
     }
   }, [post]);
 
+  // Make TOC collapsible on mobile — toggle toc-open class
+  useEffect(() => {
+    const tocEl = document.querySelector('.blog-toc');
+    if (!tocEl) return;
+
+    // Start open on desktop, closed on mobile
+    if (window.innerWidth > 768) {
+      tocEl.classList.add('toc-open');
+    }
+
+    const handleClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      // Toggle when clicking the TOC header (first <p>)
+      if (target.tagName === 'P' || target.closest('.blog-toc > p')) {
+        tocEl.classList.toggle('toc-open');
+      }
+    };
+
+    tocEl.addEventListener('click', handleClick);
+    // Add cursor pointer to the header on mobile
+    const header = tocEl.querySelector(':scope > p');
+    if (header && window.innerWidth <= 768) {
+      (header as HTMLElement).style.cursor = 'pointer';
+      header.innerHTML = header.innerHTML + ' <span style="float:right;font-size:12px;">▼</span>';
+    }
+
+    return () => tocEl.removeEventListener('click', handleClick);
+  }, [post]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen">
