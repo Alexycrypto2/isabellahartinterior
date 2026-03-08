@@ -98,6 +98,18 @@ const AdminSettings = () => {
   const [exitPlaceholder, setExitPlaceholder] = useState('Enter your email address');
   const [exitDisclaimer, setExitDisclaimer] = useState('No spam, ever. Unsubscribe anytime.');
   const [exitEnabled, setExitEnabled] = useState(true);
+  const [exitIcon, setExitIcon] = useState('Gift');
+  const [exitGradientFrom, setExitGradientFrom] = useState('#8B5CF6');
+  const [exitGradientTo, setExitGradientTo] = useState('#D946EF');
+  const [exitAbEnabled, setExitAbEnabled] = useState(false);
+  const [exitVariants, setExitVariants] = useState<Array<{
+    id: string;
+    name: string;
+    title: string;
+    description: string;
+    button_text: string;
+    weight: number;
+  }>>([]);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
