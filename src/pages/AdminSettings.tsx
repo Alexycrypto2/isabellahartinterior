@@ -11,7 +11,24 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift, Heart, Star, Sparkles, Tag, Percent, Megaphone, PartyPopper, Plus, Trash2, FlaskConical } from 'lucide-react';
+
+const ICON_OPTIONS = [
+  { value: 'Gift', label: 'Gift', icon: Gift },
+  { value: 'Heart', label: 'Heart', icon: Heart },
+  { value: 'Star', label: 'Star', icon: Star },
+  { value: 'Sparkles', label: 'Sparkles', icon: Sparkles },
+  { value: 'Tag', label: 'Tag', icon: Tag },
+  { value: 'Percent', label: 'Percent', icon: Percent },
+  { value: 'Megaphone', label: 'Megaphone', icon: Megaphone },
+  { value: 'PartyPopper', label: 'Party', icon: PartyPopper },
+  { value: 'Bell', label: 'Bell', icon: Bell },
+  { value: 'Zap', label: 'Zap', icon: Zap },
+] as const;
+
+const getIconComponent = (name: string) => {
+  return ICON_OPTIONS.find(i => i.value === name)?.icon || Gift;
+};
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
 
