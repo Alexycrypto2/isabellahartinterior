@@ -171,11 +171,15 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="analytics">
-            <AnalyticsDashboard />
+            <WidgetErrorBoundary name="Analytics Dashboard">
+              <AnalyticsDashboard />
+            </WidgetErrorBoundary>
           </TabsContent>
 
           <TabsContent value="affiliates">
-            <AffiliateClicksDashboard />
+            <WidgetErrorBoundary name="Affiliate Clicks">
+              <AffiliateClicksDashboard />
+            </WidgetErrorBoundary>
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
