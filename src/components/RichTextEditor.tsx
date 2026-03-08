@@ -1,5 +1,6 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
+import { NodeSelection } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
@@ -20,6 +21,8 @@ import {
   ExternalLink,
   Pencil,
   Unlink,
+  Trash2,
+  Upload,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -32,6 +35,9 @@ interface RichTextEditorProps {
 const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProps) => {
   const [editingLink, setEditingLink] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const [editingImage, setEditingImage] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageAlt, setImageAlt] = useState('');
 
   const editor = useEditor({
     extensions: [
@@ -48,7 +54,7 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
       }),
       Image.configure({
         HTMLAttributes: {
-          class: 'rounded-lg max-w-full h-auto my-4',
+          class: 'rounded-lg max-w-full h-auto my-4 cursor-pointer',
         },
       }),
       Placeholder.configure({
@@ -63,6 +69,12 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[400px] p-4',
       },
+      handleClickOn: (view, pos, node) => {
+        if (node.type.name !== 'image') return false;
+        const { state, dispatch } = view;
+        dispatch(state.tr.setSelection(NodeSelection.create(state.doc, pos)));
+        return true;
+      },
     },
   });
 
@@ -72,9 +84,22 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
     }
   }, [content, editor]);
 
+  const requestImage = useCallback((applyImage: (url: string, alt?: string) => void) => {
+    if (onImageUpload) {
+      onImageUpload((url: string, alt?: string) => applyImage(url, alt));
+      return;
+    }
+
+    const url = window.prompt('Enter image URL:');
+    if (!url) return;
+
+    const alt = window.prompt('Enter image alt text (optional):') || '';
+    applyImage(url, alt);
+  }, [onImageUpload]);
+
   const setLink = useCallback(() => {
     if (!editor) return;
-    
+
     const previousUrl = editor.getAttributes('link').href;
     const url = window.prompt('Enter URL:', previousUrl);
 
@@ -89,12 +114,11 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
 
   const addImage = useCallback(() => {
     if (!editor) return;
-    
-    const url = window.prompt('Enter image URL:');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  }, [editor]);
+
+    requestImage((url, alt) => {
+      editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
+    });
+  }, [editor, requestImage]);
 
   const handleEditLink = useCallback(() => {
     if (!editor) return;
@@ -121,17 +145,51 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
     setLinkUrl('');
   }, [editor]);
 
+  const handleStartEditImage = useCallback(() => {
+    if (!editor) return;
+    const attrs = editor.getAttributes('image');
+    setImageUrl(attrs.src || '');
+    setImageAlt(attrs.alt || '');
+    setEditingImage(true);
+  }, [editor]);
+
+  const handleSaveImage = useCallback(() => {
+    if (!editor) return;
+    if (!imageUrl.trim()) return;
+
+    editor.chain().focus().updateAttributes('image', { src: imageUrl.trim(), alt: imageAlt.trim() }).run();
+    setEditingImage(false);
+  }, [editor, imageUrl, imageAlt]);
+
+  const handleReplaceImage = useCallback(() => {
+    if (!editor) return;
+
+    requestImage((url, alt) => {
+      const currentAlt = editor.getAttributes('image').alt || '';
+      editor
+        .chain()
+        .focus()
+        .updateAttributes('image', { src: url, alt: alt ?? currentAlt })
+        .run();
+      setEditingImage(false);
+    });
+  }, [editor, requestImage]);
+
+  const handleRemoveImage = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().deleteSelection().run();
+    setEditingImage(false);
+    setImageUrl('');
+    setImageAlt('');
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
 
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
-      {/* Link Bubble Menu */}
-      <BubbleMenu
-        editor={editor}
-        shouldShow={({ editor }) => editor.isActive('link')}
-      >
+      <BubbleMenu editor={editor} shouldShow={({ editor }) => editor.isActive('link')}>
         <div className="bg-popover border border-border rounded-lg shadow-lg p-2 flex items-center gap-2 max-w-[400px]">
           {editingLink ? (
             <div className="flex items-center gap-1.5 w-full">
@@ -170,7 +228,49 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
         </div>
       </BubbleMenu>
 
-      {/* Toolbar */}
+      <BubbleMenu editor={editor} shouldShow={({ editor }) => editor.isActive('image')}>
+        <div className="bg-popover border border-border rounded-lg shadow-lg p-2 flex flex-col gap-2 min-w-[280px] max-w-[420px]">
+          {editingImage ? (
+            <>
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Image URL"
+                className="text-xs px-2 py-1 border border-input rounded bg-background text-foreground"
+                autoFocus
+              />
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder="Alt text"
+                className="text-xs px-2 py-1 border border-input rounded bg-background text-foreground"
+              />
+              <div className="flex items-center gap-1">
+                <Button type="button" size="sm" className="text-xs h-7 px-2" onClick={handleSaveImage}>Save</Button>
+                <Button type="button" variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => setEditingImage(false)}>Cancel</Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-1">
+              <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={handleStartEditImage} title="Edit image URL and alt text">
+                <Pencil className="h-3.5 w-3.5 mr-1" />
+                Edit
+              </Button>
+              <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={handleReplaceImage} title="Replace image file">
+                <Upload className="h-3.5 w-3.5 mr-1" />
+                Replace
+              </Button>
+              <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs text-destructive" onClick={handleRemoveImage} title="Remove image">
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                Remove
+              </Button>
+            </div>
+          )}
+        </div>
+      </BubbleMenu>
+
       <div className="border-b p-2 flex flex-wrap gap-1 bg-muted/30">
         <Button
           type="button"
@@ -199,9 +299,9 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
         >
           <Heading3 className="h-4 w-4" />
         </Button>
-        
+
         <div className="w-px h-6 bg-border mx-1 self-center" />
-        
+
         <Button
           type="button"
           variant="ghost"
@@ -220,9 +320,9 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
         >
           <Italic className="h-4 w-4" />
         </Button>
-        
+
         <div className="w-px h-6 bg-border mx-1 self-center" />
-        
+
         <Button
           type="button"
           variant="ghost"
@@ -241,9 +341,9 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
-        
+
         <div className="w-px h-6 bg-border mx-1 self-center" />
-        
+
         <Button
           type="button"
           variant="ghost"
@@ -257,21 +357,13 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => {
-            if (onImageUpload && editor) {
-              onImageUpload((url: string, alt?: string) => {
-                editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
-              });
-            } else {
-              addImage();
-            }
-          }}
+          onClick={addImage}
         >
           <ImageIcon className="h-4 w-4" />
         </Button>
-        
+
         <div className="w-px h-6 bg-border mx-1 self-center" />
-        
+
         <Button
           type="button"
           variant="ghost"
@@ -291,8 +383,7 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
           <Redo className="h-4 w-4" />
         </Button>
       </div>
-      
-      {/* Editor Content */}
+
       <EditorContent editor={editor} />
     </div>
   );
