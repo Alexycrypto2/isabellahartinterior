@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
