@@ -2,7 +2,7 @@ import { ExternalLink, Star, ShoppingBag } from "lucide-react";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
 import { withUtm } from "@/lib/utm";
-import { trackEvent } from "@/lib/analytics";
+import { trackProductClick } from "@/lib/analytics";
 
 interface ShopTheLookInlineProps {
   blogTitle: string;
