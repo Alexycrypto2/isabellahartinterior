@@ -187,10 +187,28 @@ const RichTextEditor = ({ content, onChange, onImageUpload }: RichTextEditorProp
     });
   }, [editor, requestImage]);
 
+  const handleStartResizeImage = useCallback(() => {
+    if (!editor) return;
+    const attrs = editor.getAttributes('image');
+    setImageWidth(attrs.width || '');
+    setImageHeight(attrs.height || '');
+    setResizingImage(true);
+  }, [editor]);
+
+  const handleSaveResize = useCallback(() => {
+    if (!editor) return;
+    const updates: Record<string, string | null> = {};
+    updates.width = imageWidth.trim() || null;
+    updates.height = imageHeight.trim() || null;
+    editor.chain().focus().updateAttributes('image', updates).run();
+    setResizingImage(false);
+  }, [editor, imageWidth, imageHeight]);
+
   const handleRemoveImage = useCallback(() => {
     if (!editor) return;
     editor.chain().focus().deleteSelection().run();
     setEditingImage(false);
+    setResizingImage(false);
     setImageUrl('');
     setImageAlt('');
   }, [editor]);
