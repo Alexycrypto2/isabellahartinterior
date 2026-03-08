@@ -12,6 +12,7 @@ import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Index from "./pages/Index";
 
 // Lazy load non-critical pages
@@ -39,6 +40,7 @@ const AdminAppearance = lazy(() => import("./pages/AdminAppearance"));
 const AdminContactSubmissions = lazy(() => import("./pages/AdminContactSubmissions"));
 const AdminPhotoSubmissions = lazy(() => import("./pages/AdminPhotoSubmissions"));
 const AdminSeasonalBanners = lazy(() => import("./pages/AdminSeasonalBanners"));
+const AdminContentCalendar = lazy(() => import("./pages/AdminContentCalendar"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -82,6 +84,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/contact-submissions" element={<AdminContactSubmissions />} />
           <Route path="/admin/photo-submissions" element={<AdminPhotoSubmissions />} />
           <Route path="/admin/seasonal-banners" element={<AdminSeasonalBanners />} />
+          <Route path="/admin/blog/calendar" element={<AdminContentCalendar />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
@@ -103,6 +106,7 @@ const App = () => (
               <AnimatedRoutes />
               <Chatbot />
               <EmailCapturePopup />
+              <ExitIntentPopup />
             </BrowserRouter>
           </CartProvider>
         </AuthProvider>

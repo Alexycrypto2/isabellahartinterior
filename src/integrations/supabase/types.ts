@@ -119,6 +119,7 @@ export type Database = {
           og_image_url: string | null
           published: boolean
           read_time: string
+          scheduled_for: string | null
           slug: string
           title: string
           updated_at: string
@@ -137,6 +138,7 @@ export type Database = {
           og_image_url?: string | null
           published?: boolean
           read_time?: string
+          scheduled_for?: string | null
           slug: string
           title: string
           updated_at?: string
@@ -155,9 +157,73 @@ export type Database = {
           og_image_url?: string | null
           published?: boolean
           read_time?: string
+          scheduled_for?: string | null
           slug?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      broken_links: {
+        Row: {
+          created_at: string
+          id: string
+          is_resolved: boolean | null
+          last_checked: string
+          source_id: string
+          source_name: string | null
+          source_type: string
+          status_code: number | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          last_checked?: string
+          source_id: string
+          source_name?: string | null
+          source_type: string
+          status_code?: number | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          last_checked?: string
+          source_id?: string
+          source_name?: string | null
+          source_type?: string
+          status_code?: number | null
+          url?: string
+        }
+        Relationships: []
+      }
+      commission_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string
+          source: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          source?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          source?: string
         }
         Relationships: []
       }

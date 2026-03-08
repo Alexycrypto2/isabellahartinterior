@@ -99,6 +99,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             Blog Categories
           </Button>
         </Link>
+        <Link to="/admin/blog/calendar">
+          <Button variant={isActive('/admin/blog/calendar') ? 'secondary' : 'ghost'} className="w-full justify-start">
+            <Calendar className="mr-2 h-4 w-4" />
+            Content Calendar
+          </Button>
+        </Link>
 
         <Separator className="my-3" />
         <p className="text-xs font-medium text-muted-foreground px-3 py-2">PRODUCTS</p>

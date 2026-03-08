@@ -253,7 +253,19 @@ const AdminProductEditor = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="badge">Badge</Label>
-              <Input id="badge" value={badge} onChange={(e) => setBadge(e.target.value)} placeholder="Sale, Bestseller, etc." />
+              <Select value={badge} onValueChange={setBadge}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select badge (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No Badge</SelectItem>
+                  <SelectItem value="Bestseller">🏆 Bestseller</SelectItem>
+                  <SelectItem value="Editor's Pick">⭐ Editor's Pick</SelectItem>
+                  <SelectItem value="New Arrival">✨ New Arrival</SelectItem>
+                  <SelectItem value="Most Saved">❤️ Most Saved</SelectItem>
+                  <SelectItem value="Sale">🔥 Sale</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

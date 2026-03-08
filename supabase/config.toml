@@ -32,3 +32,15 @@ verify_jwt = false
 
 [functions.weekly-trend-report]
 verify_jwt = false
+
+[functions.check-broken-links]
+verify_jwt = false
+
+[functions.add-internal-links]
+verify_jwt = false
+
+[functions.discover-blog-products]
+verify_jwt = false
+
+[functions.test-ai-key]
+verify_jwt = false
