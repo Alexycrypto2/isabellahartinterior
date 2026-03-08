@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.test-ai-key]
 verify_jwt = false
+
+[functions.fix-seo-issues]
+verify_jwt = false
