@@ -189,13 +189,13 @@ const Hero = memo(() => {
             transition={{ duration: 0.7, delay: 0.6 }}
             className="flex flex-wrap gap-4 mb-8"
           >
-            <Link to="/shop">
+            <Link to={seasonalBanner?.cta_link || "/shop"}>
               <Button 
                 size="lg" 
                 className="group relative rounded-full px-8 py-6 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold tracking-wide transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-amber-500/30 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center">
-                  Shop Collection
+                  {seasonalBanner?.cta_text || 'Shop Collection'}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </Button>
