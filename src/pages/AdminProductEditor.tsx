@@ -324,6 +324,15 @@ const AdminProductEditor = () => {
             <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
           </div>
 
+          {/* Pinterest Pin Description */}
+          <PinDescriptionGenerator
+            title={name}
+            description={description}
+            category={category}
+            price={price}
+            type="product"
+          />
+
           {/* SEO Section */}
           <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
             <h3 className="font-medium text-lg">SEO Settings</h3>

@@ -572,6 +572,14 @@ const AdminBlogEditor = () => {
             <RichTextEditor content={content} onChange={setContent} onImageUpload={handleContentImageUpload} />
           </div>
 
+          {/* Pinterest Pin Description */}
+          <PinDescriptionGenerator
+            title={title}
+            description={excerpt || content.replace(/<[^>]*>/g, ' ').slice(0, 500)}
+            category={category}
+            type="blog"
+          />
+
           {/* SEO Section */}
           <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
             <h3 className="font-medium text-lg">SEO Settings</h3>
