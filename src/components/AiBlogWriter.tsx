@@ -366,7 +366,7 @@ const AiBlogWriter = ({
     const seo = analyzeSeoScore(generatedData, keywords);
     const failedChecks = mode === "fix"
       ? seo.checks.filter(c => !c.pass)
-      : seo.checks; // optimize sends all checks so AI can improve everything
+      : seo.checks;
 
     if (mode === "fix" && failedChecks.length === 0) {
       toast.success("All SEO checks are already passing! 🎉");
@@ -393,10 +393,21 @@ const AiBlogWriter = ({
         },
       });
 
-      if (error) throw new Error(error.message || "AI optimization failed");
-      if (data?.error) throw new Error(data.error);
+      if (error) {
+        const status = (error as any)?.context?.status;
+        if (status === 429) {
+          throw new Error("AI is rate limited right now. Please wait a minute and try again.");
+        }
+        if (status === 402) {
+          throw new Error("AI credits are exhausted. Add credits or switch AI provider in settings.");
+        }
+        throw new Error(error.message || "AI optimization failed");
+      }
 
-      // Update generated data with fixes
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       setGeneratedData(prev => prev ? {
         ...prev,
         title: data.title || prev.title,
