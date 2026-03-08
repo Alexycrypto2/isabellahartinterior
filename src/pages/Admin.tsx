@@ -134,33 +134,36 @@ const Admin = () => {
       <div className="p-4 md:p-8 max-w-[1400px] mx-auto">
         {/* Premium Header */}
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <h1 className="font-display text-2xl md:text-3xl font-semibold tracking-tight">{getGreeting()} ✨</h1>
-              <p className="text-muted-foreground mt-1 text-sm">
+              <p className="text-xs font-medium text-accent uppercase tracking-widest mb-1">Dashboard</p>
+              <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{getGreeting()} ✨</h1>
+              <p className="text-muted-foreground mt-1.5 text-sm">
                 Here's what's happening with your site today.
               </p>
             </div>
-            <Link to="/admin/blog/new">
-              <Button className="rounded-full w-full sm:w-auto bg-accent text-accent-foreground hover:brightness-110 shadow-md h-10 px-5">
-                <Plus className="mr-2 h-4 w-4" />
-                New Post
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/admin/blog/new">
+                <Button className="rounded-full w-full sm:w-auto bg-accent text-accent-foreground hover:brightness-110 shadow-lg shadow-accent/20 h-10 px-6 font-medium">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Post
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="bg-muted/40 backdrop-blur-sm border border-border/50 p-1 w-full sm:w-auto shadow-sm">
-            <TabsTrigger value="analytics" className="flex items-center gap-2 flex-1 sm:flex-auto data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs md:text-sm">
+          <TabsList className="bg-muted/30 backdrop-blur-md border border-border/30 p-1 w-full sm:w-auto shadow-sm rounded-2xl">
+            <TabsTrigger value="analytics" className="flex items-center gap-2 flex-1 sm:flex-auto data-[state=active]:bg-background data-[state=active]:shadow-md rounded-xl text-xs md:text-sm font-medium transition-all">
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="affiliates" className="flex items-center gap-2 flex-1 sm:flex-auto data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs md:text-sm">
+            <TabsTrigger value="affiliates" className="flex items-center gap-2 flex-1 sm:flex-auto data-[state=active]:bg-background data-[state=active]:shadow-md rounded-xl text-xs md:text-sm font-medium transition-all">
               <TrendingUp className="h-4 w-4" />
               Affiliates
             </TabsTrigger>
-            <TabsTrigger value="overview" className="flex items-center gap-2 flex-1 sm:flex-auto data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs md:text-sm">
+            <TabsTrigger value="overview" className="flex items-center gap-2 flex-1 sm:flex-auto data-[state=active]:bg-background data-[state=active]:shadow-md rounded-xl text-xs md:text-sm font-medium transition-all">
               <LayoutDashboard className="h-4 w-4" />
               Overview
             </TabsTrigger>
