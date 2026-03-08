@@ -77,12 +77,14 @@ const BlogPost = () => {
   const sanitizeHtml = (html: string): string => {
     const sanitized = DOMPurify.sanitize(html, {
       ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'div', 'span'],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'style'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'style', 'loading'],
     });
-    // Resolve /src/assets/ paths in embedded images so they work in production builds
-    return sanitized.replace(/src="(\/?(src\/assets\/[^"]+))"/g, (_match, path) => {
-      return `src="${resolveImageUrl(path)}"`;
-    });
+    // Resolve /src/assets/ paths and add lazy loading to all images
+    return sanitized
+      .replace(/src="(\/?(src\/assets\/[^"]+))"/g, (_match, path) => {
+        return `src="${resolveImageUrl(path)}"`;
+      })
+      .replace(/<img /g, '<img loading="lazy" ');
   };
 
   const relatedPosts = (() => {
@@ -165,7 +167,8 @@ const BlogPost = () => {
               <img 
                 src={resolveImageUrl(post.image_url)} 
                 alt={`${post.title} - ${post.category} styling tips by ${post.author}`}
-                className="w-full aspect-video object-cover rounded-2xl"
+                className="w-full aspect-[1200/630] object-cover rounded-2xl"
+                loading="lazy"
               />
               {/* Pinterest Save Button */}
               <div className="absolute top-4 right-4">
@@ -185,7 +188,7 @@ const BlogPost = () => {
       <section className="pb-12">
         <div className="container mx-auto px-6">
           <article 
-            className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent prose-img:rounded-lg"
+            className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
 

@@ -23,8 +23,9 @@ import {
 } from '@/hooks/useBlogPosts';
 import { useCategories } from '@/hooks/useCategories';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2, ShoppingBag, Crop } from 'lucide-react';
 import AiBlogWriter from '@/components/AiBlogWriter';
+import FeaturedImageEditor from '@/components/FeaturedImageEditor';
 
 const generateSlug = (title: string) => {
   return title
@@ -59,6 +60,7 @@ const AdminBlogEditor = () => {
   const [isAiWriterOpen, setIsAiWriterOpen] = useState(false);
   const [isAddingLinks, setIsAddingLinks] = useState(false);
   const [isEmbeddingProducts, setIsEmbeddingProducts] = useState(false);
+  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
   
   // SEO fields
   const [metaTitle, setMetaTitle] = useState('');
@@ -125,13 +127,14 @@ const AdminBlogEditor = () => {
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      // Convert to WebP for better performance
+      const webpBlob = await convertToWebP(file);
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.webp`;
       const filePath = `featured/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('blog-images')
-        .upload(filePath, file);
+        .upload(filePath, webpBlob, { contentType: 'image/webp' });
 
       if (uploadError) throw uploadError;
 
@@ -142,7 +145,7 @@ const AdminBlogEditor = () => {
       setImageUrl(publicUrl);
       toast({
         title: 'Image uploaded',
-        description: 'Your image has been uploaded successfully.',
+        description: 'Image converted to WebP and uploaded successfully.',
       });
     } catch (error) {
       console.error('Upload error:', error);
@@ -154,6 +157,28 @@ const AdminBlogEditor = () => {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Convert image file to WebP format
+  const convertToWebP = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('Canvas context failed')); return; }
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(
+          (blob) => blob ? resolve(blob) : reject(new Error('WebP conversion failed')),
+          'image/webp',
+          0.85
+        );
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
   };
 
   const handleContentImageUpload = useCallback((insertImage: (url: string, alt?: string) => void) => {
@@ -174,13 +199,13 @@ const AdminBlogEditor = () => {
       }
 
       try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const webpBlob = await convertToWebP(file);
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.webp`;
         const filePath = `content/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('blog-images')
-          .upload(filePath, file);
+          .upload(filePath, webpBlob, { contentType: 'image/webp' });
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
@@ -476,16 +501,16 @@ const AdminBlogEditor = () => {
 
           {/* Featured Image */}
           <div className="space-y-2">
-            <Label>Featured Image</Label>
+            <Label>Featured Image <span className="text-muted-foreground text-sm">(Recommended: 1200×630px)</span></Label>
             <div className="border-2 border-dashed rounded-lg p-6">
               {imageUrl ? (
                 <div className="relative">
                   <img
                     src={imageUrl}
                     alt="Featured"
-                    className="w-full h-48 object-cover rounded-lg"
+                    className="w-full aspect-[1200/630] object-cover rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                     <Button
                       type="button"
                       variant="secondary"
@@ -493,7 +518,15 @@ const AdminBlogEditor = () => {
                       disabled={isUploading}
                     >
                       <Upload className="mr-2 h-4 w-4" />
-                      Replace Image
+                      Replace
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setIsImageEditorOpen(true)}
+                    >
+                      <Crop className="mr-2 h-4 w-4" />
+                      Crop / Resize
                     </Button>
                   </div>
                 </div>
@@ -612,6 +645,33 @@ const AdminBlogEditor = () => {
             }
           }}
         />
+
+        {imageUrl && (
+          <FeaturedImageEditor
+            isOpen={isImageEditorOpen}
+            onClose={() => setIsImageEditorOpen(false)}
+            imageUrl={imageUrl}
+            onSave={async (blob) => {
+              try {
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.webp`;
+                const filePath = `featured/${fileName}`;
+                const { error } = await supabase.storage
+                  .from('blog-images')
+                  .upload(filePath, blob, { contentType: 'image/webp' });
+                if (error) throw error;
+                const { data: { publicUrl } } = supabase.storage
+                  .from('blog-images')
+                  .getPublicUrl(filePath);
+                setImageUrl(publicUrl);
+                setOgImageUrl(publicUrl);
+                toast({ title: 'Image saved', description: 'Cropped image uploaded successfully.' });
+              } catch (err) {
+                console.error(err);
+                toast({ title: 'Save failed', description: 'Could not upload cropped image.', variant: 'destructive' });
+              }
+            }}
+          />
+        )}
       </form>
     </AdminLayout>
   );
