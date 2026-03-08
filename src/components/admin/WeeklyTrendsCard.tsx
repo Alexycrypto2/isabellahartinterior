@@ -13,8 +13,8 @@ interface Trend {
   rank: number;
   trend: string;
   description: string;
-  suggested_title: string;
-  keywords: string[];
+  suggested_title?: string;
+  keywords?: string[];
 }
 
 const WeeklyTrendsCard = () => {
@@ -72,10 +72,12 @@ const WeeklyTrendsCard = () => {
   // Check if a trend has already been published as a blog post
   const getPublishedPost = (trend: Trend) => {
     if (!blogPosts) return null;
-    
-    // Match by checking if the suggested title or trend name appears in any published post title
-    const trendWords = trend.suggested_title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-    const trendKeywords = trend.keywords.map(k => k.toLowerCase());
+
+    const suggestedTitle = (trend.suggested_title || trend.trend || '').toLowerCase();
+    const trendWords = suggestedTitle.split(/\s+/).filter(w => w.length > 3);
+    const trendKeywords = Array.isArray(trend.keywords)
+      ? trend.keywords.map(k => String(k).toLowerCase())
+      : [];
     
     for (const post of blogPosts) {
       const postTitle = post.title.toLowerCase();
@@ -96,8 +98,8 @@ const WeeklyTrendsCard = () => {
   const handleWriteBlogPost = (trend: Trend) => {
     const params = new URLSearchParams({
       autoOpenAi: 'true',
-      topic: trend.suggested_title,
-      keywords: trend.keywords.join(', '),
+      topic: trend.suggested_title || trend.trend,
+      keywords: (Array.isArray(trend.keywords) ? trend.keywords : []).join(', '),
       trendRank: trend.rank.toString(),
     });
     
@@ -180,10 +182,10 @@ const WeeklyTrendsCard = () => {
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{trend.description}</p>
                         <div className="mt-2 p-2 bg-muted/40 rounded-lg border-l-2 border-accent/50">
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Suggested Title</p>
-                          <p className="text-xs font-medium mt-0.5 line-clamp-1">{trend.suggested_title}</p>
+                          <p className="text-xs font-medium mt-0.5 line-clamp-1">{trend.suggested_title || trend.trend}</p>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {trend.keywords.map((kw) => (
+                          {(Array.isArray(trend.keywords) ? trend.keywords : []).map((kw) => (
                             <Badge key={kw} variant="secondary" className="text-[10px] bg-accent/5 text-accent border-accent/20 px-1.5 py-0">
                               {kw}
                             </Badge>
