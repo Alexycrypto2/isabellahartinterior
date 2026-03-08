@@ -192,6 +192,7 @@ const AdminSettings = () => {
 
       // AI API
       const ai = getSetting('ai_api') as Record<string, any>;
+      setAiPriority(ai.priority || 'custom');
       setAiTextProvider(ai.text_provider || ai.provider || 'openai');
       setAiTextKey(ai.text_api_key || ai.api_key || '');
       setAiTextModel(ai.text_model || ai.model || '');
