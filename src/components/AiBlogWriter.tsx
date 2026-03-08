@@ -50,7 +50,7 @@ interface AiBlogWriterProps {
   categories: { id: string; name: string }[];
 }
 
-type Step = "input" | "generating-text" | "generating-image" | "done" | "error";
+type Step = "input" | "discovering-products" | "generating-text" | "generating-image" | "done" | "error";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
@@ -168,6 +168,7 @@ const AiBlogWriter = ({
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
+  const [discoveredProducts, setDiscoveredProducts] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const tones = [
@@ -186,14 +187,39 @@ const AiBlogWriter = ({
       return;
     }
 
-    setStep("generating-text");
-    setProgress(15);
+    setStep("discovering-products");
+    setProgress(5);
     setErrorMessage("");
+    setDiscoveredProducts([]);
 
     try {
-      // Step 1: Generate blog content
+      // Step 0: Discover & auto-add trending products
+      const discoverInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 1, 20));
+      }, 800);
+
+      let newProducts: any[] = [];
+      try {
+        const { data: discoverData, error: discoverError } =
+          await supabase.functions.invoke("discover-blog-products", {
+            body: { topic, category },
+          });
+
+        if (!discoverError && discoverData?.products) {
+          newProducts = discoverData.products;
+          setDiscoveredProducts(newProducts);
+        }
+      } catch (discErr) {
+        console.warn("Product discovery failed, continuing with existing products:", discErr);
+      }
+
+      clearInterval(discoverInterval);
+      setProgress(25);
+
+      // Step 1: Generate blog content (AI will now see the newly added products too)
+      setStep("generating-text");
       const progressInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 2, 45));
+        setProgress((prev) => Math.min(prev + 2, 55));
       }, 500);
 
       const { data: textData, error: textError } =
@@ -206,7 +232,7 @@ const AiBlogWriter = ({
       if (textError) throw new Error(textError.message || "Failed to generate blog content");
       if (textData?.error) throw new Error(textData.error);
 
-      setProgress(50);
+      setProgress(60);
       setStep("generating-image");
 
       // Step 2: Generate featured image
@@ -265,11 +291,12 @@ const AiBlogWriter = ({
     setStep("input");
     setProgress(0);
     setGeneratedData(null);
+    setDiscoveredProducts([]);
     setErrorMessage("");
   };
 
   const handleClose = () => {
-    if (step === "generating-text" || step === "generating-image") return;
+    if (step === "discovering-products" || step === "generating-text" || step === "generating-image") return;
     handleReset();
     onClose();
   };
@@ -364,7 +391,7 @@ const AiBlogWriter = ({
         )}
 
         {/* Generating Steps */}
-        {(step === "generating-text" || step === "generating-image") && (
+        {(step === "discovering-products" || step === "generating-text" || step === "generating-image") && (
           <div className="py-8 space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">
@@ -381,28 +408,51 @@ const AiBlogWriter = ({
 
             {/* Steps */}
             <div className="space-y-4">
+              {/* Step 0: Discover Products */}
               <div className="flex items-center gap-3">
-                {step === "generating-text" ? (
+                {step === "discovering-products" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
                 ) : (
                   <CheckCircle2 className="w-5 h-5 text-accent" />
                 )}
                 <div>
                   <p className="text-sm font-medium">
-                    {step === "generating-text"
-                      ? "Writing SEO-optimized content..."
-                      : "Content generated"}
+                    {step === "discovering-products"
+                      ? "Discovering trending products..."
+                      : `Products discovered${discoveredProducts.length > 0 ? ` (${discoveredProducts.length} added to shop)` : ""}`}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Title, excerpt, meta tags, and full article
+                    Finding relevant Amazon products for your topic
                   </p>
                 </div>
               </div>
 
+              {/* Step 1: Generate Content */}
+              <div className="flex items-center gap-3">
+                {step === "generating-text" ? (
+                  <Loader2 className="w-5 h-5 text-accent animate-spin" />
+                ) : step === "discovering-products" ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-border" />
+                ) : (
+                  <CheckCircle2 className="w-5 h-5 text-accent" />
+                )}
+                <div>
+                  <p className={`text-sm font-medium ${step === "discovering-products" ? "text-muted-foreground" : ""}`}>
+                    {step === "generating-text"
+                      ? "Writing SEO-optimized content..."
+                      : step === "discovering-products" ? "Write blog content" : "Content generated"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Title, excerpt, meta tags, and full article with product embeds
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2: Generate Image */}
               <div className="flex items-center gap-3">
                 {step === "generating-image" ? (
                   <Loader2 className="w-5 h-5 text-accent animate-spin" />
-                ) : step === "generating-text" ? (
+                ) : step === "discovering-products" || step === "generating-text" ? (
                   <div className="w-5 h-5 rounded-full border-2 border-border" />
                 ) : (
                   <CheckCircle2 className="w-5 h-5 text-accent" />
@@ -410,7 +460,7 @@ const AiBlogWriter = ({
                 <div>
                   <p
                     className={`text-sm font-medium ${
-                      step === "generating-text" ? "text-muted-foreground" : ""
+                      step === "discovering-products" || step === "generating-text" ? "text-muted-foreground" : ""
                     }`}
                   >
                     {step === "generating-image"
@@ -425,7 +475,7 @@ const AiBlogWriter = ({
             </div>
 
             <p className="text-center text-xs text-muted-foreground">
-              This usually takes 15-30 seconds
+              This usually takes 30-60 seconds
             </p>
           </div>
         )}
@@ -453,6 +503,30 @@ const AiBlogWriter = ({
                   alt="AI generated featured"
                   className="w-full h-44 object-cover rounded-lg shadow-sm"
                 />
+              )}
+
+              {/* Discovered Products Summary */}
+              {discoveredProducts.length > 0 && (
+                <div className="bg-background/80 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-accent" />
+                    {discoveredProducts.length} New Products Added to Shop (as drafts)
+                  </p>
+                  <div className="space-y-1.5">
+                    {discoveredProducts.map((p: any) => (
+                      <div key={p.id} className="flex items-center gap-2 text-xs">
+                        {p.image_url && (
+                          <img src={p.image_url} alt={p.name} className="w-8 h-8 rounded object-cover" />
+                        )}
+                        <span className="flex-1 truncate text-muted-foreground">{p.name}</span>
+                        <span className="text-foreground font-medium">{p.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Products are saved as inactive drafts. Go to Admin → Products to review and activate them.
+                  </p>
+                </div>
               )}
 
               {/* SEO Score Preview */}
