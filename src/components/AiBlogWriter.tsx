@@ -295,7 +295,7 @@ const AiBlogWriter = ({
   };
 
   const handleClose = () => {
-    if (step === "generating-text" || step === "generating-image") return;
+    if (step === "discovering-products" || step === "generating-text" || step === "generating-image") return;
     handleReset();
     onClose();
   };
