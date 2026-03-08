@@ -645,6 +645,8 @@ const AdminBlogEditor = () => {
           isOpen={isAiWriterOpen}
           onClose={() => setIsAiWriterOpen(false)}
           categories={categories || []}
+          initialTopic={initialTopic}
+          initialKeywords={initialKeywords}
           onGenerated={(data) => {
             setTitle(data.title);
             setSlug(data.slug);
