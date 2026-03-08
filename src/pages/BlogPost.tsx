@@ -77,12 +77,14 @@ const BlogPost = () => {
   const sanitizeHtml = (html: string): string => {
     const sanitized = DOMPurify.sanitize(html, {
       ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'div', 'span'],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'style'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'style', 'loading'],
     });
-    // Resolve /src/assets/ paths in embedded images so they work in production builds
-    return sanitized.replace(/src="(\/?(src\/assets\/[^"]+))"/g, (_match, path) => {
-      return `src="${resolveImageUrl(path)}"`;
-    });
+    // Resolve /src/assets/ paths and add lazy loading to all images
+    return sanitized
+      .replace(/src="(\/?(src\/assets\/[^"]+))"/g, (_match, path) => {
+        return `src="${resolveImageUrl(path)}"`;
+      })
+      .replace(/<img /g, '<img loading="lazy" ');
   };
 
   const relatedPosts = (() => {

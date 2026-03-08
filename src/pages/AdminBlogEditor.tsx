@@ -199,13 +199,13 @@ const AdminBlogEditor = () => {
       }
 
       try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const webpBlob = await convertToWebP(file);
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.webp`;
         const filePath = `content/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('blog-images')
-          .upload(filePath, file);
+          .upload(filePath, webpBlob, { contentType: 'image/webp' });
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
