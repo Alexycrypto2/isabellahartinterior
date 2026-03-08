@@ -253,12 +253,12 @@ const AdminProductEditor = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="badge">Badge</Label>
-              <Select value={badge} onValueChange={setBadge}>
+              <Select value={badge || "none"} onValueChange={(val) => setBadge(val === "none" ? "" : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select badge (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Badge</SelectItem>
+                  <SelectItem value="none">No Badge</SelectItem>
                   <SelectItem value="Bestseller">🏆 Bestseller</SelectItem>
                   <SelectItem value="Editor's Pick">⭐ Editor's Pick</SelectItem>
                   <SelectItem value="New Arrival">✨ New Arrival</SelectItem>
