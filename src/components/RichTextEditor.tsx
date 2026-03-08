@@ -23,6 +23,7 @@ import {
   Unlink,
   Trash2,
   Upload,
+  Maximize2,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
