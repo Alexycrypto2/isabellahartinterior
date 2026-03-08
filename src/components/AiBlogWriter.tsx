@@ -1072,6 +1072,15 @@ const AiBlogWriter = ({
                     </li>
                   ))}
                 </ul>
+                {lastProvider && (
+                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-accent/10">
+                    <span className={`w-1.5 h-1.5 rounded-full ${lastProvider.fallback ? "bg-amber-500" : "bg-emerald-500"}`} />
+                    <span className="text-[10px] text-muted-foreground">
+                      Powered by <span className="font-medium text-foreground">{lastProvider.name}</span>
+                      {lastProvider.fallback && <span className="text-amber-600 ml-1">(fallback)</span>}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
