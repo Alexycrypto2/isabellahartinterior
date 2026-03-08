@@ -970,17 +970,40 @@ const AdminSettings = () => {
             <div className="space-y-6">
               {/* How it works */}
               <Card>
-                <CardHeader>
+               <CardHeader>
                   <CardTitle>AI API Configuration</CardTitle>
                   <CardDescription>
-                    Configure separate API keys for text generation (blog writing, chat, recommendations) and image generation. Built-in AI is used first; your keys are used as fallback.
+                    Choose which AI provider to use by default — your own API keys or built-in credits.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Priority Toggle */}
                   <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                    <p className="text-sm text-muted-foreground">
-                      <strong className="text-foreground">How it works:</strong> The site tries built-in AI credits first. If credits run out, it automatically falls back to your custom API keys below. Text and image generation use different APIs, so you can configure them separately.
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">AI Provider Priority</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {aiPriority === 'custom' 
+                            ? 'Your API keys are used first. Built-in credits are the fallback.' 
+                            : 'Built-in credits are used first. Your API keys are the fallback.'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs font-medium ${aiPriority === 'custom' ? 'text-foreground' : 'text-muted-foreground'}`}>My API</span>
+                        <button
+                          onClick={() => setAiPriority(aiPriority === 'custom' ? 'lovable' : 'custom')}
+                          aria-label={`Switch to ${aiPriority === 'custom' ? 'built-in credits' : 'custom API'} priority`}
+                          className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          style={{ backgroundColor: aiPriority === 'lovable' ? 'hsl(var(--primary))' : 'hsl(var(--muted))' }}
+                        >
+                          <span
+                            className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-md ring-0 transition-transform duration-300 ease-in-out"
+                            style={{ transform: aiPriority === 'lovable' ? 'translateX(22px)' : 'translateX(4px)' }}
+                          />
+                        </button>
+                        <span className={`text-xs font-medium ${aiPriority === 'lovable' ? 'text-foreground' : 'text-muted-foreground'}`}>Built-in</span>
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-3">
                     <Button
