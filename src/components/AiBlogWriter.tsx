@@ -211,10 +211,14 @@ const AiBlogWriter = ({
   const recommendation = topic.trim() ? getRecommendedWordCount(topic) : null;
 
   const handleGenerate = async () => {
-    if (!topic.trim()) {
+    const topicToUse = selectedTitle || topic;
+    if (!topicToUse.trim()) {
       toast.error("Please enter a topic for your blog post");
       return;
     }
+
+    // If a selected title exists, use it as the topic
+    const effectiveTopic = selectedTitle || topic;
 
     setStep("discovering-products");
     setProgress(5);
