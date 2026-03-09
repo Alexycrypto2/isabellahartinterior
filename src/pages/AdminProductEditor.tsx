@@ -242,7 +242,7 @@ const AdminProductEditor = () => {
           </div>
 
           {/* Pricing row */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">Price *</Label>
               <Input id="price" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="$99.99" />
