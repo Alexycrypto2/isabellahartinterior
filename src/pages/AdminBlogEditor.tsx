@@ -357,50 +357,56 @@ const AdminBlogEditor = () => {
 
   return (
     <AdminLayout>
-      <form onSubmit={handleSubmit} className="p-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-8 max-w-4xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <Button
               type="button"
               variant="ghost"
+              size="sm"
               onClick={() => navigate('/admin')}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
-            <h1 className="font-display text-2xl font-medium">
+            <h1 className="font-display text-xl sm:text-2xl font-medium">
               {isEditing ? 'Edit Post' : 'New Post'}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
               variant="outline"
+              size="sm"
               className="rounded-full border-accent/30 text-accent hover:bg-accent/10"
               onClick={() => setIsAiWriterOpen(true)}
             >
               <Sparkles className="mr-2 h-4 w-4" />
-              {isEditing ? 'Rewrite with AI' : 'Write with AI'}
+              AI
             </Button>
             <Button
               type="button"
               variant="outline"
+              size="sm"
               className="rounded-full"
               onClick={handleAddInternalLinks}
               disabled={isAddingLinks || !content}
             >
               <Link2 className="mr-2 h-4 w-4" />
-              {isAddingLinks ? 'Adding Links...' : 'Add Internal Links'}
+              <span className="hidden sm:inline">{isAddingLinks ? 'Adding...' : 'Links'}</span>
+              <span className="sm:hidden">{isAddingLinks ? '...' : 'Links'}</span>
             </Button>
             <Button
               type="button"
               variant="outline"
+              size="sm"
               className="rounded-full"
               onClick={handleEmbedProducts}
               disabled={isEmbeddingProducts || !content}
             >
               <ShoppingBag className="mr-2 h-4 w-4" />
-              {isEmbeddingProducts ? 'Embedding...' : 'Embed Products'}
+              <span className="hidden sm:inline">{isEmbeddingProducts ? 'Embedding...' : 'Products'}</span>
+              <span className="sm:hidden">{isEmbeddingProducts ? '...' : 'Embed'}</span>
             </Button>
             <div className="flex items-center gap-2">
               <Switch
@@ -408,19 +414,20 @@ const AdminBlogEditor = () => {
                 checked={published}
                 onCheckedChange={setPublished}
               />
-              <Label htmlFor="published">
+              <Label htmlFor="published" className="text-sm">
                 {published ? 'Published' : 'Draft'}
               </Label>
             </div>
             <Button
               type="submit"
+              size="sm"
               className="rounded-full"
               disabled={createMutation.isPending || updateMutation.isPending}
             >
               <Save className="mr-2 h-4 w-4" />
               {createMutation.isPending || updateMutation.isPending
                 ? 'Saving...'
-                : 'Save Post'}
+                : 'Save'}
             </Button>
           </div>
         </div>
