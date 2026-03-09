@@ -293,7 +293,7 @@ const AdminProductEditor = () => {
           </div>
 
           {/* Rating and Reviews */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="rating" className="flex items-center gap-1">
                 <Star className="h-4 w-4" /> Rating (0-5)
