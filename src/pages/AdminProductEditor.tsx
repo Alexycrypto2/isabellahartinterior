@@ -195,29 +195,29 @@ const AdminProductEditor = () => {
 
   return (
     <AdminLayout>
-      <form onSubmit={handleSubmit} className="p-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-8 max-w-4xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <Button type="button" variant="ghost" onClick={() => navigate('/admin/products')}>
+            <Button type="button" variant="ghost" size="sm" onClick={() => navigate('/admin/products')}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
-            <h1 className="font-display text-2xl font-medium">
+            <h1 className="font-display text-xl sm:text-2xl font-medium">
               {isEditing ? 'Edit Product' : 'New Product'}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} />
-              <Label htmlFor="isActive">{isActive ? 'Active' : 'Inactive'}</Label>
+              <Label htmlFor="isActive" className="text-sm">{isActive ? 'Active' : 'Inactive'}</Label>
             </div>
             <div className="flex items-center gap-2">
               <Switch id="isFeatured" checked={isFeatured} onCheckedChange={setIsFeatured} />
-              <Label htmlFor="isFeatured">Featured</Label>
+              <Label htmlFor="isFeatured" className="text-sm">Featured</Label>
             </div>
-            <Button type="submit" className="rounded-full" disabled={createMutation.isPending || updateMutation.isPending}>
+            <Button type="submit" className="rounded-full" size="sm" disabled={createMutation.isPending || updateMutation.isPending}>
               <Save className="mr-2 h-4 w-4" />
-              {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save Product'}
+              {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </div>
