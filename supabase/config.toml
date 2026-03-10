@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.fix-seo-issues]
 verify_jwt = false
+
+[functions.discover-trending-products]
+verify_jwt = false

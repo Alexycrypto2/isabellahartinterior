@@ -335,15 +335,20 @@ const Admin = () => {
               </div>
             </Card>
 
-            {/* Weekly Trends & Revenue */}
+            {/* Weekly Trends & Trending Amazon Products */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <WidgetErrorBoundary name="Weekly Trends">
                 <WeeklyTrendsCard />
               </WidgetErrorBoundary>
-              <WidgetErrorBoundary name="Revenue Tracker">
-                <RevenueTracker />
+              <WidgetErrorBoundary name="Trending Amazon Products">
+                <TrendingAmazonProducts />
               </WidgetErrorBoundary>
             </div>
+
+            {/* Revenue Tracker */}
+            <WidgetErrorBoundary name="Revenue Tracker">
+              <RevenueTracker />
+            </WidgetErrorBoundary>
 
             {/* Broken Links & Exit Intent Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
