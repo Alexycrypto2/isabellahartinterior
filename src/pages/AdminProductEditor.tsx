@@ -88,6 +88,21 @@ const AdminProductEditor = () => {
     }
   }, [existingProduct]);
 
+  // Prefill from navigation state (e.g., from Trending Products)
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefill;
+    if (prefill && !isEditing) {
+      if (prefill.name) setName(prefill.name);
+      if (prefill.slug) setSlug(prefill.slug);
+      if (prefill.description) setDescription(prefill.description);
+      if (prefill.price) setPrice(prefill.price);
+      if (prefill.category) setCategory(prefill.category);
+      if (prefill.affiliate_url) setAffiliateUrl(prefill.affiliate_url);
+      if (prefill.badge) setBadge(prefill.badge);
+      setAutoSlug(false);
+    }
+  }, [location.state, isEditing]);
+
   useEffect(() => {
     if (autoSlug && name) {
       setSlug(generateSlug(name));
