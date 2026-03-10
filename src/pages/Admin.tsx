@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import AffiliateClicksDashboard from '@/components/admin/AffiliateClicksDashboard';
 import WeeklyTrendsCard from '@/components/admin/WeeklyTrendsCard';
+import TrendingAmazonProducts from '@/components/admin/TrendingAmazonProducts';
 import RevenueTracker from '@/components/admin/RevenueTracker';
 import BrokenLinksChecker from '@/components/admin/BrokenLinksChecker';
 import ExitIntentStats from '@/components/admin/ExitIntentStats';
@@ -334,15 +335,20 @@ const Admin = () => {
               </div>
             </Card>
 
-            {/* Weekly Trends & Revenue */}
+            {/* Weekly Trends & Trending Amazon Products */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <WidgetErrorBoundary name="Weekly Trends">
                 <WeeklyTrendsCard />
               </WidgetErrorBoundary>
-              <WidgetErrorBoundary name="Revenue Tracker">
-                <RevenueTracker />
+              <WidgetErrorBoundary name="Trending Amazon Products">
+                <TrendingAmazonProducts />
               </WidgetErrorBoundary>
             </div>
+
+            {/* Revenue Tracker */}
+            <WidgetErrorBoundary name="Revenue Tracker">
+              <RevenueTracker />
+            </WidgetErrorBoundary>
 
             {/* Broken Links & Exit Intent Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
