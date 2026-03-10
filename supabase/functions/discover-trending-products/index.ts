@@ -99,10 +99,16 @@ Return a JSON array of 10 objects with keys: product_name, price_range, trending
       rank: i + 1,
       product_name: p.product_name || "Unknown Product",
       price_range: p.price_range || "N/A",
+      price_low: p.price_low || 0,
+      price_high: p.price_high || 0,
       trending_reason: p.trending_reason || "Trending on Amazon",
+      description: p.description || p.trending_reason || "A trending home decor product.",
       pinterest_title: p.pinterest_title || p.product_name,
       category: p.category || "Decor & Accents",
       search_query: p.search_query || p.product_name,
+      estimated_rating: p.estimated_rating || 4.5,
+      estimated_reviews: p.estimated_reviews || 0,
+      image_search_term: p.image_search_term || p.product_name,
     }));
 
     // Save to site_settings
