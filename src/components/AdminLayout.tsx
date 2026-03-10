@@ -66,6 +66,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: '/admin/products', icon: Package, label: 'Products' },
       { to: '/admin/products/new', icon: PlusCircle, label: 'New Product', exact: true },
+      { to: '/admin/trending', icon: Flame, label: 'Trending', exact: true },
     ],
   },
   {
