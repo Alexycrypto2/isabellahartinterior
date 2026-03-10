@@ -14,10 +14,15 @@ interface TrendingProduct {
   rank: number;
   product_name: string;
   price_range: string;
+  price_low: number;
+  price_high: number;
   trending_reason: string;
+  description: string;
   pinterest_title: string;
   category: string;
   search_query: string;
+  estimated_rating: number;
+  estimated_reviews: number;
 }
 
 const TrendingAmazonProducts = () => {
@@ -64,12 +69,17 @@ const TrendingAmazonProducts = () => {
       state: {
         prefill: {
           name: product.product_name,
-          price: product.price_range.replace(/[^0-9.-]/g, '').split('-')[0] || '29.99',
+          price: product.price_low ? `$${product.price_low}` : product.price_range.replace(/[^0-9.-]/g, '').split('-')[0] || '29.99',
+          original_price: product.price_high ? `$${product.price_high}` : '',
           category: product.category,
           slug,
           affiliate_url: amazonUrl,
-          description: product.trending_reason,
+          description: product.description || product.trending_reason,
           badge: 'Trending',
+          rating: product.estimated_rating?.toString() || '4.5',
+          reviews: product.estimated_reviews?.toString() || '0',
+          meta_title: `${product.product_name} - Best Home Decor Deal`,
+          meta_description: product.description || product.trending_reason,
         },
       },
     });

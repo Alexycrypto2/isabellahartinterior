@@ -96,9 +96,14 @@ const AdminProductEditor = () => {
       if (prefill.slug) setSlug(prefill.slug);
       if (prefill.description) setDescription(prefill.description);
       if (prefill.price) setPrice(prefill.price);
+      if (prefill.original_price) setOriginalPrice(prefill.original_price);
       if (prefill.category) setCategory(prefill.category);
       if (prefill.affiliate_url) setAffiliateUrl(prefill.affiliate_url);
       if (prefill.badge) setBadge(prefill.badge);
+      if (prefill.rating) setRating(prefill.rating);
+      if (prefill.reviews) setReviews(prefill.reviews);
+      if (prefill.meta_title) setMetaTitle(prefill.meta_title);
+      if (prefill.meta_description) setMetaDescription(prefill.meta_description);
       setAutoSlug(false);
     }
   }, [location.state, isEditing]);
