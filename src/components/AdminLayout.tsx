@@ -26,6 +26,7 @@ import {
   UserCog,
   ChevronRight,
   Sparkles,
+  Flame,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
