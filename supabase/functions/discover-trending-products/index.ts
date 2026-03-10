@@ -29,10 +29,15 @@ serve(async (req) => {
 For each product, provide:
 1. product_name: The specific product name/type (e.g., "LED Strip Lights with Remote Control")
 2. price_range: Estimated price range on Amazon (e.g., "$15-25")
-3. trending_reason: Why it's trending (bestseller rank jump, viral on TikTok, seasonal demand, etc.)
-4. pinterest_title: A catchy Pinterest pin title for this product (SEO-optimized, under 100 chars)
-5. category: One of: Lighting, Decor & Accents, Textiles, Furniture, Storage, Wall Art, Candles & Fragrance, Plants & Planters, Rugs, Kitchen Decor
-6. search_query: The Amazon search query to find this product
+3. price_low: The lower end price as a number (e.g., 15)
+4. price_high: The upper end price as a number (e.g., 25)
+5. trending_reason: Why it's trending (bestseller rank jump, viral on TikTok, seasonal demand, etc.)
+6. description: A compelling 2-3 sentence product description for an online shop, highlighting key features and benefits
+7. pinterest_title: A catchy Pinterest pin title for this product (SEO-optimized, under 100 chars)
+8. category: One of: Lighting, Decor & Accents, Textiles, Furniture, Storage, Wall Art, Candles & Fragrance, Plants & Planters, Rugs, Kitchen Decor
+9. search_query: The Amazon search query to find this product
+10. estimated_rating: Estimated Amazon rating as a number between 4.0 and 5.0
+11. estimated_reviews: Estimated number of reviews as a number (e.g., 1500)
 
 Return ONLY valid JSON array of 10 objects. No markdown, no explanation.`;
 
@@ -40,7 +45,7 @@ Return ONLY valid JSON array of 10 objects. No markdown, no explanation.`;
 
 Research and identify the top 10 trending home decor products on Amazon right now. Consider current season (${today.toLocaleDateString("en-US", { month: "long" })}), upcoming holidays, social media trends, and recent bestseller movements.
 
-Return a JSON array of 10 objects with keys: product_name, price_range, trending_reason, pinterest_title, category, search_query.`;
+Return a JSON array of 10 objects with keys: product_name, price_range, price_low, price_high, trending_reason, description, pinterest_title, category, search_query, estimated_rating, estimated_reviews.`;
 
     console.log("Calling AI to discover trending products...");
 
@@ -99,10 +104,16 @@ Return a JSON array of 10 objects with keys: product_name, price_range, trending
       rank: i + 1,
       product_name: p.product_name || "Unknown Product",
       price_range: p.price_range || "N/A",
+      price_low: p.price_low || 0,
+      price_high: p.price_high || 0,
       trending_reason: p.trending_reason || "Trending on Amazon",
+      description: p.description || p.trending_reason || "A trending home decor product.",
       pinterest_title: p.pinterest_title || p.product_name,
       category: p.category || "Decor & Accents",
       search_query: p.search_query || p.product_name,
+      estimated_rating: p.estimated_rating || 4.5,
+      estimated_reviews: p.estimated_reviews || 0,
+      image_search_term: p.image_search_term || p.product_name,
     }));
 
     // Save to site_settings
