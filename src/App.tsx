@@ -47,6 +47,7 @@ const AdminSecurityLog = lazy(() => import("./pages/AdminSecurityLog"));
 const AdminOwnershipTransfer = lazy(() => import("./pages/AdminOwnershipTransfer"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminComments = lazy(() => import("./pages/AdminComments"));
+const AdminTrending = lazy(() => import("./pages/AdminTrending"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -96,6 +97,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/security" element={<AdminSecurityLog />} />
           <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
           <Route path="/admin/comments" element={<AdminComments />} />
+          <Route path="/admin/trending" element={<AdminTrending />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
