@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import AffiliateClicksDashboard from '@/components/admin/AffiliateClicksDashboard';
 import WeeklyTrendsCard from '@/components/admin/WeeklyTrendsCard';
+import TrendingAmazonProducts from '@/components/admin/TrendingAmazonProducts';
 import RevenueTracker from '@/components/admin/RevenueTracker';
 import BrokenLinksChecker from '@/components/admin/BrokenLinksChecker';
 import ExitIntentStats from '@/components/admin/ExitIntentStats';
