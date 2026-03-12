@@ -1667,6 +1667,74 @@ const AdminSettings = () => {
               </Card>
             </div>
           </TabsContent>
+
+          {/* Legal Pages */}
+          <TabsContent value="legal">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Privacy Policy</CardTitle>
+                  <CardDescription>Custom HTML content for your privacy policy page. Leave empty to use the default policy.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={privacyContent}
+                    onChange={(e) => setPrivacyContent(e.target.value)}
+                    placeholder="Paste custom HTML or leave empty for default privacy policy..."
+                    rows={8}
+                  />
+                  <Button onClick={async () => {
+                    await updateMutation.mutateAsync({ key: 'legal_privacy_policy', value: { custom_content: privacyContent || null, last_updated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) } });
+                    toast({ title: 'Privacy policy updated' });
+                  }}>
+                    <Save className="mr-2 h-4 w-4" /> Save Privacy Policy
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Shipping Policy</CardTitle>
+                  <CardDescription>Custom HTML content for your shipping policy page. Leave empty to use the default policy.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={shippingContent}
+                    onChange={(e) => setShippingContent(e.target.value)}
+                    placeholder="Paste custom HTML or leave empty for default shipping policy..."
+                    rows={8}
+                  />
+                  <Button onClick={async () => {
+                    await updateMutation.mutateAsync({ key: 'legal_shipping_policy', value: { custom_content: shippingContent || null, last_updated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) } });
+                    toast({ title: 'Shipping policy updated' });
+                  }}>
+                    <Save className="mr-2 h-4 w-4" /> Save Shipping Policy
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Returns & Refunds Policy</CardTitle>
+                  <CardDescription>Custom HTML content for your returns policy page. Leave empty to use the default policy.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={returnsContent}
+                    onChange={(e) => setReturnsContent(e.target.value)}
+                    placeholder="Paste custom HTML or leave empty for default returns policy..."
+                    rows={8}
+                  />
+                  <Button onClick={async () => {
+                    await updateMutation.mutateAsync({ key: 'legal_returns_policy', value: { custom_content: returnsContent || null, last_updated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) } });
+                    toast({ title: 'Returns policy updated' });
+                  }}>
+                    <Save className="mr-2 h-4 w-4" /> Save Returns Policy
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
