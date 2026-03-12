@@ -48,6 +48,9 @@ const AdminOwnershipTransfer = lazy(() => import("./pages/AdminOwnershipTransfer
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminComments = lazy(() => import("./pages/AdminComments"));
 const AdminTrending = lazy(() => import("./pages/AdminTrending"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
+const ReturnsPolicy = lazy(() => import("./pages/ReturnsPolicy"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -98,6 +101,9 @@ const AnimatedRoutes = () => {
           <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
           <Route path="/admin/comments" element={<AdminComments />} />
           <Route path="/admin/trending" element={<AdminTrending />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/returns-policy" element={<ReturnsPolicy />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift, Heart, Star, Sparkles, Tag, Percent, Megaphone, PartyPopper, Plus, Trash2, FlaskConical } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift, Heart, Star, Sparkles, Tag, Percent, Megaphone, PartyPopper, Plus, Trash2, FlaskConical, Scale } from 'lucide-react';
 
 const ICON_OPTIONS = [
   { value: 'Gift', label: 'Gift', icon: Gift },
@@ -131,6 +131,11 @@ const AdminSettings = () => {
     weight: number;
   }>>([]);
 
+  // Legal pages
+  const [privacyContent, setPrivacyContent] = useState('');
+  const [shippingContent, setShippingContent] = useState('');
+  const [returnsContent, setReturnsContent] = useState('');
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -226,6 +231,13 @@ const AdminSettings = () => {
       setExitGradientTo(exitPopup.gradient_to || '#D946EF');
       setExitAbEnabled(exitPopup.ab_enabled ?? false);
       setExitVariants(exitPopup.variants || []);
+
+      const privacyPolicy = getSetting('legal_privacy_policy') as any;
+      if (privacyPolicy?.custom_content) setPrivacyContent(privacyPolicy.custom_content);
+      const shippingPolicy = getSetting('legal_shipping_policy') as any;
+      if (shippingPolicy?.custom_content) setShippingContent(shippingPolicy.custom_content);
+      const returnsPolicy = getSetting('legal_returns_policy') as any;
+      if (returnsPolicy?.custom_content) setReturnsContent(returnsPolicy.custom_content);
     }
   }, [settings]);
 
@@ -623,6 +635,10 @@ const AdminSettings = () => {
               <TabsTrigger value="exit-popup" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
                 <Gift className="h-3.5 w-3.5" />
                 Exit Popup
+              </TabsTrigger>
+              <TabsTrigger value="legal" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Scale className="h-3.5 w-3.5" />
+                Legal
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1651,6 +1667,74 @@ const AdminSettings = () => {
                       </div>
                     </>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Legal Pages */}
+          <TabsContent value="legal">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Privacy Policy</CardTitle>
+                  <CardDescription>Custom HTML content for your privacy policy page. Leave empty to use the default policy.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={privacyContent}
+                    onChange={(e) => setPrivacyContent(e.target.value)}
+                    placeholder="Paste custom HTML or leave empty for default privacy policy..."
+                    rows={8}
+                  />
+                  <Button onClick={async () => {
+                    await updateMutation.mutateAsync({ key: 'legal_privacy_policy', value: { custom_content: privacyContent || null, last_updated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) } });
+                    toast({ title: 'Privacy policy updated' });
+                  }}>
+                    <Save className="mr-2 h-4 w-4" /> Save Privacy Policy
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Shipping Policy</CardTitle>
+                  <CardDescription>Custom HTML content for your shipping policy page. Leave empty to use the default policy.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={shippingContent}
+                    onChange={(e) => setShippingContent(e.target.value)}
+                    placeholder="Paste custom HTML or leave empty for default shipping policy..."
+                    rows={8}
+                  />
+                  <Button onClick={async () => {
+                    await updateMutation.mutateAsync({ key: 'legal_shipping_policy', value: { custom_content: shippingContent || null, last_updated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) } });
+                    toast({ title: 'Shipping policy updated' });
+                  }}>
+                    <Save className="mr-2 h-4 w-4" /> Save Shipping Policy
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Returns & Refunds Policy</CardTitle>
+                  <CardDescription>Custom HTML content for your returns policy page. Leave empty to use the default policy.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={returnsContent}
+                    onChange={(e) => setReturnsContent(e.target.value)}
+                    placeholder="Paste custom HTML or leave empty for default returns policy..."
+                    rows={8}
+                  />
+                  <Button onClick={async () => {
+                    await updateMutation.mutateAsync({ key: 'legal_returns_policy', value: { custom_content: returnsContent || null, last_updated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) } });
+                    toast({ title: 'Returns policy updated' });
+                  }}>
+                    <Save className="mr-2 h-4 w-4" /> Save Returns Policy
+                  </Button>
                 </CardContent>
               </Card>
             </div>
