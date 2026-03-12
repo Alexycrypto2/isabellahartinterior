@@ -131,6 +131,11 @@ const AdminSettings = () => {
     weight: number;
   }>>([]);
 
+  // Legal pages
+  const [privacyContent, setPrivacyContent] = useState('');
+  const [shippingContent, setShippingContent] = useState('');
+  const [returnsContent, setReturnsContent] = useState('');
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
