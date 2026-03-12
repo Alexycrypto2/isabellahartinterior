@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSiteSettings, useUpsertSiteSetting } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift, Heart, Star, Sparkles, Tag, Percent, Megaphone, PartyPopper, Plus, Trash2, FlaskConical } from 'lucide-react';
+import { Save, Upload, Home, Info, Mail, FileText, Share2, Bell, Settings2, Bot, Eye, EyeOff, ImageIcon, TrendingUp, BarChart3, Zap, Loader2, CheckCircle2, XCircle, Gift, Heart, Star, Sparkles, Tag, Percent, Megaphone, PartyPopper, Plus, Trash2, FlaskConical, Scale } from 'lucide-react';
 
 const ICON_OPTIONS = [
   { value: 'Gift', label: 'Gift', icon: Gift },
