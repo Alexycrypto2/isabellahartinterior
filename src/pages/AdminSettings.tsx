@@ -632,6 +632,10 @@ const AdminSettings = () => {
                 <Gift className="h-3.5 w-3.5" />
                 Exit Popup
               </TabsTrigger>
+              <TabsTrigger value="legal" className="flex items-center gap-1.5 text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">
+                <Scale className="h-3.5 w-3.5" />
+                Legal
+              </TabsTrigger>
             </TabsList>
           </div>
 
