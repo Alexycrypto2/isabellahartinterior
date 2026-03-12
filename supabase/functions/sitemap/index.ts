@@ -41,6 +41,9 @@ Deno.serve(async (req) => {
       { loc: "/about", changefreq: "monthly", priority: "0.6" },
       { loc: "/contact", changefreq: "monthly", priority: "0.6" },
       { loc: "/disclosure", changefreq: "yearly", priority: "0.3" },
+      { loc: "/privacy-policy", changefreq: "yearly", priority: "0.3" },
+      { loc: "/shipping-policy", changefreq: "yearly", priority: "0.3" },
+      { loc: "/returns-policy", changefreq: "yearly", priority: "0.3" },
     ];
 
     const urls = staticPages.map(
