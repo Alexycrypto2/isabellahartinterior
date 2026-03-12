@@ -48,6 +48,9 @@ const AdminOwnershipTransfer = lazy(() => import("./pages/AdminOwnershipTransfer
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminComments = lazy(() => import("./pages/AdminComments"));
 const AdminTrending = lazy(() => import("./pages/AdminTrending"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
+const ReturnsPolicy = lazy(() => import("./pages/ReturnsPolicy"));
 
 // Simple loading fallback
 const PageLoader = () => (
