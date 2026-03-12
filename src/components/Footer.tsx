@@ -216,6 +216,28 @@ const Footer = () => {
                 </li>
               </ul>
             </div>
+
+            {/* Legal */}
+            <div className="md:col-span-1">
+              <h4 className="font-display text-lg font-medium mb-4">Legal</h4>
+              <ul className="space-y-3">
+                <li>
+                  <Link to="/privacy-policy" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shipping-policy" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                    Shipping Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/returns-policy" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                    Returns & Refunds
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
           
           {/* Bottom Bar */}
