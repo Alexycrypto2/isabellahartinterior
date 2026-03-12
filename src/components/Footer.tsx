@@ -11,7 +11,7 @@ const Footer = () => {
     <footer className="bg-muted dark:bg-muted/50 py-16">
       <div className="container mx-auto px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
             {/* Brand */}
             <div className="md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">

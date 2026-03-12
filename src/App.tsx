@@ -101,6 +101,9 @@ const AnimatedRoutes = () => {
           <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
           <Route path="/admin/comments" element={<AdminComments />} />
           <Route path="/admin/trending" element={<AdminTrending />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/returns-policy" element={<ReturnsPolicy />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
