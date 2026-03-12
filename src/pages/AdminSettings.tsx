@@ -231,14 +231,13 @@ const AdminSettings = () => {
       setExitGradientTo(exitPopup.gradient_to || '#D946EF');
       setExitAbEnabled(exitPopup.ab_enabled ?? false);
       setExitVariants(exitPopup.variants || []);
-    }
 
-    const privacyPolicy = getSetting('legal_privacy_policy') as any;
-    if (privacyPolicy?.custom_content) setPrivacyContent(privacyPolicy.custom_content);
-    const shippingPolicy = getSetting('legal_shipping_policy') as any;
-    if (shippingPolicy?.custom_content) setShippingContent(shippingPolicy.custom_content);
-    const returnsPolicy = getSetting('legal_returns_policy') as any;
-    if (returnsPolicy?.custom_content) setReturnsContent(returnsPolicy.custom_content);
+      const privacyPolicy = getSetting('legal_privacy_policy') as any;
+      if (privacyPolicy?.custom_content) setPrivacyContent(privacyPolicy.custom_content);
+      const shippingPolicy = getSetting('legal_shipping_policy') as any;
+      if (shippingPolicy?.custom_content) setShippingContent(shippingPolicy.custom_content);
+      const returnsPolicy = getSetting('legal_returns_policy') as any;
+      if (returnsPolicy?.custom_content) setReturnsContent(returnsPolicy.custom_content);
     }
   }, [settings]);
 
