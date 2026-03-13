@@ -43,7 +43,7 @@ export const EmailCapturePopup = () => {
     let hasShown = false;
     const scrollThreshold = config.scroll_threshold / 100;
     const delayMs = config.delay_seconds * 1000;
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     // Combined trigger: scroll threshold OR time delay
     const handleScroll = () => {
