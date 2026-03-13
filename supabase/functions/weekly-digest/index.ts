@@ -248,7 +248,7 @@ serve(async (req: Request) => {
           ` : ''}
 
           <div style="text-align: center; padding-top: 16px; border-top: 1px solid #eee;">
-            <p style="color: #999; font-size: 12px; margin: 0;">Sent from RoomRefine Weekly Digest • Real visitors only (admin views excluded)</p>
+            <p style="color: #999; font-size: 12px; margin: 0;">Sent from Isabelle Hart Interiors Weekly Digest • Real visitors only (admin views excluded)</p>
           </div>
         </div>
       </div>
