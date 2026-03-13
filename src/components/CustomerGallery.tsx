@@ -65,7 +65,7 @@ const CustomerGallery = memo(() => {
               Real Homes, Real Style
             </span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
-              #StyledWith<span className="italic">RoomRefine</span>
+              #StyledWith<span className="italic">IsabelleHart</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See how our community styles their finds. Share your own look and get featured!
