@@ -52,14 +52,17 @@ const ProductDetail = () => {
       "og:image": ogImage,
       "og:url": productUrl,
       "og:type": "product",
-      "og:site_name": "RoomRefine",
+      "og:site_name": "Isabelle Hart Interiors",
+      "og:price:amount": product.price.replace("$", ""),
+      "og:price:currency": "USD",
+      "og:availability": "in stock",
       "product:price:amount": product.price.replace("$", ""),
       "product:price:currency": "USD",
       "twitter:card": "summary_large_image",
       "twitter:title": ogTitle,
       "twitter:description": ogDescription,
       "twitter:image": ogImage,
-      "pinterest:description": `${ogTitle} - ${product.price} | Shop top-rated home decor`,
+      "pinterest:description": `${ogTitle} - ${product.price} | Shop top-rated home decor from Isabelle Hart Interiors`,
     };
 
     const createdTags: HTMLMetaElement[] = [];
