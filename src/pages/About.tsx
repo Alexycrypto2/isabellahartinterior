@@ -175,7 +175,7 @@ const About = () => {
           <div className="max-w-3xl mx-auto text-center">
             <h3 className="font-display text-xl font-medium mb-4">Affiliate Disclosure</h3>
             <p className="text-sm text-muted-foreground">
-              RoomRefine is a participant in the Amazon Services LLC Associates Program, 
+              Isabelle Hart Interiors is a participant in the Amazon Services LLC Associates Program, 
               an affiliate advertising program designed to provide a means for sites to earn 
               advertising fees by advertising and linking to Amazon.com. This means I may earn 
               a small commission when you purchase through my links, at no extra cost to you. 

@@ -97,7 +97,7 @@ const PrivacyPolicy = () => {
                     Amazon Associates Program
                   </h2>
                   <p>
-                    RoomRefine is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. When you click an affiliate link and make a purchase, Amazon may place cookies on your device to track the referral. Please refer to{" "}
+                    Isabelle Hart Interiors is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. When you click an affiliate link and make a purchase, Amazon may place cookies on your device to track the referral. Please refer to{" "}
                     <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=468496" target="_blank" rel="nofollow noopener noreferrer" className="text-accent hover:underline">
                       Amazon's Privacy Notice
                     </a>{" "}

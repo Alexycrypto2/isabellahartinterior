@@ -225,7 +225,7 @@ When writing, imagine you've already analyzed the top 10 Google results for "${t
 You MUST return structured data using the "generate_blog_post" tool.`;
 
     const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
-${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant RoomRefine brand voice underneath)` : ""}
+${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant Isabelle Hart Interiors brand voice underneath)` : ""}
 ${category ? `Category: ${category}` : ""}
 ${keywords ? `Primary and secondary keywords to target: ${keywords}` : ""}
 Target word count: ${wordCountTarget} words

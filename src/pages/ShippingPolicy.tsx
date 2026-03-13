@@ -47,7 +47,7 @@ const ShippingPolicy = () => {
                         <span className="text-2xl">🔗</span>
                       </div>
                       <h3 className="font-display text-sm font-medium text-foreground mb-1">Browse & Click</h3>
-                      <p className="text-xs text-muted-foreground">Find products you love on RoomRefine</p>
+                      <p className="text-xs text-muted-foreground">Find products you love on Isabelle Hart Interiors</p>
                     </div>
                     <div className="p-5 bg-muted rounded-xl text-center">
                       <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">

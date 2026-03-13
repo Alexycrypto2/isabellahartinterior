@@ -862,7 +862,7 @@ const AiBlogWriter = ({
                     {generatedData.meta_title || generatedData.title}
                   </p>
                   <p className="text-xs text-accent">
-                    roomrefine.com/blog/{generatedData.slug}
+                    isabellehart.com/blog/{generatedData.slug}
                   </p>
                   <p className="text-xs text-muted-foreground line-clamp-2">
                     {generatedData.meta_description}

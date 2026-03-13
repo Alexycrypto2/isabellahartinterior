@@ -118,7 +118,7 @@ const Blog = () => {
                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <PinterestSaveButton
                             imageUrl={resolveImageUrl(post.image_url)}
-                            description={`${post.title} | Home Styling Tips from RoomRefine`}
+                            description={`${post.title} | Home Styling Tips from Isabelle Hart Interiors`}
                             url={window.location.origin + `/blog/${post.slug}`}
                           />
                         </div>

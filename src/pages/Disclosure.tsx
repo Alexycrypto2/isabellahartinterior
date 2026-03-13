@@ -34,7 +34,7 @@ const Disclosure = () => {
                 
                 <ul className="space-y-3 list-disc pl-6">
                   <li>
-                    <strong className="text-foreground">We only recommend products we believe in.</strong> Every item on RoomRefine is handpicked based on quality, design, value, and customer reviews.
+                    <strong className="text-foreground">We only recommend products we believe in.</strong> Every item on Isabelle Hart Interiors is handpicked based on quality, design, value, and customer reviews.
                   </li>
                   <li>
                     <strong className="text-foreground">Our opinions are our own.</strong> Affiliate commissions do not influence our product selections or recommendations.

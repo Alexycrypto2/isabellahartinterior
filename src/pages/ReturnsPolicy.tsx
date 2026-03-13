@@ -38,7 +38,7 @@ const ReturnsPolicy = () => {
                     Our Role
                   </h2>
                   <p>
-                    RoomRefine curates and recommends home decor products available on Amazon. When you purchase a product through one of our affiliate links, the transaction occurs entirely on Amazon. We are not a party to the sale and therefore do not handle returns, exchanges, or refunds.
+                    Isabelle Hart Interiors curates and recommends home decor products available on Amazon. When you purchase a product through one of our affiliate links, the transaction occurs entirely on Amazon. We are not a party to the sale and therefore do not handle returns, exchanges, or refunds.
                   </p>
 
                   <div className="grid sm:grid-cols-2 gap-4 my-8">

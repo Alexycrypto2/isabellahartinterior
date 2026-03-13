@@ -21,7 +21,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a Pinterest marketing expert for RoomRefine, a home decor brand. Generate ONE perfect Pinterest pin description that will drive clicks and saves.
+    const systemPrompt = `You are a Pinterest marketing expert for Isabelle Hart Interiors, a home decor brand. Generate ONE perfect Pinterest pin description that will drive clicks and saves.
 
 Rules:
 - Maximum 500 characters total

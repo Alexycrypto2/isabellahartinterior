@@ -244,7 +244,7 @@ const Footer = () => {
           <div className="border-t border-border mt-12 pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-muted-foreground text-sm">
-                © {new Date().getFullYear()} RoomRefine. All rights reserved.
+                © {new Date().getFullYear()} Isabelle Hart Interiors. All rights reserved.
               </p>
               <p className="text-muted-foreground text-sm text-center md:text-right">
                 As an Amazon Associate, I earn from qualifying purchases.

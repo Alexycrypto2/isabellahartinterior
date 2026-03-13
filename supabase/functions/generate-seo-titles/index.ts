@@ -21,7 +21,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are an SEO expert for RoomRefine, a home decor blog. Generate exactly 5 blog post title options for a given topic. Each title must be optimized for search engines and click-through rate.
+    const systemPrompt = `You are an SEO expert for Isabelle Hart Interiors, a home decor blog. Generate exactly 5 blog post title options for a given topic. Each title must be optimized for search engines and click-through rate.
 
 For each title, evaluate its SEO strength on a scale of 1-10 based on:
 - Keyword placement (front-loaded is better)

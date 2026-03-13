@@ -143,7 +143,7 @@ const Shop = () => {
   const productsJsonLd = filteredAndSortedProducts.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "RoomRefine Curated Home Decor",
+    name: "Isabelle Hart Interiors Curated Home Decor",
     itemListElement: filteredAndSortedProducts.slice(0, 20).map((product, index) => ({
       "@type": "ListItem",
       position: index + 1,
