@@ -38,7 +38,7 @@ const ShippingPolicy = () => {
                     How It Works
                   </h2>
                   <p>
-                    When you click on a product link on RoomRefine, you are redirected to Amazon.com where the product is sold. All ordering, payment processing, and shipping are handled entirely by Amazon.
+                    When you click on a product link on Isabelle Hart Interiors, you are redirected to Amazon.com where the product is sold. All ordering, payment processing, and shipping are handled entirely by Amazon.
                   </p>
 
                   <div className="grid sm:grid-cols-3 gap-4 my-8">
