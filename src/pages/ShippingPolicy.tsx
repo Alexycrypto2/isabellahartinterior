@@ -30,7 +30,7 @@ const ShippingPolicy = () => {
                   <div className="p-6 bg-accent/10 border border-accent/20 rounded-xl flex gap-4 items-start">
                     <Info className="w-6 h-6 text-accent shrink-0 mt-1" />
                     <p className="text-foreground m-0">
-                      <strong>RoomRefine is an affiliate marketing website.</strong> We do not sell, stock, or ship any products directly. All products featured on our site are sold and fulfilled by Amazon.
+                      <strong>Isabelle Hart Interiors is an affiliate marketing website.</strong> We do not sell, stock, or ship any products directly. All products featured on our site are sold and fulfilled by Amazon.
                     </p>
                   </div>
 
