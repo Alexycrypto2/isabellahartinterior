@@ -137,7 +137,7 @@ const Footer = () => {
                   </>
                 )}
                 <a 
-                  href="mailto:hello@roomrefine.com"
+                  href="mailto:hello@isabellehartinteriors.com"
                   className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                   aria-label="Email"
                 >

@@ -118,7 +118,7 @@ const CustomerGallery = memo(() => {
           <div className="text-center mt-10 space-y-3">
             <PhotoSubmissionForm />
             <p className="text-muted-foreground text-sm">
-              Or tag <span className="font-semibold text-accent">@roomrefine</span> on Instagram to be featured
+              Or tag <span className="font-semibold text-accent">@isabellehartinteriors</span> on Instagram to be featured
             </p>
           </div>
         </div>

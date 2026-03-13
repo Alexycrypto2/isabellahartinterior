@@ -145,7 +145,7 @@ serve(async (req: Request) => {
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
-      from: "RoomRefine Alerts <onboarding@resend.dev>",
+      from: "Isabelle Hart Interiors Alerts <onboarding@resend.dev>",
       to: [siteEmail],
       subject: `🔥 ${trending.length} product${trending.length > 1 ? "s" : ""} trending today — ${trending[0][1].count} clicks on "${trending[0][1].name}"`,
       html: emailHtml,

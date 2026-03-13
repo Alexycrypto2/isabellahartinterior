@@ -265,7 +265,7 @@ serve(async (req: Request) => {
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
-      from: "RoomRefine Digest <onboarding@resend.dev>",
+      from: "Isabelle Hart Interiors Digest <onboarding@resend.dev>",
       to: [siteEmail],
       subject: `📊 Weekly Digest: ${uniqueVisitors} visitors, ${totalClicks} clicks, ${totalBlogViews} blog views (${weekStart} – ${weekEnd})`,
       html: emailHtml,

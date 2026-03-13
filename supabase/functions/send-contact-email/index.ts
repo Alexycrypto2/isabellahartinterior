@@ -93,7 +93,7 @@ serve(async (req: Request) => {
             <h3 style="margin-top: 0; color: #555;">Message:</h3>
             <p style="color: #333; line-height: 1.6; white-space: pre-wrap;">${message}</p>
           </div>
-          <p style="color: #999; font-size: 12px; margin-top: 20px;">Sent from RoomRefine contact form</p>
+          <p style="color: #999; font-size: 12px; margin-top: 20px;">Sent from Isabelle Hart Interiors contact form</p>
         </div>
       `,
     });
