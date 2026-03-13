@@ -193,7 +193,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
             </div>
           </div>
           <div style="padding:16px;text-align:center;border-top:1px solid #f0f0f0;">
-            <p style="color:#999;font-size:11px;margin:0;">RoomRefine AI Trend Report · Generated automatically every Monday</p>
+            <p style="color:#999;font-size:11px;margin:0;">Isabelle Hart Interiors AI Trend Report · Generated automatically every Monday</p>
           </div>
         </div>`;
 
