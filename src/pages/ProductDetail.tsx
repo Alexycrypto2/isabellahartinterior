@@ -84,7 +84,7 @@ const ProductDetail = () => {
 
     return () => {
       createdTags.forEach((tag) => tag.remove());
-      document.title = "RoomRefine - Curated Home Decor";
+      document.title = "Isabelle Hart Interiors - Curated Home Decor";
     };
   }, [product, imageUrl, productUrl]);
 
