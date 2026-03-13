@@ -9,10 +9,10 @@ type Message = { role: "user" | "assistant"; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/home-decor-chat`;
 
 const quickSuggestions = [
-  { icon: Home, label: "Small space tips", query: "How do I decorate my small living room?" },
-  { icon: DollarSign, label: "Budget decorating", query: "What are some budget-friendly decorating ideas?" },
-  { icon: Lightbulb, label: "Lighting ideas", query: "What's the best lighting for creating a cozy atmosphere?" },
-  { icon: Sofa, label: "Living room help", query: "How can I style my living room like a designer?" },
+  { icon: Sofa, label: "Show me products", query: "What products do you have? Show me some popular picks." },
+  { icon: DollarSign, label: "Under $100", query: "What are your best home decor finds under $100?" },
+  { icon: Lightbulb, label: "Blog tips", query: "What blog articles do you have about home styling?" },
+  { icon: Home, label: "Returns policy", query: "How do returns work if I buy something?" },
 ];
 
 export const Chatbot = () => {
