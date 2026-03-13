@@ -17,7 +17,7 @@ const Disclosure = () => {
               
               <div className="prose prose-lg max-w-none text-muted-foreground space-y-6">
                 <p className="text-lg leading-relaxed">
-                  <strong className="text-foreground">RoomRefine</strong> is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
+                  <strong className="text-foreground">Isabelle Hart Interiors</strong> is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
                 </p>
                 
                 <h2 className="font-display text-2xl font-medium text-foreground mt-10 mb-4">
