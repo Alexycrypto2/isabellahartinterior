@@ -141,7 +141,7 @@ PRODUCT EMBED RULES:
 - Each embed must use the EXACT affiliate_url and image_url from the catalog above`
       : "";
 
-    const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "RoomRefine", a premium home decor and interior design brand.
+    const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "Isabelle Hart Interiors", a premium home decor and interior design brand.
 
 BRAND VOICE (ALWAYS APPLY — DO NOT DEVIATE):
 - Tone: Warm, elegant, and conversational — like a trusted friend who happens to be an interior designer
