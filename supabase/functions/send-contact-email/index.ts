@@ -68,7 +68,7 @@ serve(async (req: Request) => {
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
-      from: `RoomRefine Contact <onboarding@resend.dev>`,
+      from: `Isabelle Hart Interiors Contact <onboarding@resend.dev>`,
       to: [siteEmail],
       replyTo: email,
       subject: subject ? `[Contact Form] ${subject}` : `[Contact Form] New message from ${name}`,
