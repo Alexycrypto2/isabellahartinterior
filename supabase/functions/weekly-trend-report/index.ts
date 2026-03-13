@@ -205,7 +205,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "RoomRefine <onboarding@resend.dev>",
+              from: "Isabelle Hart Interiors <onboarding@resend.dev>",
               to: [adminEmail],
               subject: `📊 Weekly Trend Report — ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`,
               html: emailHtml,
