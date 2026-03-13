@@ -15,13 +15,13 @@ const Footer = () => {
             {/* Brand */}
             <div className="md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                {/* Gold R monogram */}
+                {/* Gold IH monogram */}
                 <div className="relative w-8 h-8 flex items-center justify-center">
                   <div className="absolute inset-0 rounded-lg bg-gradient-gold" />
-                  <span className="relative text-accent-foreground font-display text-base font-bold">R</span>
+                  <span className="relative text-accent-foreground font-display text-xs font-bold">IH</span>
                 </div>
                 <span className="font-display text-xl font-semibold">
-                  <span className="text-accent">Room</span><span className="text-foreground">Refine</span>
+                  <span className="text-accent">Isabelle Hart</span> <span className="text-foreground">Interiors</span>
                 </span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
