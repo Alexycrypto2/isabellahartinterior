@@ -44,7 +44,7 @@ const ProductDetail = () => {
     const ogDescription = product.meta_description || product.description;
     const ogImage = product.og_image_url || imageUrl;
 
-    document.title = `${ogTitle} | RoomRefine`;
+    document.title = `${ogTitle} | Isabelle Hart Interiors`;
 
     const metaTags: Record<string, string> = {
       "og:title": ogTitle,
@@ -52,14 +52,17 @@ const ProductDetail = () => {
       "og:image": ogImage,
       "og:url": productUrl,
       "og:type": "product",
-      "og:site_name": "RoomRefine",
+      "og:site_name": "Isabelle Hart Interiors",
+      "og:price:amount": product.price.replace("$", ""),
+      "og:price:currency": "USD",
+      "og:availability": "in stock",
       "product:price:amount": product.price.replace("$", ""),
       "product:price:currency": "USD",
       "twitter:card": "summary_large_image",
       "twitter:title": ogTitle,
       "twitter:description": ogDescription,
       "twitter:image": ogImage,
-      "pinterest:description": `${ogTitle} - ${product.price} | Shop top-rated home decor`,
+      "pinterest:description": `${ogTitle} - ${product.price} | Shop top-rated home decor from Isabelle Hart Interiors`,
     };
 
     const createdTags: HTMLMetaElement[] = [];
@@ -81,7 +84,7 @@ const ProductDetail = () => {
 
     return () => {
       createdTags.forEach((tag) => tag.remove());
-      document.title = "RoomRefine - Curated Home Decor";
+      document.title = "Isabelle Hart Interiors - Curated Home Decor";
     };
   }, [product, imageUrl, productUrl]);
 
