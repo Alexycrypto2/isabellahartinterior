@@ -27,7 +27,7 @@ const PrivacyPolicy = () => {
               ) : (
                 <div className="prose prose-lg max-w-none text-muted-foreground space-y-6">
                   <p className="text-lg leading-relaxed">
-                    <strong className="text-foreground">RoomRefine</strong> ("we," "us," or "our") operates roomrefine.com. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
+                    <strong className="text-foreground">Isabelle Hart Interiors</strong> ("we," "us," or "our") operates roomrefine.com. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
                   </p>
 
                   <h2 className="font-display text-2xl font-medium text-foreground mt-10 mb-4">
@@ -97,7 +97,7 @@ const PrivacyPolicy = () => {
                     Amazon Associates Program
                   </h2>
                   <p>
-                    RoomRefine is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. When you click an affiliate link and make a purchase, Amazon may place cookies on your device to track the referral. Please refer to{" "}
+                    Isabelle Hart Interiors is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. When you click an affiliate link and make a purchase, Amazon may place cookies on your device to track the referral. Please refer to{" "}
                     <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=468496" target="_blank" rel="nofollow noopener noreferrer" className="text-accent hover:underline">
                       Amazon's Privacy Notice
                     </a>{" "}

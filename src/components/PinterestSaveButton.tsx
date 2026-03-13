@@ -29,7 +29,7 @@ const enhanceDescription = (
   
   // Build enhanced description
   const prefix = keywords.length > 0 ? `${keywords.join(" | ")} — ` : "";
-  const suffix = " | Shop on Amazon | Top-Rated Home Decor | RoomRefine";
+  const suffix = " | Shop on Amazon | Top-Rated Home Decor | Isabelle Hart Interiors";
   
   return `${prefix}${description}${suffix}`;
 };

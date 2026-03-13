@@ -130,7 +130,7 @@ serve(async (req: Request) => {
           <tbody>${productRows}</tbody>
         </table>
         <p style="color: #555;">Total affiliate clicks today: <strong>${clicks.length}</strong></p>
-        <p style="color: #999; font-size: 12px; margin-top: 30px;">Sent from RoomRefine Trending Products Monitor</p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">Sent from Isabelle Hart Interiors Trending Products Monitor</p>
       </div>
     `;
 
@@ -145,7 +145,7 @@ serve(async (req: Request) => {
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
-      from: "RoomRefine Alerts <onboarding@resend.dev>",
+      from: "Isabelle Hart Interiors Alerts <onboarding@resend.dev>",
       to: [siteEmail],
       subject: `🔥 ${trending.length} product${trending.length > 1 ? "s" : ""} trending today — ${trending[0][1].count} clicks on "${trending[0][1].name}"`,
       html: emailHtml,

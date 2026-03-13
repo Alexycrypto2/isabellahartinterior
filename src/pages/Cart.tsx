@@ -56,7 +56,7 @@ const Cart = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "My RoomRefine Cart",
+          title: "My Isabelle Hart Interiors Cart",
           text: `Check out my curated home decor picks — ${cart.length} item${cart.length > 1 ? "s" : ""}!`,
           url: shareUrl,
         });

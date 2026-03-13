@@ -30,7 +30,7 @@ const ShippingPolicy = () => {
                   <div className="p-6 bg-accent/10 border border-accent/20 rounded-xl flex gap-4 items-start">
                     <Info className="w-6 h-6 text-accent shrink-0 mt-1" />
                     <p className="text-foreground m-0">
-                      <strong>RoomRefine is an affiliate marketing website.</strong> We do not sell, stock, or ship any products directly. All products featured on our site are sold and fulfilled by Amazon.
+                      <strong>Isabelle Hart Interiors is an affiliate marketing website.</strong> We do not sell, stock, or ship any products directly. All products featured on our site are sold and fulfilled by Amazon.
                     </p>
                   </div>
 
@@ -38,7 +38,7 @@ const ShippingPolicy = () => {
                     How It Works
                   </h2>
                   <p>
-                    When you click on a product link on RoomRefine, you are redirected to Amazon.com where the product is sold. All ordering, payment processing, and shipping are handled entirely by Amazon.
+                    When you click on a product link on Isabelle Hart Interiors, you are redirected to Amazon.com where the product is sold. All ordering, payment processing, and shipping are handled entirely by Amazon.
                   </p>
 
                   <div className="grid sm:grid-cols-3 gap-4 my-8">
@@ -47,7 +47,7 @@ const ShippingPolicy = () => {
                         <span className="text-2xl">🔗</span>
                       </div>
                       <h3 className="font-display text-sm font-medium text-foreground mb-1">Browse & Click</h3>
-                      <p className="text-xs text-muted-foreground">Find products you love on RoomRefine</p>
+                      <p className="text-xs text-muted-foreground">Find products you love on Isabelle Hart Interiors</p>
                     </div>
                     <div className="p-5 bg-muted rounded-xl text-center">
                       <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">

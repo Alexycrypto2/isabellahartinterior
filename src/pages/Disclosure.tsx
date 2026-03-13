@@ -17,7 +17,7 @@ const Disclosure = () => {
               
               <div className="prose prose-lg max-w-none text-muted-foreground space-y-6">
                 <p className="text-lg leading-relaxed">
-                  <strong className="text-foreground">RoomRefine</strong> is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
+                  <strong className="text-foreground">Isabelle Hart Interiors</strong> is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
                 </p>
                 
                 <h2 className="font-display text-2xl font-medium text-foreground mt-10 mb-4">
@@ -34,7 +34,7 @@ const Disclosure = () => {
                 
                 <ul className="space-y-3 list-disc pl-6">
                   <li>
-                    <strong className="text-foreground">We only recommend products we believe in.</strong> Every item on RoomRefine is handpicked based on quality, design, value, and customer reviews.
+                    <strong className="text-foreground">We only recommend products we believe in.</strong> Every item on Isabelle Hart Interiors is handpicked based on quality, design, value, and customer reviews.
                   </li>
                   <li>
                     <strong className="text-foreground">Our opinions are our own.</strong> Affiliate commissions do not influence our product selections or recommendations.

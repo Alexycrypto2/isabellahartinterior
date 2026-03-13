@@ -15,13 +15,13 @@ const Footer = () => {
             {/* Brand */}
             <div className="md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                {/* Gold R monogram */}
+                {/* Gold IH monogram */}
                 <div className="relative w-8 h-8 flex items-center justify-center">
                   <div className="absolute inset-0 rounded-lg bg-gradient-gold" />
-                  <span className="relative text-accent-foreground font-display text-base font-bold">R</span>
+                  <span className="relative text-accent-foreground font-display text-xs font-bold">IH</span>
                 </div>
                 <span className="font-display text-xl font-semibold">
-                  <span className="text-accent">Room</span><span className="text-foreground">Refine</span>
+                  <span className="text-accent">Isabelle Hart</span> <span className="text-foreground">Interiors</span>
                 </span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
@@ -137,7 +137,7 @@ const Footer = () => {
                   </>
                 )}
                 <a 
-                  href="mailto:hello@roomrefine.com"
+                  href="mailto:hello@isabellehartinteriors.com"
                   className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                   aria-label="Email"
                 >
@@ -244,7 +244,7 @@ const Footer = () => {
           <div className="border-t border-border mt-12 pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-muted-foreground text-sm">
-                © {new Date().getFullYear()} RoomRefine. All rights reserved.
+                © {new Date().getFullYear()} Isabelle Hart Interiors. All rights reserved.
               </p>
               <p className="text-muted-foreground text-sm text-center md:text-right">
                 As an Amazon Associate, I earn from qualifying purchases.

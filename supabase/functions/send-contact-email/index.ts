@@ -68,7 +68,7 @@ serve(async (req: Request) => {
     const resend = new Resend(resendApiKey);
 
     const { error: sendError } = await resend.emails.send({
-      from: `RoomRefine Contact <onboarding@resend.dev>`,
+      from: `Isabelle Hart Interiors Contact <onboarding@resend.dev>`,
       to: [siteEmail],
       replyTo: email,
       subject: subject ? `[Contact Form] ${subject}` : `[Contact Form] New message from ${name}`,
@@ -93,7 +93,7 @@ serve(async (req: Request) => {
             <h3 style="margin-top: 0; color: #555;">Message:</h3>
             <p style="color: #333; line-height: 1.6; white-space: pre-wrap;">${message}</p>
           </div>
-          <p style="color: #999; font-size: 12px; margin-top: 20px;">Sent from RoomRefine contact form</p>
+          <p style="color: #999; font-size: 12px; margin-top: 20px;">Sent from Isabelle Hart Interiors contact form</p>
         </div>
       `,
     });

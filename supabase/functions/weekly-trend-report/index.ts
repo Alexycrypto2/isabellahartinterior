@@ -31,7 +31,7 @@ serve(async (req) => {
     const today = new Date();
     const weekStr = `${today.getFullYear()}-W${String(Math.ceil((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / 604800000)).padStart(2, '0')}`;
 
-    const systemPrompt = `You are a home decor trend analyst for RoomRefine. Research and identify 10 trending home decor topics for this week (${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}).
+    const systemPrompt = `You are a home decor trend analyst for Isabelle Hart Interiors. Research and identify 10 trending home decor topics for this week (${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}).
 
 Consider seasonal trends, social media buzz, interior design movements, and consumer behavior.
 
@@ -193,7 +193,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
             </div>
           </div>
           <div style="padding:16px;text-align:center;border-top:1px solid #f0f0f0;">
-            <p style="color:#999;font-size:11px;margin:0;">RoomRefine AI Trend Report · Generated automatically every Monday</p>
+            <p style="color:#999;font-size:11px;margin:0;">Isabelle Hart Interiors AI Trend Report · Generated automatically every Monday</p>
           </div>
         </div>`;
 
@@ -205,7 +205,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "RoomRefine <onboarding@resend.dev>",
+              from: "Isabelle Hart Interiors <onboarding@resend.dev>",
               to: [adminEmail],
               subject: `📊 Weekly Trend Report — ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`,
               html: emailHtml,

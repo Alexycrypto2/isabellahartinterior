@@ -45,7 +45,7 @@ const Newsletter = ({ variant = "default", className = "" }: NewsletterProps) =>
       }
     } else {
       toast({
-        title: "Welcome to RoomRefine!",
+        title: "Welcome to Isabelle Hart Interiors!",
         description: "You'll receive our best decor finds in your inbox.",
       });
       setEmail("");

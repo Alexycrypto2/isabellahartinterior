@@ -14,7 +14,7 @@ const testimonials = [
     id: 1,
     name: "Sarah M.",
     location: "New York, NY",
-    text: "Found the perfect rattan pendant light for my dining room — rated 4.8 stars on Amazon and under $90! RoomRefine made it so easy.",
+    text: "Found the perfect rattan pendant light for my dining room — rated 4.8 stars on Amazon and under $90! Isabelle Hart Interiors made it so easy.",
     rating: 5,
     avatar: avatarSarah,
     initials: "SM",

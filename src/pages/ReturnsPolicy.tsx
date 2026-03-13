@@ -30,7 +30,7 @@ const ReturnsPolicy = () => {
                   <div className="p-6 bg-accent/10 border border-accent/20 rounded-xl flex gap-4 items-start">
                     <Info className="w-6 h-6 text-accent shrink-0 mt-1" />
                     <p className="text-foreground m-0">
-                      <strong>RoomRefine is an affiliate marketing website.</strong> We do not process orders, payments, or returns. All purchases are made directly through Amazon, and returns follow Amazon's policies.
+                      <strong>Isabelle Hart Interiors is an affiliate marketing website.</strong> We do not process orders, payments, or returns. All purchases are made directly through Amazon, and returns follow Amazon's policies.
                     </p>
                   </div>
 
@@ -38,7 +38,7 @@ const ReturnsPolicy = () => {
                     Our Role
                   </h2>
                   <p>
-                    RoomRefine curates and recommends home decor products available on Amazon. When you purchase a product through one of our affiliate links, the transaction occurs entirely on Amazon. We are not a party to the sale and therefore do not handle returns, exchanges, or refunds.
+                    Isabelle Hart Interiors curates and recommends home decor products available on Amazon. When you purchase a product through one of our affiliate links, the transaction occurs entirely on Amazon. We are not a party to the sale and therefore do not handle returns, exchanges, or refunds.
                   </p>
 
                   <div className="grid sm:grid-cols-2 gap-4 my-8">

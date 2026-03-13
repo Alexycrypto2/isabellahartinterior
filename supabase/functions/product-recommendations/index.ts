@@ -147,7 +147,7 @@ serve(async (req) => {
 
     console.log("Processing recommendation request:", JSON.stringify(mappedPrefs));
 
-    const systemPrompt = `You are an expert home decor stylist and product recommendation assistant for RoomRefine. Based on user preferences, recommend the best products from our catalog.
+    const systemPrompt = `You are an expert home decor stylist and product recommendation assistant for Isabelle Hart Interiors. Based on user preferences, recommend the best products from our catalog.
 
 Available products:
 ${products.map(p => `- ID: "${p.id}" | Name: ${p.name} | Category: ${p.category} | Price: ${p.price} | Description: ${p.description}`).join('\n')}

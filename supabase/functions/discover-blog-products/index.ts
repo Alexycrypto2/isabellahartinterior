@@ -31,7 +31,7 @@ serve(async (req) => {
     const existingNames = (existingProducts || []).map((p: any) => p.name.toLowerCase());
     const existingSlugs = (existingProducts || []).map((p: any) => p.slug);
 
-    const systemPrompt = `You are a product research specialist for "RoomRefine", a premium home decor and interior design affiliate store.
+    const systemPrompt = `You are a product research specialist for "Isabelle Hart Interiors", a premium home decor and interior design affiliate store.
 
 Given a blog topic, suggest 3-4 real, trending Amazon products that would be relevant to readers. These should be REAL product types that exist on Amazon (not made-up items).
 

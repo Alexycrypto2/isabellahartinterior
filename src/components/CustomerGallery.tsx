@@ -31,7 +31,7 @@ const customerPhotos = [
     id: 3,
     image: ugcShelfStyling,
     username: "@emily.at.home",
-    caption: "Shelf styling day! Found these vases via RoomRefine",
+    caption: "Shelf styling day! Found these vases via Isabelle Hart Interiors",
     likes: 629,
     tall: true,
   },
@@ -65,7 +65,7 @@ const CustomerGallery = memo(() => {
               Real Homes, Real Style
             </span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
-              #StyledWith<span className="italic">RoomRefine</span>
+              #StyledWith<span className="italic">IsabelleHart</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See how our community styles their finds. Share your own look and get featured!
@@ -118,7 +118,7 @@ const CustomerGallery = memo(() => {
           <div className="text-center mt-10 space-y-3">
             <PhotoSubmissionForm />
             <p className="text-muted-foreground text-sm">
-              Or tag <span className="font-semibold text-accent">@roomrefine</span> on Instagram to be featured
+              Or tag <span className="font-semibold text-accent">@isabellehartinteriors</span> on Instagram to be featured
             </p>
           </div>
         </div>

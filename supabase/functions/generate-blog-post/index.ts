@@ -141,7 +141,7 @@ PRODUCT EMBED RULES:
 - Each embed must use the EXACT affiliate_url and image_url from the catalog above`
       : "";
 
-    const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "RoomRefine", a premium home decor and interior design brand.
+    const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "Isabelle Hart Interiors", a premium home decor and interior design brand.
 
 BRAND VOICE (ALWAYS APPLY — DO NOT DEVIATE):
 - Tone: Warm, elegant, and conversational — like a trusted friend who happens to be an interior designer
@@ -225,7 +225,7 @@ When writing, imagine you've already analyzed the top 10 Google results for "${t
 You MUST return structured data using the "generate_blog_post" tool.`;
 
     const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
-${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant RoomRefine brand voice underneath)` : ""}
+${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant Isabelle Hart Interiors brand voice underneath)` : ""}
 ${category ? `Category: ${category}` : ""}
 ${keywords ? `Primary and secondary keywords to target: ${keywords}` : ""}
 Target word count: ${wordCountTarget} words
