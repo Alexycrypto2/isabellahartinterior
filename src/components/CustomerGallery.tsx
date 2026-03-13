@@ -31,7 +31,7 @@ const customerPhotos = [
     id: 3,
     image: ugcShelfStyling,
     username: "@emily.at.home",
-    caption: "Shelf styling day! Found these vases via RoomRefine",
+    caption: "Shelf styling day! Found these vases via Isabelle Hart Interiors",
     likes: 629,
     tall: true,
   },
