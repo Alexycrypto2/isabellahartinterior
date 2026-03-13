@@ -44,7 +44,7 @@ const ProductDetail = () => {
     const ogDescription = product.meta_description || product.description;
     const ogImage = product.og_image_url || imageUrl;
 
-    document.title = `${ogTitle} | RoomRefine`;
+    document.title = `${ogTitle} | Isabelle Hart Interiors`;
 
     const metaTags: Record<string, string> = {
       "og:title": ogTitle,

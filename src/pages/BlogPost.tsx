@@ -204,11 +204,11 @@ const BlogPost = () => {
     dateModified: post.updated_at,
     author: {
       "@type": "Person",
-      name: post.author,
+      name: "Isabelle Hart",
     },
     publisher: {
       "@type": "Organization",
-      name: "RoomRefine",
+      name: "Isabelle Hart Interiors",
     },
     mainEntityOfPage: {
       "@type": "WebPage",
