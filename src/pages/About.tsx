@@ -29,7 +29,7 @@ const About = () => {
                 <>
                   Welcome to
                   <br />
-                  <span className="italic">RoomRefine</span>
+                  <span className="italic">Isabelle Hart Interiors</span>
                 </>
               )}
             </h1>
