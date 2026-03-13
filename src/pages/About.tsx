@@ -52,7 +52,7 @@ const About = () => {
                 
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    Hi there! I'm the creator behind RoomRefine. Like many of you, I spent 
+                    Hi there! I'm Isabelle Hart, the creator behind Isabelle Hart Interiors. Like many of you, I spent 
                     countless hours scrolling through Pinterest, saving beautiful home inspiration 
                     but never quite knowing where to find the pieces I loved.
                   </p>
