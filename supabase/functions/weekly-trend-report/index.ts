@@ -31,7 +31,7 @@ serve(async (req) => {
     const today = new Date();
     const weekStr = `${today.getFullYear()}-W${String(Math.ceil((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / 604800000)).padStart(2, '0')}`;
 
-    const systemPrompt = `You are a home decor trend analyst for RoomRefine. Research and identify 10 trending home decor topics for this week (${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}).
+    const systemPrompt = `You are a home decor trend analyst for Isabelle Hart Interiors. Research and identify 10 trending home decor topics for this week (${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}).
 
 Consider seasonal trends, social media buzz, interior design movements, and consumer behavior.
 
