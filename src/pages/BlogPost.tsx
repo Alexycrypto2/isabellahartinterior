@@ -30,9 +30,9 @@ const BlogPost = () => {
     }
   }, [post]);
 
-  const blogOgTitle = post ? (post.meta_title || post.title) : "";
-  const blogOgDescription = post ? (post.meta_description || post.excerpt) : "";
-  const blogOgImage = post ? (post.og_image_url || resolveImageUrl(post.image_url)) : "";
+  const blogOgTitle = post ? post.title : "";
+  const blogOgDescription = post ? post.excerpt : "";
+  const blogOgImage = post ? resolveImageUrl(post.image_url) : "";
   const blogPostUrl = post ? `${window.location.origin}/blog/${post.slug}` : "";
 
   // Make TOC collapsible on mobile — toggle toc-open class
