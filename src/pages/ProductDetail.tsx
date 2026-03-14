@@ -117,7 +117,7 @@ const ProductDetail = () => {
           <meta property="og:title" content={ogTitle} />
           <meta property="og:description" content={ogDescription} />
           <meta property="og:image" content={ogImage} />
-          <meta property="og:url" content={productUrl} />
+          <meta property="og:url" content={window.location.href} />
           <meta property="og:site_name" content="Isabelle Hart Interiors" />
           <meta property="og:price:amount" content={priceAmount} />
           <meta property="og:price:currency" content="USD" />
