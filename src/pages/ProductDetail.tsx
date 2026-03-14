@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -36,57 +37,10 @@ const ProductDetail = () => {
   const imageUrl = product ? resolveImageUrl(product.image_url) : "";
   const productUrl = product ? `${window.location.origin}/shop/${product.slug}` : "";
 
-  // Set OG meta tags for social sharing / Pinterest — before early returns
-  useEffect(() => {
-    if (!product) return;
-
-    const ogTitle = product.meta_title || product.name;
-    const ogDescription = product.meta_description || product.description;
-    const ogImage = product.og_image_url || imageUrl;
-
-    document.title = `${ogTitle} | Isabelle Hart Interiors`;
-
-    const metaTags: Record<string, string> = {
-      "og:title": ogTitle,
-      "og:description": ogDescription,
-      "og:image": ogImage,
-      "og:url": productUrl,
-      "og:type": "product",
-      "og:site_name": "Isabelle Hart Interiors",
-      "og:price:amount": product.price.replace("$", ""),
-      "og:price:currency": "USD",
-      "og:availability": "in stock",
-      "product:price:amount": product.price.replace("$", ""),
-      "product:price:currency": "USD",
-      "twitter:card": "summary_large_image",
-      "twitter:title": ogTitle,
-      "twitter:description": ogDescription,
-      "twitter:image": ogImage,
-      "pinterest:description": `${ogTitle} - ${product.price} | Shop top-rated home decor from Isabelle Hart Interiors`,
-    };
-
-    const createdTags: HTMLMetaElement[] = [];
-    Object.entries(metaTags).forEach(([property, content]) => {
-      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.querySelector(`meta[name="${property}"]`) as HTMLMetaElement | null;
-      }
-      if (el) {
-        el.setAttribute("content", content);
-      } else {
-        el = document.createElement("meta");
-        el.setAttribute(property.startsWith("twitter:") ? "name" : "property", property);
-        el.setAttribute("content", content);
-        document.head.appendChild(el);
-        createdTags.push(el);
-      }
-    });
-
-    return () => {
-      createdTags.forEach((tag) => tag.remove());
-      document.title = "Isabelle Hart Interiors - Curated Home Decor";
-    };
-  }, [product, imageUrl, productUrl]);
+  const ogTitle = product ? (product.meta_title || product.name) : "";
+  const ogDescription = product ? (product.meta_description || product.description) : "";
+  const ogImage = product ? (product.og_image_url || imageUrl) : "";
+  const priceAmount = product ? product.price.replace("$", "") : "";
 
   if (isLoading) {
     return (
@@ -159,6 +113,26 @@ const ProductDetail = () => {
   return (
     <PageTransition>
       <div className="min-h-screen">
+        <Helmet>
+          <title>{ogTitle} | Isabelle Hart Interiors</title>
+          <meta property="og:type" content="product" />
+          <meta property="og:title" content={ogTitle} />
+          <meta property="og:description" content={ogDescription} />
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:url" content={productUrl} />
+          <meta property="og:site_name" content="Isabelle Hart Interiors" />
+          <meta property="og:price:amount" content={priceAmount} />
+          <meta property="og:price:currency" content="USD" />
+          <meta property="og:availability" content="in stock" />
+          <meta property="product:price:amount" content={priceAmount} />
+          <meta property="product:price:currency" content="USD" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={ogTitle} />
+          <meta name="twitter:description" content={ogDescription} />
+          <meta name="twitter:image" content={ogImage} />
+          <meta name="pinterest:description" content={`${ogTitle} - ${product.price} | Shop top-rated home decor from Isabelle Hart Interiors`} />
+          <meta name="description" content={ogDescription} />
+        </Helmet>
         <Navigation />
         <JsonLd data={productJsonLd} />
 

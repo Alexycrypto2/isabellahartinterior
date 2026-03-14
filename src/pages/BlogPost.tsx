@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -29,58 +30,10 @@ const BlogPost = () => {
     }
   }, [post]);
 
-  // Set OG meta tags for social sharing / Pinterest Rich Pins
-  useEffect(() => {
-    if (!post) return;
-
-    const ogTitle = post.meta_title || post.title;
-    const ogDescription = post.meta_description || post.excerpt;
-    const ogImage = post.og_image_url || resolveImageUrl(post.image_url);
-    const postUrl = `${window.location.origin}/blog/${post.slug}`;
-
-    document.title = `${ogTitle} | Isabelle Hart Interiors`;
-
-    const metaTags: Record<string, string> = {
-      "og:title": ogTitle,
-      "og:description": ogDescription,
-      "og:image": ogImage,
-      "og:url": postUrl,
-      "og:type": "article",
-      "og:site_name": "Isabelle Hart Interiors",
-      "article:published_time": post.created_at,
-      "article:modified_time": post.updated_at,
-      "article:author": "Isabelle Hart",
-      "article:section": post.category,
-      "twitter:card": "summary_large_image",
-      "twitter:title": ogTitle,
-      "twitter:description": ogDescription,
-      "twitter:image": ogImage,
-      "pinterest:description": `${ogTitle} | Home styling tips from Isabelle Hart Interiors`,
-    };
-
-    const createdTags: HTMLMetaElement[] = [];
-    Object.entries(metaTags).forEach(([property, content]) => {
-      if (!content) return;
-      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.querySelector(`meta[name="${property}"]`) as HTMLMetaElement | null;
-      }
-      if (el) {
-        el.setAttribute("content", content);
-      } else {
-        el = document.createElement("meta");
-        el.setAttribute(property.startsWith("twitter:") ? "name" : "property", property);
-        el.setAttribute("content", content);
-        document.head.appendChild(el);
-        createdTags.push(el);
-      }
-    });
-
-    return () => {
-      createdTags.forEach((tag) => tag.remove());
-      document.title = "Isabelle Hart Interiors - Curated Home Decor";
-    };
-  }, [post]);
+  const blogOgTitle = post ? (post.meta_title || post.title) : "";
+  const blogOgDescription = post ? (post.meta_description || post.excerpt) : "";
+  const blogOgImage = post ? (post.og_image_url || resolveImageUrl(post.image_url)) : "";
+  const blogPostUrl = post ? `${window.location.origin}/blog/${post.slug}` : "";
 
   // Make TOC collapsible on mobile — toggle toc-open class
   useEffect(() => {
@@ -233,6 +186,25 @@ const BlogPost = () => {
   return (
     <PageTransition>
       <div className="min-h-screen">
+        <Helmet>
+          <title>{blogOgTitle} | Isabelle Hart Interiors</title>
+          <meta property="og:type" content="article" />
+          <meta property="og:title" content={blogOgTitle} />
+          <meta property="og:description" content={blogOgDescription} />
+          <meta property="og:image" content={blogOgImage} />
+          <meta property="og:url" content={blogPostUrl} />
+          <meta property="og:site_name" content="Isabelle Hart Interiors" />
+          <meta property="article:published_time" content={post.created_at} />
+          <meta property="article:modified_time" content={post.updated_at} />
+          <meta property="article:author" content="Isabelle Hart" />
+          <meta property="article:section" content={post.category} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={blogOgTitle} />
+          <meta name="twitter:description" content={blogOgDescription} />
+          <meta name="twitter:image" content={blogOgImage} />
+          <meta name="pinterest:description" content={`${blogOgTitle} | Home styling tips from Isabelle Hart Interiors`} />
+          <meta name="description" content={blogOgDescription} />
+        </Helmet>
         <Navigation />
         <JsonLd data={articleJsonLd} />
         {faqJsonLd && <JsonLd data={faqJsonLd} />}
