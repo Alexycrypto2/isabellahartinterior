@@ -35,10 +35,10 @@ const ProductDetail = () => {
   const imageUrl = product ? resolveImageUrl(product.image_url) : "";
   const productUrl = product ? `${window.location.origin}/shop/${product.slug}` : "";
 
-  const ogTitle = product ? (product.meta_title || product.name) : "";
-  const ogDescription = product ? (product.meta_description || product.description) : "";
-  const ogImage = product ? (product.og_image_url || imageUrl) : "";
-  const priceAmount = product ? product.price.replace("$", "") : "";
+  const ogTitle = product ? product.name : "";
+  const ogDescription = product ? product.description : "";
+  const ogImage = product ? resolveImageUrl(product.image_url) : "";
+  const priceAmount = product ? product.price : "";
 
   if (isLoading) {
     return (
