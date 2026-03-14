@@ -113,6 +113,26 @@ const ProductDetail = () => {
   return (
     <PageTransition>
       <div className="min-h-screen">
+        <Helmet>
+          <title>{ogTitle} | Isabelle Hart Interiors</title>
+          <meta property="og:type" content="product" />
+          <meta property="og:title" content={ogTitle} />
+          <meta property="og:description" content={ogDescription} />
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:url" content={productUrl} />
+          <meta property="og:site_name" content="Isabelle Hart Interiors" />
+          <meta property="og:price:amount" content={priceAmount} />
+          <meta property="og:price:currency" content="USD" />
+          <meta property="og:availability" content="in stock" />
+          <meta property="product:price:amount" content={priceAmount} />
+          <meta property="product:price:currency" content="USD" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={ogTitle} />
+          <meta name="twitter:description" content={ogDescription} />
+          <meta name="twitter:image" content={ogImage} />
+          <meta name="pinterest:description" content={`${ogTitle} - ${product.price} | Shop top-rated home decor from Isabelle Hart Interiors`} />
+          <meta name="description" content={ogDescription} />
+        </Helmet>
         <Navigation />
         <JsonLd data={productJsonLd} />
 
