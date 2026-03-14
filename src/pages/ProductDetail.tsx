@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -13,7 +12,6 @@ import { useProductReviews } from "@/hooks/useProductReviews";
 import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
 import { withUtm } from "@/lib/utm";
-import { useMemo } from "react";
 import { resolveImageUrl } from "@/lib/imageResolver";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, ShoppingCart, ChevronRight, ArrowLeft } from "lucide-react";
@@ -37,10 +35,10 @@ const ProductDetail = () => {
   const imageUrl = product ? resolveImageUrl(product.image_url) : "";
   const productUrl = product ? `${window.location.origin}/shop/${product.slug}` : "";
 
-  const ogTitle = product ? (product.meta_title || product.name) : "";
-  const ogDescription = product ? (product.meta_description || product.description) : "";
-  const ogImage = product ? (product.og_image_url || imageUrl) : "";
-  const priceAmount = product ? product.price.replace("$", "") : "";
+  const ogTitle = product ? product.name : "";
+  const ogDescription = product ? product.description : "";
+  const ogImage = product ? resolveImageUrl(product.image_url) : "";
+  const priceAmount = product ? product.price : "";
 
   if (isLoading) {
     return (
@@ -119,7 +117,7 @@ const ProductDetail = () => {
           <meta property="og:title" content={ogTitle} />
           <meta property="og:description" content={ogDescription} />
           <meta property="og:image" content={ogImage} />
-          <meta property="og:url" content={productUrl} />
+          <meta property="og:url" content={window.location.href} />
           <meta property="og:site_name" content="Isabelle Hart Interiors" />
           <meta property="og:price:amount" content={priceAmount} />
           <meta property="og:price:currency" content="USD" />
