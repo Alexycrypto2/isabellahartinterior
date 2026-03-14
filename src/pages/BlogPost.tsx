@@ -186,6 +186,25 @@ const BlogPost = () => {
   return (
     <PageTransition>
       <div className="min-h-screen">
+        <Helmet>
+          <title>{blogOgTitle} | Isabelle Hart Interiors</title>
+          <meta property="og:type" content="article" />
+          <meta property="og:title" content={blogOgTitle} />
+          <meta property="og:description" content={blogOgDescription} />
+          <meta property="og:image" content={blogOgImage} />
+          <meta property="og:url" content={blogPostUrl} />
+          <meta property="og:site_name" content="Isabelle Hart Interiors" />
+          <meta property="article:published_time" content={post.created_at} />
+          <meta property="article:modified_time" content={post.updated_at} />
+          <meta property="article:author" content="Isabelle Hart" />
+          <meta property="article:section" content={post.category} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={blogOgTitle} />
+          <meta name="twitter:description" content={blogOgDescription} />
+          <meta name="twitter:image" content={blogOgImage} />
+          <meta name="pinterest:description" content={`${blogOgTitle} | Home styling tips from Isabelle Hart Interiors`} />
+          <meta name="description" content={blogOgDescription} />
+        </Helmet>
         <Navigation />
         <JsonLd data={articleJsonLd} />
         {faqJsonLd && <JsonLd data={faqJsonLd} />}
