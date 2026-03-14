@@ -192,7 +192,7 @@ const BlogPost = () => {
           <meta property="og:title" content={blogOgTitle} />
           <meta property="og:description" content={blogOgDescription} />
           <meta property="og:image" content={blogOgImage} />
-          <meta property="og:url" content={blogPostUrl} />
+          <meta property="og:url" content={window.location.href} />
           <meta property="og:site_name" content="Isabelle Hart Interiors" />
           <meta property="article:published_time" content={post.created_at} />
           <meta property="article:modified_time" content={post.updated_at} />
