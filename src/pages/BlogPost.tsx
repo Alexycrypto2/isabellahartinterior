@@ -33,7 +33,7 @@ const BlogPost = () => {
   const blogOgTitle = post ? post.title : "";
   const blogOgDescription = post ? post.excerpt : "";
   const blogOgImage = post ? resolveImageUrl(post.image_url) : "";
-  const blogPostUrl = post ? `${window.location.origin}/blog/${post.slug}` : "";
+  
 
   // Make TOC collapsible on mobile — toggle toc-open class
   useEffect(() => {
