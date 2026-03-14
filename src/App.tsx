@@ -115,24 +115,26 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <CartProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              <AnalyticsTracker />
-              <AnimatedRoutes />
-              <Chatbot />
-              <EmailCapturePopup />
-              <ExitIntentPopup />
-            </BrowserRouter>
-          </CartProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <ScrollToTop />
+                <AnalyticsTracker />
+                <AnimatedRoutes />
+                <Chatbot />
+                <EmailCapturePopup />
+                <ExitIntentPopup />
+              </BrowserRouter>
+            </CartProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </ErrorBoundary>
 );
 
