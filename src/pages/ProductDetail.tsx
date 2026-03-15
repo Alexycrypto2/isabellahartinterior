@@ -9,6 +9,8 @@ import StarRating from "@/components/StarRating";
 import ProductReviewForm from "@/components/ProductReviewForm";
 import { useProductBySlug, useActiveProducts } from "@/hooks/useProducts";
 import { useProductReviews } from "@/hooks/useProductReviews";
+import { useProductMedia } from "@/hooks/useProductMedia";
+import ProductMediaGallery from "@/components/ProductMediaGallery";
 import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
 import { withUtm } from "@/lib/utm";
