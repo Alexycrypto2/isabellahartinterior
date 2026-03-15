@@ -9,6 +9,8 @@ import StarRating from "@/components/StarRating";
 import ProductReviewForm from "@/components/ProductReviewForm";
 import { useProductBySlug, useActiveProducts } from "@/hooks/useProducts";
 import { useProductReviews } from "@/hooks/useProductReviews";
+import { useProductMedia } from "@/hooks/useProductMedia";
+import ProductMediaGallery from "@/components/ProductMediaGallery";
 import { useCart } from "@/hooks/useCart";
 import { trackProductClick } from "@/lib/analytics";
 import { withUtm } from "@/lib/utm";
@@ -30,6 +32,7 @@ const ProductDetail = () => {
   const { data: product, isLoading, error } = useProductBySlug(slug || "");
   const { data: reviews } = useProductReviews(product?.id || "");
   const { data: allProducts } = useActiveProducts();
+  const { data: productMedia = [] } = useProductMedia(product?.id || "");
   const { addToCart, isInCart } = useCart();
 
   const imageUrl = product ? resolveImageUrl(product.image_url) : "";
@@ -162,37 +165,22 @@ const ProductDetail = () => {
             </Breadcrumb>
 
             <div className="grid md:grid-cols-2 gap-12">
-              {/* Image */}
-              <div className="relative">
-                <div className="aspect-square rounded-2xl overflow-hidden bg-muted">
-                  <img
-                    src={imageUrl}
-                    alt={`${product.name} - ${product.category} home decor`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                {product.badge && (
-                  <span
-                    className={`absolute top-4 left-4 px-4 py-1.5 rounded-full text-sm font-semibold ${
-                      product.badge === "Sale"
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
-                  >
-                    {product.badge}
-                  </span>
-                )}
-                <div className="absolute top-4 right-4">
-                  <PinterestSaveButton
-                    imageUrl={imageUrl}
-                    description={`${product.name} - ${product.price}`}
-                    url={productUrl}
-                    price={product.price}
-                    isBestseller={product.badge === "Bestseller" || product.badge === "Top Pick"}
-                    isOnSale={product.badge === "Sale"}
-                  />
-                </div>
-              </div>
+              {/* Image Gallery */}
+              <ProductMediaGallery
+                media={productMedia}
+                fallbackImage={imageUrl}
+                productName={product.name}
+                badge={product.badge}
+              >
+                <PinterestSaveButton
+                  imageUrl={imageUrl}
+                  description={`${product.name} - ${product.price}`}
+                  url={productUrl}
+                  price={product.price}
+                  isBestseller={product.badge === "Bestseller" || product.badge === "Top Pick"}
+                  isOnSale={product.badge === "Sale"}
+                />
+              </ProductMediaGallery>
 
               {/* Details */}
               <div className="flex flex-col">
