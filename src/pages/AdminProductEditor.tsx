@@ -359,9 +359,16 @@ const AdminProductEditor = () => {
           </div>
 
           {/* Product Gallery (multiple images/videos) */}
-          {isEditing && id && (
+          {isEditing && id ? (
             <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
               <AdminProductMediaManager productId={id} />
+            </div>
+          ) : (
+            <div className="border rounded-lg p-6 bg-muted/30">
+              <Label className="text-base font-medium">Product Gallery</Label>
+              <p className="text-sm text-muted-foreground mt-2">
+                Save the product first, then you can add multiple images and videos to the gallery.
+              </p>
             </div>
           )}
 
