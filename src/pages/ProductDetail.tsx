@@ -32,6 +32,7 @@ const ProductDetail = () => {
   const { data: product, isLoading, error } = useProductBySlug(slug || "");
   const { data: reviews } = useProductReviews(product?.id || "");
   const { data: allProducts } = useActiveProducts();
+  const { data: productMedia = [] } = useProductMedia(product?.id || "");
   const { addToCart, isInCart } = useCart();
 
   const imageUrl = product ? resolveImageUrl(product.image_url) : "";
