@@ -415,6 +415,44 @@ export type Database = {
         }
         Relationships: []
       }
+      product_media: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          display_order: number
+          id: string
+          media_type: string
+          media_url: string
+          product_id: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          media_type?: string
+          media_url: string
+          product_id: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          media_type?: string
+          media_url?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_media_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_reviews: {
         Row: {
           created_at: string
