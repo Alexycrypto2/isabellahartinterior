@@ -358,6 +358,13 @@ const AdminProductEditor = () => {
             <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
           </div>
 
+          {/* Product Gallery (multiple images/videos) */}
+          {isEditing && id && (
+            <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
+              <AdminProductMediaManager productId={id} />
+            </div>
+          )}
+
           {/* Pinterest Pin Description */}
           <PinDescriptionGenerator
             title={name}
