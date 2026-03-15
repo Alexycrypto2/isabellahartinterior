@@ -3,15 +3,115 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { useProductMedia, useAddProductMedia, useDeleteProductMedia } from '@/hooks/useProductMedia';
+import { useProductMedia, useAddProductMedia, useDeleteProductMedia, useReorderProductMedia, ProductMedia } from '@/hooks/useProductMedia';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, X, GripVertical, Play, Image as ImageIcon, Film, Plus, Link } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { resolveImageUrl } from '@/lib/imageResolver';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface AdminProductMediaManagerProps {
   productId: string;
 }
+
+const SortableMediaItem = ({
+  item,
+  idx,
+  onDelete,
+}: {
+  item: ProductMedia;
+  idx: number;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'relative aspect-square rounded-lg overflow-hidden border border-border group bg-muted',
+        isDragging && 'z-50 ring-2 ring-primary opacity-90 shadow-xl'
+      )}
+    >
+      {item.media_type === 'video' ? (
+        <div className="w-full h-full flex items-center justify-center relative">
+          <video src={item.media_url} className="w-full h-full object-cover" muted preload="metadata" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <Play className="h-6 w-6 text-white fill-white" />
+          </div>
+        </div>
+      ) : (
+        <img
+          src={resolveImageUrl(item.media_url)}
+          alt={item.alt_text || `Media ${idx + 1}`}
+          className="w-full h-full object-cover"
+        />
+      )}
+
+      {/* Drag handle */}
+      <button
+        type="button"
+        className="absolute top-1 left-1 bg-background/80 backdrop-blur-sm rounded p-0.5 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+
+      {/* Order badge */}
+      <span className="absolute bottom-1 left-1 bg-background/80 backdrop-blur-sm text-[10px] font-medium px-1.5 py-0.5 rounded">
+        {idx + 1}
+      </span>
+
+      {/* Delete button */}
+      <button
+        type="button"
+        onClick={() => onDelete(item.id)}
+        className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X className="h-3 w-3" />
+      </button>
+
+      {/* Type indicator */}
+      <span className="absolute bottom-1 right-1 bg-background/80 backdrop-blur-sm rounded p-0.5">
+        {item.media_type === 'video' ? (
+          <Film className="h-3 w-3 text-muted-foreground" />
+        ) : (
+          <ImageIcon className="h-3 w-3 text-muted-foreground" />
+        )}
+      </span>
+    </div>
+  );
+};
 
 const AdminProductMediaManager = ({ productId }: AdminProductMediaManagerProps) => {
   const { toast } = useToast();
@@ -23,6 +123,29 @@ const AdminProductMediaManager = ({ productId }: AdminProductMediaManagerProps) 
   const { data: mediaItems = [] } = useProductMedia(productId);
   const addMedia = useAddProductMedia();
   const deleteMedia = useDeleteProductMedia();
+  const reorderMedia = useReorderProductMedia();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = mediaItems.findIndex((m) => m.id === active.id);
+    const newIndex = mediaItems.findIndex((m) => m.id === over.id);
+    const reordered = arrayMove(mediaItems, oldIndex, newIndex);
+
+    reorderMedia.mutate({
+      items: reordered.map((item, i) => ({
+        id: item.id,
+        display_order: i,
+        product_id: item.product_id,
+      })),
+    });
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -118,58 +241,24 @@ const AdminProductMediaManager = ({ productId }: AdminProductMediaManagerProps) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-medium">Product Gallery</Label>
+        <div>
+          <Label className="text-base font-medium">Product Gallery</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">Drag to reorder • Images & videos</p>
+        </div>
         <span className="text-sm text-muted-foreground">{mediaItems.length} item{mediaItems.length !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* Media grid */}
+      {/* Sortable media grid */}
       {mediaItems.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-          {mediaItems.map((item, idx) => (
-            <div
-              key={item.id}
-              className="relative aspect-square rounded-lg overflow-hidden border border-border group bg-muted"
-            >
-              {item.media_type === 'video' ? (
-                <div className="w-full h-full flex items-center justify-center relative">
-                  <video src={item.media_url} className="w-full h-full object-cover" muted preload="metadata" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Play className="h-6 w-6 text-white fill-white" />
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={resolveImageUrl(item.media_url)}
-                  alt={item.alt_text || `Media ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              )}
-
-              {/* Order badge */}
-              <span className="absolute top-1 left-1 bg-background/80 backdrop-blur-sm text-[10px] font-medium px-1.5 py-0.5 rounded">
-                {idx + 1}
-              </span>
-
-              {/* Delete button */}
-              <button
-                type="button"
-                onClick={() => handleDelete(item.id)}
-                className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="h-3 w-3" />
-              </button>
-
-              {/* Type indicator */}
-              <span className="absolute bottom-1 right-1 bg-background/80 backdrop-blur-sm rounded p-0.5">
-                {item.media_type === 'video' ? (
-                  <Film className="h-3 w-3 text-muted-foreground" />
-                ) : (
-                  <ImageIcon className="h-3 w-3 text-muted-foreground" />
-                )}
-              </span>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={mediaItems.map((m) => m.id)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+              {mediaItems.map((item, idx) => (
+                <SortableMediaItem key={item.id} item={item} idx={idx} onDelete={handleDelete} />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Upload actions */}
