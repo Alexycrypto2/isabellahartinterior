@@ -28,6 +28,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 interface AdminProductMediaManagerProps {
   productId: string;
+  onFirstMediaChange?: (url: string) => void;
 }
 
 const SortableMediaItem = ({
