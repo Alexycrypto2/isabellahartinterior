@@ -37,7 +37,7 @@ const AdminProductEditor = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  // fileInputRef removed - image upload now handled by gallery manager
+  
 
   const { data: existingProduct, isLoading: isLoadingProduct } = useProductById(id || '');
   const { data: categories } = useProductCategories();
