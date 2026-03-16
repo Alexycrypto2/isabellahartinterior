@@ -113,7 +113,7 @@ const SortableMediaItem = ({
   );
 };
 
-const AdminProductMediaManager = ({ productId }: AdminProductMediaManagerProps) => {
+const AdminProductMediaManager = ({ productId, onFirstMediaChange }: AdminProductMediaManagerProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);

@@ -328,46 +328,16 @@ const AdminProductEditor = () => {
             </div>
           </div>
 
-          {/* Product Image */}
-          <div className="space-y-2">
-            <Label>Product Image</Label>
-            <div className="border-2 border-dashed rounded-lg p-6">
-              {imageUrl ? (
-                <div className="relative">
-                  <img src={imageUrl} alt="Product" className="w-full h-48 object-cover rounded-lg" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Replace Image
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">Upload a product image</p>
-                  <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    {isUploading ? 'Uploading...' : 'Upload Image'}
-                  </Button>
-                </div>
-              )}
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-            </div>
-            <p className="text-sm text-muted-foreground">Or paste an image URL:</p>
-            <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
-          </div>
-
-          {/* Product Gallery (multiple images/videos) */}
+          {/* Product Gallery (unified - images & videos) */}
           {isEditing && id ? (
             <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
-              <AdminProductMediaManager productId={id} />
+              <AdminProductMediaManager productId={id} onFirstMediaChange={(url) => setImageUrl(url)} />
             </div>
           ) : (
             <div className="border rounded-lg p-6 bg-muted/30">
               <Label className="text-base font-medium">Product Gallery</Label>
               <p className="text-sm text-muted-foreground mt-2">
-                Save the product first, then you can add multiple images and videos to the gallery.
+                Save the product first, then you can add images and videos to the gallery. The first image becomes the main product image.
               </p>
             </div>
           )}
