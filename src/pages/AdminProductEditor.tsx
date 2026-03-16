@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -20,8 +20,7 @@ import {
   useUpdateProduct,
   useProductCategories,
 } from '@/hooks/useProducts';
-import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Save, Image as ImageIcon, Upload, Star } from 'lucide-react';
+import { ArrowLeft, Save, Star } from 'lucide-react';
 import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 import AdminProductMediaManager from '@/components/AdminProductMediaManager';
 
@@ -38,7 +37,7 @@ const AdminProductEditor = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
 
   const { data: existingProduct, isLoading: isLoadingProduct } = useProductById(id || '');
   const { data: categories } = useProductCategories();
@@ -58,7 +57,7 @@ const AdminProductEditor = () => {
   const [badge, setBadge] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
+  
   const [autoSlug, setAutoSlug] = useState(true);
   
   // SEO fields
@@ -115,46 +114,7 @@ const AdminProductEditor = () => {
     }
   }, [name, autoSlug]);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file type', description: 'Please upload an image file.', variant: 'destructive' });
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Please upload an image smaller than 5MB.', variant: 'destructive' });
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('blog-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(filePath);
-
-      setImageUrl(publicUrl);
-      toast({ title: 'Image uploaded', description: 'Your image has been uploaded successfully.' });
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast({ title: 'Upload failed', description: 'Failed to upload image.', variant: 'destructive' });
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  // Image upload now handled by AdminProductMediaManager
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,46 +288,16 @@ const AdminProductEditor = () => {
             </div>
           </div>
 
-          {/* Product Image */}
-          <div className="space-y-2">
-            <Label>Product Image</Label>
-            <div className="border-2 border-dashed rounded-lg p-6">
-              {imageUrl ? (
-                <div className="relative">
-                  <img src={imageUrl} alt="Product" className="w-full h-48 object-cover rounded-lg" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Replace Image
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">Upload a product image</p>
-                  <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    {isUploading ? 'Uploading...' : 'Upload Image'}
-                  </Button>
-                </div>
-              )}
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-            </div>
-            <p className="text-sm text-muted-foreground">Or paste an image URL:</p>
-            <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
-          </div>
-
-          {/* Product Gallery (multiple images/videos) */}
+          {/* Product Gallery (unified - images & videos) */}
           {isEditing && id ? (
             <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
-              <AdminProductMediaManager productId={id} />
+              <AdminProductMediaManager productId={id} onFirstMediaChange={(url) => setImageUrl(url)} />
             </div>
           ) : (
             <div className="border rounded-lg p-6 bg-muted/30">
               <Label className="text-base font-medium">Product Gallery</Label>
               <p className="text-sm text-muted-foreground mt-2">
-                Save the product first, then you can add multiple images and videos to the gallery.
+                Save the product first, then you can add images and videos to the gallery. The first image becomes the main product image.
               </p>
             </div>
           )}

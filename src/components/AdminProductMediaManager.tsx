@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +28,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 interface AdminProductMediaManagerProps {
   productId: string;
+  onFirstMediaChange?: (url: string) => void;
 }
 
 const SortableMediaItem = ({
@@ -113,7 +114,7 @@ const SortableMediaItem = ({
   );
 };
 
-const AdminProductMediaManager = ({ productId }: AdminProductMediaManagerProps) => {
+const AdminProductMediaManager = ({ productId, onFirstMediaChange }: AdminProductMediaManagerProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -124,6 +125,14 @@ const AdminProductMediaManager = ({ productId }: AdminProductMediaManagerProps) 
   const addMedia = useAddProductMedia();
   const deleteMedia = useDeleteProductMedia();
   const reorderMedia = useReorderProductMedia();
+
+  // Sync first media item URL to parent for product image_url
+  useEffect(() => {
+    if (onFirstMediaChange && mediaItems.length > 0) {
+      const firstImage = mediaItems.find(m => m.media_type === 'image');
+      if (firstImage) onFirstMediaChange(firstImage.media_url);
+    }
+  }, [mediaItems, onFirstMediaChange]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

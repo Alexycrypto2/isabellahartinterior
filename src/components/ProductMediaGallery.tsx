@@ -34,10 +34,8 @@ const ProductMediaGallery = ({
   const imageRef = useRef<HTMLDivElement>(null);
 
   const buildItems = (): MediaItem[] => {
-    const fallbackItem: MediaItem = { id: 'fallback', media_url: fallbackImage, media_type: 'image', alt_text: productName };
-    if (media.length === 0) return [fallbackItem];
-    const fallbackAlreadyIncluded = media.some((m) => m.media_url === fallbackImage);
-    return fallbackAlreadyIncluded ? media : [fallbackItem, ...media];
+    if (media.length > 0) return media;
+    return [{ id: 'fallback', media_url: fallbackImage, media_type: 'image', alt_text: productName }];
   };
 
   const items = buildItems();
