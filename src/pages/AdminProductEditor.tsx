@@ -57,7 +57,7 @@ const AdminProductEditor = () => {
   const [badge, setBadge] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
+  
   const [autoSlug, setAutoSlug] = useState(true);
   
   // SEO fields
