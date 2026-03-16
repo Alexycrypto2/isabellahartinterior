@@ -115,46 +115,7 @@ const AdminProductEditor = () => {
     }
   }, [name, autoSlug]);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file type', description: 'Please upload an image file.', variant: 'destructive' });
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Please upload an image smaller than 5MB.', variant: 'destructive' });
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('blog-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(filePath);
-
-      setImageUrl(publicUrl);
-      toast({ title: 'Image uploaded', description: 'Your image has been uploaded successfully.' });
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast({ title: 'Upload failed', description: 'Failed to upload image.', variant: 'destructive' });
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  // Image upload now handled by AdminProductMediaManager
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
