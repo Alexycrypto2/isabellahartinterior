@@ -21,7 +21,7 @@ import {
   useProductCategories,
 } from '@/hooks/useProducts';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Save, Image as ImageIcon, Upload, Star } from 'lucide-react';
+import { ArrowLeft, Save, Star } from 'lucide-react';
 import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 import AdminProductMediaManager from '@/components/AdminProductMediaManager';
 
