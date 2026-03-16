@@ -28,11 +28,21 @@ const ProductMediaGallery = ({
 }: ProductMediaGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Build items list: use media if available, otherwise fallback to single image
-  const items: MediaItem[] =
-    media.length > 0
-      ? media
-      : [{ id: 'fallback', media_url: fallbackImage, media_type: 'image', alt_text: productName }];
+  // Build items list: always include fallback image first, then gallery media
+  const buildItems = (): MediaItem[] => {
+    const fallbackItem: MediaItem = { id: 'fallback', media_url: fallbackImage, media_type: 'image', alt_text: productName };
+    
+    if (media.length === 0) return [fallbackItem];
+    
+    // Check if the fallback image is already in the media list to avoid duplicates
+    const fallbackAlreadyIncluded = media.some(
+      (m) => m.media_url === fallbackImage
+    );
+    
+    return fallbackAlreadyIncluded ? media : [fallbackItem, ...media];
+  };
+
+  const items = buildItems();
 
   const activeItem = items[activeIndex] || items[0];
   const hasMultiple = items.length > 1;
