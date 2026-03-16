@@ -126,6 +126,14 @@ const AdminProductMediaManager = ({ productId, onFirstMediaChange }: AdminProduc
   const deleteMedia = useDeleteProductMedia();
   const reorderMedia = useReorderProductMedia();
 
+  // Sync first media item URL to parent for product image_url
+  useEffect(() => {
+    if (onFirstMediaChange && mediaItems.length > 0) {
+      const firstImage = mediaItems.find(m => m.media_type === 'image');
+      if (firstImage) onFirstMediaChange(firstImage.media_url);
+    }
+  }, [mediaItems, onFirstMediaChange]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
