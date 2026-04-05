@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CartProvider } from "@/hooks/useCart";
 import { AuthProvider } from "@/contexts/AuthContext";
+import DeveloperPanel from './pages/DeveloperPanel';
 import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -106,6 +107,7 @@ const AnimatedRoutes = () => {
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/returns-policy" element={<ReturnsPolicy />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/developer" element={<DeveloperPanel />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
