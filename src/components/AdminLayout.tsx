@@ -94,6 +94,7 @@ const NAV_SECTIONS: NavSection[] = [
       { to: '/admin/team', icon: Users, label: 'Team', exact: true },
       { to: '/admin/security', icon: Shield, label: 'Security', exact: true },
       { to: '/admin/ownership', icon: Crown, label: 'Ownership', exact: true },
+      { to: '/admin/developer', icon: Settings, label: 'Developer', exact: true },
     ],
   },
 ];
