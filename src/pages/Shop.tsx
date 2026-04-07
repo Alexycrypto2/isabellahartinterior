@@ -7,7 +7,7 @@ import PageTransition from "@/components/PageTransition";
 import ProductSearch from "@/components/ProductSearch";
 import { ProductGridSkeleton } from "@/components/ProductSkeleton";
 import ProductQuickView from "@/components/ProductQuickView";
-import { useActiveProducts, useProductCategories, Product } from "@/hooks/useProducts";
+import { useActiveProducts, useProductCategories, useProductCategoryAssignments, Product } from "@/hooks/useProducts";
 import JsonLd from "@/components/JsonLd";
 import { ExternalLink, SlidersHorizontal, X, ShoppingCart, Eye } from "lucide-react";
 import ProductReviewForm from "@/components/ProductReviewForm";
@@ -69,12 +69,13 @@ const Shop = () => {
   const { isInCart, addToCart } = useCart();
   const { data: products, isLoading } = useActiveProducts();
   const { data: dbCategories } = useProductCategories();
+  const { data: assignments } = useProductCategoryAssignments();
 
   // Build categories with "All Products" first
   const categories = useMemo(() => {
     const allCategory = { id: "all", name: "All Products", icon: "✨", slug: "all" };
     if (!dbCategories) return [allCategory];
-    return [allCategory, ...dbCategories.filter(c => c.slug !== "all").map(c => ({ 
+    return [allCategory, ...dbCategories.filter(c => c.slug !== "all" && c.slug !== "all-rooms").map(c => ({ 
       id: c.slug, 
       name: c.name, 
       icon: c.icon || "📦",
@@ -85,9 +86,17 @@ const Shop = () => {
   const filteredAndSortedProducts = useMemo(() => {
     if (!products) return [];
     
-    let result = activeCategory === "all" 
-      ? [...products] 
-      : products.filter(p => p.category === activeCategory);
+    let result: Product[];
+    if (activeCategory === "all") {
+      result = [...products];
+    } else if (assignments) {
+      const productIdsInCategory = new Set(
+        assignments.filter(a => a.category_slug === activeCategory).map(a => a.product_id)
+      );
+      result = products.filter(p => productIdsInCategory.has(p.id) || p.category === activeCategory);
+    } else {
+      result = products.filter(p => p.category === activeCategory);
+    }
     
     // Apply search filter
     if (searchQuery.trim()) {
@@ -119,7 +128,7 @@ const Shop = () => {
     }
     
     return result;
-  }, [products, activeCategory, sortBy, searchQuery]);
+  }, [products, activeCategory, sortBy, searchQuery, assignments]);
 
   const handleQuickView = (product: Product) => {
     // Convert to quick view format
