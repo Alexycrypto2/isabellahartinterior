@@ -19,10 +19,14 @@ import {
   useCreateProduct,
   useUpdateProduct,
   useProductCategories,
+  useProductAssignments,
+  useSetProductAssignments,
 } from '@/hooks/useProducts';
-import { ArrowLeft, Save, Star } from 'lucide-react';
+import { ArrowLeft, Save, Star, Wand2, Loader2 } from 'lucide-react';
 import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
 import AdminProductMediaManager from '@/components/AdminProductMediaManager';
+import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
 
 const generateSlug = (name: string) => {
   return name
@@ -64,6 +68,67 @@ const AdminProductEditor = () => {
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [ogImageUrl, setOgImageUrl] = useState('');
+  
+  // Multi-category
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const { data: existingAssignments } = useProductAssignments(id || '');
+  const setAssignmentsMutation = useSetProductAssignments();
+
+  // Load existing assignments
+  useEffect(() => {
+    if (existingAssignments) {
+      setSelectedRooms(existingAssignments.map(a => a.category_slug));
+    }
+  }, [existingAssignments]);
+
+  const toggleRoom = (slug: string) => {
+    setSelectedRooms(prev => 
+      prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+    );
+  };
+
+  const autoDetectCategories = async () => {
+    if (!name && !description) {
+      toast({ title: 'Enter product details first', description: 'Add a name and description before auto-detecting.', variant: 'destructive' });
+      return;
+    }
+    setIsDetecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('auto-detect-category', {
+        body: { name, description }
+      });
+      if (error) throw error;
+      if (data?.categories) {
+        setSelectedRooms(data.categories);
+        if (data.categories.length > 0 && !category) {
+          setCategory(data.categories[0]);
+        }
+        toast({ title: 'Categories detected!', description: `AI suggests: ${data.categories.join(', ')}` });
+      }
+    } catch (err) {
+      console.error('Auto-detect failed:', err);
+      toast({ title: 'Auto-detect failed', description: 'Using keyword rules instead.', variant: 'destructive' });
+      // Fallback: keyword-based detection
+      const text = `${name} ${description}`.toLowerCase();
+      const detected: string[] = [];
+      if (/mirror|lamp|sofa|rug|curtain|vase|candle/.test(text)) { detected.push('living-room', 'bedroom'); }
+      if (/bed|pillow|duvet|nightstand|headboard/.test(text)) { detected.push('bedroom'); }
+      if (/shower|bath|towel|toilet/.test(text)) { detected.push('bathroom'); }
+      if (/desk|office|chair|organizer/.test(text)) { detected.push('home-office'); }
+      if (/outdoor|patio|garden|plant/.test(text)) { detected.push('outdoor-patio'); }
+      if (/entryway|console|coat|welcome/.test(text)) { detected.push('entryway'); }
+      if (/kitchen|pot|pan|spice|cutting/.test(text)) { detected.push('kitchen'); }
+      const unique = [...new Set(detected)];
+      if (unique.length > 0) {
+        setSelectedRooms(unique);
+        if (!category) setCategory(unique[0]);
+        toast({ title: 'Categories detected (keywords)', description: `Matched: ${unique.join(', ')}` });
+      }
+    } finally {
+      setIsDetecting(false);
+    }
+  };
 
   useEffect(() => {
     if (existingProduct) {
@@ -146,9 +211,13 @@ const AdminProductEditor = () => {
 
       if (isEditing && id) {
         await updateMutation.mutateAsync({ id, ...productData });
+        await setAssignmentsMutation.mutateAsync({ productId: id, categorySlugs: selectedRooms });
         toast({ title: 'Product updated', description: 'Your product has been updated successfully.' });
       } else {
-        await createMutation.mutateAsync(productData);
+        const created = await createMutation.mutateAsync(productData);
+        if (selectedRooms.length > 0) {
+          await setAssignmentsMutation.mutateAsync({ productId: created.id, categorySlugs: selectedRooms });
+        }
         toast({ title: 'Product created', description: 'Your product has been created successfully.' });
       }
 
@@ -251,10 +320,10 @@ const AdminProductEditor = () => {
             </div>
           </div>
 
-          {/* Category and Affiliate */}
+          {/* Primary Category and Affiliate */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category">Primary Category *</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -271,6 +340,45 @@ const AdminProductEditor = () => {
             <div className="space-y-2">
               <Label htmlFor="affiliateUrl">Affiliate URL *</Label>
               <Input id="affiliateUrl" value={affiliateUrl} onChange={(e) => setAffiliateUrl(e.target.value)} placeholder="https://amazon.com/..." />
+            </div>
+          </div>
+
+          {/* Room Categories (Multi-select) */}
+          <div className="border rounded-lg p-6 space-y-4 bg-muted/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium text-lg">Room Categories</h3>
+                <p className="text-sm text-muted-foreground">Select all rooms where this product fits</p>
+              </div>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={autoDetectCategories}
+                disabled={isDetecting}
+                className="rounded-full"
+              >
+                {isDetecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                {isDetecting ? 'Detecting...' : 'Auto-Detect'}
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {selectableCategories.map((cat) => (
+                <label
+                  key={cat.id}
+                  className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
+                    selectedRooms.includes(cat.slug) 
+                      ? 'border-accent bg-accent/10' 
+                      : 'border-border hover:border-muted-foreground/30'
+                  }`}
+                >
+                  <Checkbox 
+                    checked={selectedRooms.includes(cat.slug)}
+                    onCheckedChange={() => toggleRoom(cat.slug)}
+                  />
+                  <span className="text-sm">{cat.icon} {cat.name}</span>
+                </label>
+              ))}
             </div>
           </div>
 

@@ -51,6 +51,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminComments = lazy(() => import("./pages/AdminComments"));
 const AdminTrending = lazy(() => import("./pages/AdminTrending"));
 const AdminDeveloper = lazy(() => import("./pages/AdminDeveloper"));
+const AdminProductCategories = lazy(() => import("./pages/AdminProductCategories"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
 const ReturnsPolicy = lazy(() => import("./pages/ReturnsPolicy"));
@@ -105,6 +106,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/comments" element={<AdminComments />} />
           <Route path="/admin/trending" element={<AdminTrending />} />
           <Route path="/admin/developer" element={<AdminDeveloper />} />
+          <Route path="/admin/product-categories" element={<AdminProductCategories />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/returns-policy" element={<ReturnsPolicy />} />

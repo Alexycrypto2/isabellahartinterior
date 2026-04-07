@@ -390,7 +390,9 @@ export type Database = {
       }
       product_categories: {
         Row: {
+          cover_image_url: string | null
           created_at: string
+          description: string | null
           display_order: number | null
           icon: string | null
           id: string
@@ -398,7 +400,9 @@ export type Database = {
           slug: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
+          description?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
@@ -406,7 +410,9 @@ export type Database = {
           slug: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
+          description?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
@@ -414,6 +420,35 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      product_category_assignments: {
+        Row: {
+          category_slug: string
+          created_at: string
+          id: string
+          product_id: string
+        }
+        Insert: {
+          category_slug: string
+          created_at?: string
+          id?: string
+          product_id: string
+        }
+        Update: {
+          category_slug?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_assignments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_media: {
         Row: {

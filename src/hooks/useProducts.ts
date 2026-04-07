@@ -49,6 +49,15 @@ export interface ProductCategory {
   icon: string | null;
   display_order: number;
   created_at: string;
+  description: string | null;
+  cover_image_url: string | null;
+}
+
+export interface ProductCategoryAssignment {
+  id: string;
+  product_id: string;
+  category_slug: string;
+  created_at: string;
 }
 
 // Helper to log activity
@@ -259,12 +268,88 @@ export const useProductCategories = () => {
   });
 };
 
+// Fetch product category assignments
+export const useProductCategoryAssignments = () => {
+  return useQuery({
+    queryKey: ['product-category-assignments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('product_category_assignments')
+        .select('*');
+      
+      if (error) throw error;
+      return data as ProductCategoryAssignment[];
+    },
+  });
+};
+
+// Get assignments for a specific product
+export const useProductAssignments = (productId: string) => {
+  return useQuery({
+    queryKey: ['product-category-assignments', productId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('product_category_assignments')
+        .select('*')
+        .eq('product_id', productId);
+      
+      if (error) throw error;
+      return data as ProductCategoryAssignment[];
+    },
+    enabled: !!productId,
+  });
+};
+
+// Set assignments for a product (replace all)
+export const useSetProductAssignments = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ productId, categorySlugs }: { productId: string; categorySlugs: string[] }) => {
+      // Delete existing
+      await supabase
+        .from('product_category_assignments')
+        .delete()
+        .eq('product_id', productId);
+      
+      // Insert new
+      if (categorySlugs.length > 0) {
+        const { error } = await supabase
+          .from('product_category_assignments')
+          .insert(categorySlugs.map(slug => ({ product_id: productId, category_slug: slug })));
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['product-category-assignments'] });
+    },
+  });
+};
+
+// Bulk assign products to a category
+export const useBulkAssignCategory = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ productIds, categorySlug }: { productIds: string[]; categorySlug: string }) => {
+      const rows = productIds.map(pid => ({ product_id: pid, category_slug: categorySlug }));
+      const { error } = await supabase
+        .from('product_category_assignments')
+        .upsert(rows, { onConflict: 'product_id,category_slug' });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['product-category-assignments'] });
+    },
+  });
+};
+
 // Create product category
 export const useCreateProductCategory = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (category: { name: string; slug: string; icon?: string }) => {
+    mutationFn: async (category: { name: string; slug: string; icon?: string; description?: string; cover_image_url?: string; display_order?: number }) => {
       const { data, error } = await supabase
         .from('product_categories')
         .insert(category)
@@ -287,7 +372,7 @@ export const useUpdateProductCategory = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, ...category }: { id: string; name: string; slug: string; icon?: string }) => {
+    mutationFn: async ({ id, ...category }: { id: string; name?: string; slug?: string; icon?: string; description?: string; cover_image_url?: string; display_order?: number }) => {
       const { data, error } = await supabase
         .from('product_categories')
         .update(category)
