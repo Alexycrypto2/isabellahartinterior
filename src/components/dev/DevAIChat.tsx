@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Copy, Loader2, Sparkles, Zap, Code2, Bug, RotateCcw, Terminal } from 'lucide-react';
+import { Send, Bot, User, Copy, Loader2, Sparkles, Zap, Code2, Bug, RotateCcw, Terminal, ShieldCheck, Palette, LayoutDashboard, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 
@@ -10,10 +10,12 @@ type Message = { role: 'user' | 'assistant'; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/dev-chat`;
 
 const QUICK_PROMPTS = [
-  { icon: Bug, label: 'Find & fix bugs', prompt: 'Scan the entire website for bugs, broken features, and errors. List each issue with the exact fix needed.' },
-  { icon: Zap, label: 'Performance audit', prompt: 'Run a full performance audit on this website. Check load times, bundle size, lazy loading, and optimization opportunities.' },
-  { icon: Code2, label: 'Code review', prompt: 'Do a comprehensive code review of the entire codebase. Look for security issues, bad practices, and suggest improvements.' },
-  { icon: Terminal, label: 'Check admin panel', prompt: 'Scan all admin panel features and check if each one is working correctly. List any broken or incomplete features.' },
+  { icon: Bug, label: 'Fix bugs', prompt: 'Scan my entire website for bugs, broken features, and errors. List each issue with the exact file, code fix, and how to verify it works.' },
+  { icon: Zap, label: 'Speed up site', prompt: 'Run a full performance audit. Check bundle size, lazy loading, image optimization, unnecessary re-renders, and slow database queries. Give me the top 5 improvements with code.' },
+  { icon: ShieldCheck, label: 'Security check', prompt: 'Do a security audit of my website. Check RLS policies, auth flows, exposed API keys, XSS vulnerabilities, and input validation. List every issue with severity and the fix.' },
+  { icon: LayoutDashboard, label: 'Fix admin panel', prompt: 'Check every feature in my admin panel — blog editor, product management, categories, media, settings, analytics. Tell me which ones are broken or incomplete and how to fix them.' },
+  { icon: PlusCircle, label: 'Add a feature', prompt: 'I want to add a new feature to my website. Ask me what feature I want and then give me the complete step-by-step implementation plan with all the code needed.' },
+  { icon: Palette, label: 'Improve design', prompt: 'Review my website design and UI/UX. Check responsiveness, color consistency, spacing, typography, and accessibility. Give me the top improvements with code changes.' },
 ];
 
 const DevAIChat = () => {
@@ -114,10 +116,10 @@ const DevAIChat = () => {
             <Sparkles className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-foreground">AI Engineer Assistant</h3>
+            <h3 className="font-semibold text-sm text-foreground">Senior AI Engineer</h3>
             <div className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] text-muted-foreground">Online • Powered by Lovable AI</span>
+              <span className="text-[10px] text-muted-foreground">Online • Gemini 2.5 Flash</span>
             </div>
           </div>
         </div>
@@ -137,9 +139,9 @@ const DevAIChat = () => {
             <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-4">
               <Bot className="h-8 w-8 text-primary/60" />
             </div>
-            <h4 className="font-semibold text-foreground mb-1">AI Engineer Ready</h4>
+            <h4 className="font-semibold text-foreground mb-1">Your AI Engineer is Ready</h4>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-              Describe any issue with your website or admin panel. I'll scan the code, identify the problem, and provide the exact fix.
+              Tell me what you need — fix a bug, add a feature, improve performance, or review code. I know your entire codebase.
             </p>
             <div className="grid grid-cols-2 gap-2 w-full max-w-md">
               {QUICK_PROMPTS.map((qp) => (
@@ -163,13 +165,13 @@ const DevAIChat = () => {
                 <Bot className="h-4 w-4 text-primary-foreground" />
               </div>
             )}
-            <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
+            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
               msg.role === 'user'
                 ? 'bg-primary text-primary-foreground rounded-br-md'
                 : 'bg-muted/60 border border-border/40 rounded-bl-md'
             }`}>
               {msg.role === 'assistant' ? (
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-pre:bg-secondary/80 prose-pre:text-secondary-foreground prose-pre:text-xs prose-pre:rounded-lg prose-pre:border prose-pre:border-border/30 prose-code:text-primary prose-code:font-mono prose-code:text-xs">
+                <div className="prose prose-sm max-w-none dark:prose-invert prose-pre:bg-secondary/80 prose-pre:text-secondary-foreground prose-pre:text-xs prose-pre:rounded-lg prose-pre:border prose-pre:border-border/30 prose-code:text-primary prose-code:font-mono prose-code:text-xs prose-headings:text-foreground prose-strong:text-foreground">
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
                 </div>
               ) : (
@@ -180,7 +182,7 @@ const DevAIChat = () => {
                   onClick={() => copyText(msg.content)}
                   className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Copy className="h-3 w-3" /> Copy response
+                  <Copy className="h-3 w-3" /> Copy
                 </button>
               )}
             </div>
@@ -204,7 +206,7 @@ const DevAIChat = () => {
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
                 </span>
-                Analyzing your code...
+                Analyzing...
               </div>
             </div>
           </div>
@@ -218,7 +220,7 @@ const DevAIChat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder="Describe the issue or ask me to scan your code..."
+            placeholder="Tell me what to fix, build, or improve..."
             className="min-h-[44px] max-h-[120px] resize-none text-sm rounded-xl border-border/50 bg-background focus-visible:ring-primary/30"
             rows={1}
           />
@@ -232,7 +234,7 @@ const DevAIChat = () => {
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          AI can scan your codebase, diagnose errors, and provide copy-paste fixes
+          Powered by Lovable AI • Knows your entire codebase
         </p>
       </div>
     </div>
