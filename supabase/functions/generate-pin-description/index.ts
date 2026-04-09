@@ -9,7 +9,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { title, description, category, price, type } = await req.json();
+    const body = await req.json();
+    
+    if (body.healthCheck) {
+      return new Response(JSON.stringify({ status: "ok" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { title, description, category, price, type } = body;
     
     if (!title || !description) {
       return new Response(JSON.stringify({ error: "Title and description are required" }), {

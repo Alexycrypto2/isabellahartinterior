@@ -148,7 +148,15 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    
+    if (body.healthCheck) {
+      return new Response(JSON.stringify({ status: "ok" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { messages } = body;
     const validation = validateMessages(messages);
     if (!validation.valid) {
       return new Response(JSON.stringify({ error: validation.error }), {
