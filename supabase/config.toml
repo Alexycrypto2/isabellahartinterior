@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.discover-trending-products]
 verify_jwt = false
+
+[functions.ai-admin-actions]
+verify_jwt = false

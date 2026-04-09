@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Copy, Loader2, Sparkles, Zap, Bug, RotateCcw, ShieldCheck, Palette, LayoutDashboard, PlusCircle, History, Trash2 } from 'lucide-react';
+import { Send, Bot, User, Copy, Loader2, Sparkles, Zap, Bug, RotateCcw, ShieldCheck, Palette, LayoutDashboard, PlusCircle, History, Trash2, CheckCircle2, Package, FileText, Settings, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 
-type Message = { role: 'user' | 'assistant'; content: string };
+type Message = { role: 'user' | 'assistant'; content: string; actions?: ActionTaken[] };
+type ActionTaken = { action: string; success: boolean; message: string };
 type Conversation = { id: string; title: string; messages: Message[]; updatedAt: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/dev-chat`;
@@ -13,26 +14,34 @@ const STORAGE_KEY = 'dev-ai-conversations';
 const ACTIVE_KEY = 'dev-ai-active-convo';
 
 const QUICK_PROMPTS = [
-  { icon: Bug, label: 'Fix bugs', prompt: 'Scan my website for bugs and broken features. Tell me what\'s wrong and exactly how to fix each issue — be specific and actionable.' },
-  { icon: Zap, label: 'Speed up site', prompt: 'Run a performance audit of my website. What are the top things slowing it down? Give me a prioritized action plan.' },
-  { icon: ShieldCheck, label: 'Security check', prompt: 'Do a security audit. Check auth, RLS policies, exposed keys, XSS risks. What needs fixing right now?' },
-  { icon: LayoutDashboard, label: 'Fix admin panel', prompt: 'Check every admin panel feature — blog, products, categories, media, settings. What\'s broken or incomplete?' },
-  { icon: PlusCircle, label: 'Add a feature', prompt: 'I want to add a new feature. Ask me what I need and then tell me exactly what changes to make — which files, what to add, step by step.' },
-  { icon: Palette, label: 'Improve design', prompt: 'Review my website design. What looks off? Check responsive layout, colors, spacing, typography. Give me the top improvements.' },
+  { icon: Package, label: 'Add a product', prompt: 'Add a new trending home decor product to the shop. Pick something popular and stylish right now.' },
+  { icon: FileText, label: 'Write a blog post', prompt: 'Write a full blog post about a trending home decor topic. Make it SEO-optimized and publish-ready.' },
+  { icon: Tag, label: 'Add a category', prompt: 'What room categories do I currently have? Suggest any missing ones and add them.' },
+  { icon: Settings, label: 'Update settings', prompt: 'Show me my current site settings so I can tell you what to change.' },
+  { icon: Bug, label: 'Fix bugs', prompt: 'Scan my website for bugs and broken features. Tell me what\'s wrong and exactly how to fix each issue.' },
+  { icon: Palette, label: 'Improve design', prompt: 'Review my website design. What looks off? Check responsive layout, colors, spacing. Give me the top improvements.' },
 ];
 
-// Helpers for localStorage persistence
+const ACTION_ICONS: Record<string, typeof Package> = {
+  create_product: Package,
+  update_product: Package,
+  create_blog_post: FileText,
+  update_blog_post: FileText,
+  create_category: Tag,
+  update_setting: Settings,
+  create_banner: Sparkles,
+  delete_product: Package,
+  delete_blog_post: FileText,
+};
+
 const loadConversations = (): Conversation[] => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
 };
 const saveConversations = (convos: Conversation[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(convos.slice(0, 30))); // keep last 30
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(convos.slice(0, 30)));
 };
 const loadActiveId = (): string | null => localStorage.getItem(ACTIVE_KEY);
 const saveActiveId = (id: string | null) => id ? localStorage.setItem(ACTIVE_KEY, id) : localStorage.removeItem(ACTIVE_KEY);
-
 const generateId = () => crypto.randomUUID?.() || Date.now().toString(36);
 const titleFromMessage = (msg: string) => msg.slice(0, 60) + (msg.length > 60 ? '...' : '');
 
@@ -47,23 +56,14 @@ const DevAIChat = () => {
   const activeConvo = conversations.find(c => c.id === activeId);
   const messages = activeConvo?.messages || [];
 
-  // Persist whenever conversations or activeId change
   useEffect(() => { saveConversations(conversations); }, [conversations]);
   useEffect(() => { saveActiveId(activeId); }, [activeId]);
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
-  const startNewChat = useCallback(() => {
-    setActiveId(null);
-    setShowHistory(false);
-  }, []);
-
-  const openConversation = useCallback((id: string) => {
-    setActiveId(id);
-    setShowHistory(false);
-  }, []);
-
+  const startNewChat = useCallback(() => { setActiveId(null); setShowHistory(false); }, []);
+  const openConversation = useCallback((id: string) => { setActiveId(id); setShowHistory(false); }, []);
   const deleteConversation = useCallback((id: string) => {
     setConversations(prev => prev.filter(c => c.id !== id));
     if (activeId === id) setActiveId(null);
@@ -83,13 +83,10 @@ const DevAIChat = () => {
     let convoId = activeId;
 
     if (!convoId) {
-      // Create new conversation
       convoId = generateId();
       const newConvo: Conversation = {
-        id: convoId,
-        title: titleFromMessage(msg),
-        messages: [userMsg],
-        updatedAt: new Date().toISOString(),
+        id: convoId, title: titleFromMessage(msg),
+        messages: [userMsg], updatedAt: new Date().toISOString(),
       };
       setConversations(prev => [newConvo, ...prev]);
       setActiveId(convoId);
@@ -100,7 +97,7 @@ const DevAIChat = () => {
     setInput('');
     setIsLoading(true);
 
-    const allMessages = [...messages, userMsg];
+    const allMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
 
     try {
       const resp = await fetch(CHAT_URL, {
@@ -116,42 +113,23 @@ const DevAIChat = () => {
         const err = await resp.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(err.error || `HTTP ${resp.status}`);
       }
-      if (!resp.body) throw new Error('No response body');
 
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let assistantContent = '';
+      const data = await resp.json();
       const cId = convoId;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
+      const assistantMsg: Message = {
+        role: 'assistant',
+        content: data.content || 'Done.',
+        actions: data.actions_taken?.length ? data.actions_taken : undefined,
+      };
 
-        let newlineIdx: number;
-        while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, newlineIdx);
-          buffer = buffer.slice(newlineIdx + 1);
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              assistantContent += content;
-              const snapshot = assistantContent;
-              updateMessages(cId, msgs => {
-                const last = msgs[msgs.length - 1];
-                if (last?.role === 'assistant') {
-                  return msgs.map((m, i) => i === msgs.length - 1 ? { ...m, content: snapshot } : m);
-                }
-                return [...msgs, { role: 'assistant', content: snapshot }];
-              });
-            }
-          } catch { /* partial JSON */ }
+      updateMessages(cId, msgs => [...msgs, assistantMsg]);
+
+      // Show toast for actions
+      if (data.actions_taken?.length) {
+        const successCount = data.actions_taken.filter((a: ActionTaken) => a.success).length;
+        if (successCount > 0) {
+          toast.success(`${successCount} action${successCount > 1 ? 's' : ''} completed successfully`);
         }
       }
     } catch (err: any) {
@@ -163,12 +141,26 @@ const DevAIChat = () => {
     }
   };
 
-  const copyText = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copied');
-  };
+  const copyText = (text: string) => { navigator.clipboard.writeText(text); toast.success('Copied'); };
 
-  // History sidebar
+  // Action badges component
+  const ActionBadges = ({ actions }: { actions: ActionTaken[] }) => (
+    <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/30">
+      {actions.map((a, i) => {
+        const Icon = ACTION_ICONS[a.action] || CheckCircle2;
+        return (
+          <span key={i} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+            a.success ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-destructive/10 text-destructive'
+          }`}>
+            <Icon className="h-3 w-3" />
+            {a.action.replace(/_/g, ' ')}
+            {a.success ? ' ✅' : ' ❌'}
+          </span>
+        );
+      })}
+    </div>
+  );
+
   if (showHistory) {
     return (
       <div className="flex flex-col h-[700px] rounded-2xl border border-border/50 bg-card overflow-hidden shadow-lg">
@@ -178,19 +170,14 @@ const DevAIChat = () => {
             <Button variant="outline" size="sm" onClick={startNewChat} className="text-xs gap-1">
               <PlusCircle className="h-3 w-3" /> New Chat
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)} className="text-xs">
-              Back
-            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)} className="text-xs">Back</Button>
           </div>
         </div>
         <div className="flex-1 overflow-auto p-3 space-y-2">
           {conversations.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-10">No conversations yet</p>
           ) : conversations.map(c => (
-            <div
-              key={c.id}
-              className={`p-3 rounded-xl border cursor-pointer hover:bg-muted/40 transition-colors flex justify-between items-start gap-2 ${c.id === activeId ? 'border-primary/40 bg-primary/5' : 'border-border/50'}`}
-            >
+            <div key={c.id} className={`p-3 rounded-xl border cursor-pointer hover:bg-muted/40 transition-colors flex justify-between items-start gap-2 ${c.id === activeId ? 'border-primary/40 bg-primary/5' : 'border-border/50'}`}>
               <div className="flex-1 min-w-0" onClick={() => openConversation(c.id)}>
                 <p className="text-sm font-medium truncate">{c.title}</p>
                 <p className="text-[10px] text-muted-foreground">{c.messages.length} messages • {new Date(c.updatedAt).toLocaleDateString()}</p>
@@ -214,10 +201,10 @@ const DevAIChat = () => {
             <Sparkles className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-foreground">Senior AI Engineer</h3>
+            <h3 className="font-semibold text-sm text-foreground">AI Engineer</h3>
             <div className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] text-muted-foreground">Online • Powered by Lovable AI</span>
+              <span className="text-[10px] text-muted-foreground">Can add products, posts, settings & more</span>
             </div>
           </div>
         </div>
@@ -240,17 +227,14 @@ const DevAIChat = () => {
             <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-4">
               <Bot className="h-8 w-8 text-primary/60" />
             </div>
-            <h4 className="font-semibold text-foreground mb-1">Your AI Engineer is Ready</h4>
+            <h4 className="font-semibold text-foreground mb-1">AI Engineer — Ready to Build</h4>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-              Tell me what you need — I'll tell you exactly what to change, step by step. No code dumps, just clear actions.
+              I can directly add products, write blog posts, create categories, and update settings. Just tell me what you need!
             </p>
             <div className="grid grid-cols-2 gap-2 w-full max-w-md">
               {QUICK_PROMPTS.map((qp) => (
-                <button
-                  key={qp.label}
-                  onClick={() => sendMessage(qp.prompt)}
-                  className="flex items-center gap-2 p-3 rounded-xl border border-border/60 bg-muted/30 hover:bg-muted/60 hover:border-primary/30 transition-all text-left group"
-                >
+                <button key={qp.label} onClick={() => sendMessage(qp.prompt)}
+                  className="flex items-center gap-2 p-3 rounded-xl border border-border/60 bg-muted/30 hover:bg-muted/60 hover:border-primary/30 transition-all text-left group">
                   <qp.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
                   <span className="text-xs font-medium text-foreground">{qp.label}</span>
                 </button>
@@ -272,9 +256,12 @@ const DevAIChat = () => {
                 : 'bg-muted/60 border border-border/40 rounded-bl-md'
             }`}>
               {msg.role === 'assistant' ? (
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-pre:bg-secondary/80 prose-pre:text-secondary-foreground prose-pre:text-xs prose-pre:rounded-lg prose-pre:border prose-pre:border-border/30 prose-code:text-primary prose-code:font-mono prose-code:text-xs prose-headings:text-foreground prose-strong:text-foreground">
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
-                </div>
+                <>
+                  <div className="prose prose-sm max-w-none dark:prose-invert prose-pre:bg-secondary/80 prose-pre:text-secondary-foreground prose-pre:text-xs prose-pre:rounded-lg prose-pre:border prose-pre:border-border/30 prose-code:text-primary prose-code:font-mono prose-code:text-xs prose-headings:text-foreground prose-strong:text-foreground">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                  {msg.actions && msg.actions.length > 0 && <ActionBadges actions={msg.actions} />}
+                </>
               ) : (
                 <p>{msg.content}</p>
               )}
@@ -292,7 +279,7 @@ const DevAIChat = () => {
           </div>
         ))}
 
-        {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
+        {isLoading && (
           <div className="flex gap-2.5">
             <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-sm">
               <Loader2 className="h-4 w-4 text-primary-foreground animate-spin" />
@@ -304,7 +291,7 @@ const DevAIChat = () => {
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
                 </span>
-                Analyzing...
+                Working on it...
               </div>
             </div>
           </div>
@@ -318,21 +305,17 @@ const DevAIChat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder="Tell me what to fix, build, or improve..."
+            placeholder="Add a product, write a blog post, update settings..."
             className="min-h-[44px] max-h-[120px] resize-none text-sm rounded-xl border-border/50 bg-background focus-visible:ring-primary/30"
             rows={1}
           />
-          <Button
-            onClick={() => sendMessage()}
-            disabled={isLoading || !input.trim()}
-            size="icon"
-            className="shrink-0 h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-accent hover:opacity-90 shadow-md"
-          >
+          <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()} size="icon"
+            className="shrink-0 h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-accent hover:opacity-90 shadow-md">
             <Send className="h-4 w-4" />
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          Powered by Lovable AI • Conversations saved automatically
+          AI Engineer • Can create products, blog posts, categories & update settings
         </p>
       </div>
     </div>
