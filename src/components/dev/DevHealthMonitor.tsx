@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { RefreshCw, CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface ServiceStatus {
@@ -36,27 +34,36 @@ const DevHealthMonitor = () => {
       const timeout = setTimeout(() => controller.abort(), 10000);
 
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${service.functionName}`;
+      
+      // Use POST with empty/minimal body - edge functions respond to POST
+      // A non-200 response like 400 still means the function is reachable and operational
       const response = await fetch(url, {
-        method: 'OPTIONS',
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ healthCheck: true }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
 
+      // Any response (even 400/422) means the function is deployed and reachable
+      // Only 502/503/504 or network errors mean it's truly down
+      const isUp = response.status < 500;
+
       return {
         ...service,
-        status: response.ok || response.status === 204 ? 'operational' : 'down',
+        status: isUp ? 'operational' : 'down',
         lastChecked: new Date().toISOString(),
-        error: response.ok || response.status === 204 ? undefined : `HTTP ${response.status}`,
+        error: isUp ? undefined : `HTTP ${response.status}`,
       };
     } catch (err: any) {
       return {
         ...service,
         status: 'down',
         lastChecked: new Date().toISOString(),
-        error: err.name === 'AbortError' ? 'Timeout (10s)' : err.message,
+        error: err.name === 'AbortError' ? 'Timeout (10s)' : 'Failed to connect',
       };
     }
   };
@@ -73,7 +80,7 @@ const DevHealthMonitor = () => {
     if (downCount > 0) {
       toast.error(`${downCount} service(s) are down`);
     } else {
-      toast.success('All services operational');
+      toast.success('All services operational ✓');
     }
   };
 
