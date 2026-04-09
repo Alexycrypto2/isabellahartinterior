@@ -1,42 +1,106 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Copy, Loader2, Sparkles, Zap, Code2, Bug, RotateCcw, Terminal, ShieldCheck, Palette, LayoutDashboard, PlusCircle } from 'lucide-react';
+import { Send, Bot, User, Copy, Loader2, Sparkles, Zap, Bug, RotateCcw, ShieldCheck, Palette, LayoutDashboard, PlusCircle, History, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 
 type Message = { role: 'user' | 'assistant'; content: string };
+type Conversation = { id: string; title: string; messages: Message[]; updatedAt: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/dev-chat`;
+const STORAGE_KEY = 'dev-ai-conversations';
+const ACTIVE_KEY = 'dev-ai-active-convo';
 
 const QUICK_PROMPTS = [
-  { icon: Bug, label: 'Fix bugs', prompt: 'Scan my entire website for bugs, broken features, and errors. List each issue with the exact file, code fix, and how to verify it works.' },
-  { icon: Zap, label: 'Speed up site', prompt: 'Run a full performance audit. Check bundle size, lazy loading, image optimization, unnecessary re-renders, and slow database queries. Give me the top 5 improvements with code.' },
-  { icon: ShieldCheck, label: 'Security check', prompt: 'Do a security audit of my website. Check RLS policies, auth flows, exposed API keys, XSS vulnerabilities, and input validation. List every issue with severity and the fix.' },
-  { icon: LayoutDashboard, label: 'Fix admin panel', prompt: 'Check every feature in my admin panel — blog editor, product management, categories, media, settings, analytics. Tell me which ones are broken or incomplete and how to fix them.' },
-  { icon: PlusCircle, label: 'Add a feature', prompt: 'I want to add a new feature to my website. Ask me what feature I want and then give me the complete step-by-step implementation plan with all the code needed.' },
-  { icon: Palette, label: 'Improve design', prompt: 'Review my website design and UI/UX. Check responsiveness, color consistency, spacing, typography, and accessibility. Give me the top improvements with code changes.' },
+  { icon: Bug, label: 'Fix bugs', prompt: 'Scan my website for bugs and broken features. Tell me what\'s wrong and exactly how to fix each issue — be specific and actionable.' },
+  { icon: Zap, label: 'Speed up site', prompt: 'Run a performance audit of my website. What are the top things slowing it down? Give me a prioritized action plan.' },
+  { icon: ShieldCheck, label: 'Security check', prompt: 'Do a security audit. Check auth, RLS policies, exposed keys, XSS risks. What needs fixing right now?' },
+  { icon: LayoutDashboard, label: 'Fix admin panel', prompt: 'Check every admin panel feature — blog, products, categories, media, settings. What\'s broken or incomplete?' },
+  { icon: PlusCircle, label: 'Add a feature', prompt: 'I want to add a new feature. Ask me what I need and then tell me exactly what changes to make — which files, what to add, step by step.' },
+  { icon: Palette, label: 'Improve design', prompt: 'Review my website design. What looks off? Check responsive layout, colors, spacing, typography. Give me the top improvements.' },
 ];
 
+// Helpers for localStorage persistence
+const loadConversations = (): Conversation[] => {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch { return []; }
+};
+const saveConversations = (convos: Conversation[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(convos.slice(0, 30))); // keep last 30
+};
+const loadActiveId = (): string | null => localStorage.getItem(ACTIVE_KEY);
+const saveActiveId = (id: string | null) => id ? localStorage.setItem(ACTIVE_KEY, id) : localStorage.removeItem(ACTIVE_KEY);
+
+const generateId = () => crypto.randomUUID?.() || Date.now().toString(36);
+const titleFromMessage = (msg: string) => msg.slice(0, 60) + (msg.length > 60 ? '...' : '');
+
 const DevAIChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>(loadConversations);
+  const [activeId, setActiveId] = useState<string | null>(loadActiveId);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const activeConvo = conversations.find(c => c.id === activeId);
+  const messages = activeConvo?.messages || [];
+
+  // Persist whenever conversations or activeId change
+  useEffect(() => { saveConversations(conversations); }, [conversations]);
+  useEffect(() => { saveActiveId(activeId); }, [activeId]);
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  const startNewChat = useCallback(() => {
+    setActiveId(null);
+    setShowHistory(false);
+  }, []);
+
+  const openConversation = useCallback((id: string) => {
+    setActiveId(id);
+    setShowHistory(false);
+  }, []);
+
+  const deleteConversation = useCallback((id: string) => {
+    setConversations(prev => prev.filter(c => c.id !== id));
+    if (activeId === id) setActiveId(null);
+  }, [activeId]);
+
+  const updateMessages = useCallback((convoId: string, updater: (msgs: Message[]) => Message[]) => {
+    setConversations(prev => prev.map(c =>
+      c.id === convoId ? { ...c, messages: updater(c.messages), updatedAt: new Date().toISOString() } : c
+    ));
+  }, []);
 
   const sendMessage = async (text?: string) => {
     const msg = text || input.trim();
     if (!msg || isLoading) return;
 
     const userMsg: Message = { role: 'user', content: msg };
-    const allMessages = [...messages, userMsg];
-    setMessages(allMessages);
+    let convoId = activeId;
+
+    if (!convoId) {
+      // Create new conversation
+      convoId = generateId();
+      const newConvo: Conversation = {
+        id: convoId,
+        title: titleFromMessage(msg),
+        messages: [userMsg],
+        updatedAt: new Date().toISOString(),
+      };
+      setConversations(prev => [newConvo, ...prev]);
+      setActiveId(convoId);
+    } else {
+      updateMessages(convoId, msgs => [...msgs, userMsg]);
+    }
+
     setInput('');
     setIsLoading(true);
+
+    const allMessages = [...messages, userMsg];
 
     try {
       const resp = await fetch(CHAT_URL, {
@@ -52,13 +116,13 @@ const DevAIChat = () => {
         const err = await resp.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(err.error || `HTTP ${resp.status}`);
       }
-
       if (!resp.body) throw new Error('No response body');
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let assistantContent = '';
+      const cId = convoId;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -78,12 +142,13 @@ const DevAIChat = () => {
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
               assistantContent += content;
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
+              const snapshot = assistantContent;
+              updateMessages(cId, msgs => {
+                const last = msgs[msgs.length - 1];
                 if (last?.role === 'assistant') {
-                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
+                  return msgs.map((m, i) => i === msgs.length - 1 ? { ...m, content: snapshot } : m);
                 }
-                return [...prev, { role: 'assistant', content: assistantContent }];
+                return [...msgs, { role: 'assistant', content: snapshot }];
               });
             }
           } catch { /* partial JSON */ }
@@ -91,7 +156,8 @@ const DevAIChat = () => {
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to get AI response');
-      setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ Error: ${err.message}` }]);
+      const cId = convoId;
+      updateMessages(cId, msgs => [...msgs, { role: 'assistant', content: `⚠️ Error: ${err.message}` }]);
     } finally {
       setIsLoading(false);
     }
@@ -99,13 +165,45 @@ const DevAIChat = () => {
 
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
+    toast.success('Copied');
   };
 
-  const clearChat = () => {
-    setMessages([]);
-    toast.info('Chat cleared');
-  };
+  // History sidebar
+  if (showHistory) {
+    return (
+      <div className="flex flex-col h-[700px] rounded-2xl border border-border/50 bg-card overflow-hidden shadow-lg">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+          <h3 className="font-semibold text-sm">Chat History</h3>
+          <div className="flex gap-1">
+            <Button variant="outline" size="sm" onClick={startNewChat} className="text-xs gap-1">
+              <PlusCircle className="h-3 w-3" /> New Chat
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)} className="text-xs">
+              Back
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto p-3 space-y-2">
+          {conversations.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-10">No conversations yet</p>
+          ) : conversations.map(c => (
+            <div
+              key={c.id}
+              className={`p-3 rounded-xl border cursor-pointer hover:bg-muted/40 transition-colors flex justify-between items-start gap-2 ${c.id === activeId ? 'border-primary/40 bg-primary/5' : 'border-border/50'}`}
+            >
+              <div className="flex-1 min-w-0" onClick={() => openConversation(c.id)}>
+                <p className="text-sm font-medium truncate">{c.title}</p>
+                <p className="text-[10px] text-muted-foreground">{c.messages.length} messages • {new Date(c.updatedAt).toLocaleDateString()}</p>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteConversation(c.id); }}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[700px] rounded-2xl border border-border/50 bg-card overflow-hidden shadow-lg">
@@ -119,14 +217,17 @@ const DevAIChat = () => {
             <h3 className="font-semibold text-sm text-foreground">Senior AI Engineer</h3>
             <div className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] text-muted-foreground">Online • Gemini 2.5 Flash</span>
+              <span className="text-[10px] text-muted-foreground">Online • Powered by Lovable AI</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={() => setShowHistory(true)} className="h-8 text-xs gap-1 text-muted-foreground hover:text-foreground">
+            <History className="h-3 w-3" /> History
+          </Button>
           {messages.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={clearChat} className="h-8 text-xs gap-1 text-muted-foreground hover:text-foreground">
-              <RotateCcw className="h-3 w-3" /> Clear
+            <Button variant="ghost" size="sm" onClick={startNewChat} className="h-8 text-xs gap-1 text-muted-foreground hover:text-foreground">
+              <RotateCcw className="h-3 w-3" /> New
             </Button>
           )}
         </div>
@@ -141,7 +242,7 @@ const DevAIChat = () => {
             </div>
             <h4 className="font-semibold text-foreground mb-1">Your AI Engineer is Ready</h4>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-              Tell me what you need — fix a bug, add a feature, improve performance, or review code. I know your entire codebase.
+              Tell me what you need — I'll tell you exactly what to change, step by step. No code dumps, just clear actions.
             </p>
             <div className="grid grid-cols-2 gap-2 w-full max-w-md">
               {QUICK_PROMPTS.map((qp) => (
@@ -178,10 +279,7 @@ const DevAIChat = () => {
                 <p>{msg.content}</p>
               )}
               {msg.role === 'assistant' && msg.content && (
-                <button
-                  onClick={() => copyText(msg.content)}
-                  className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <button onClick={() => copyText(msg.content)} className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
                   <Copy className="h-3 w-3" /> Copy
                 </button>
               )}
@@ -234,7 +332,7 @@ const DevAIChat = () => {
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          Powered by Lovable AI • Knows your entire codebase
+          Powered by Lovable AI • Conversations saved automatically
         </p>
       </div>
     </div>
