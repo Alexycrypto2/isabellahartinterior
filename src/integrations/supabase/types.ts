@@ -238,6 +238,71 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_conversations: {
+        Row: {
+          assigned_admin_id: string | null
+          id: string
+          is_live_chat: boolean
+          last_message_at: string
+          metadata: Json | null
+          started_at: string
+          status: string
+          visitor_id: string
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          id?: string
+          is_live_chat?: boolean
+          last_message_at?: string
+          metadata?: Json | null
+          started_at?: string
+          status?: string
+          visitor_id: string
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          id?: string
+          is_live_chat?: boolean
+          last_message_at?: string
+          metadata?: Json | null
+          started_at?: string
+          status?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commission_payments: {
         Row: {
           amount: number
@@ -385,6 +450,45 @@ export type Database = {
           new_owner_confirmed?: boolean | null
           new_owner_email?: string
           token?: string
+        }
+        Relationships: []
+      }
+      pin_generations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dimensions: string | null
+          id: string
+          image_url: string | null
+          pin_description: string | null
+          prompt: string | null
+          reference_image_url: string | null
+          style: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dimensions?: string | null
+          id?: string
+          image_url?: string | null
+          pin_description?: string | null
+          prompt?: string | null
+          reference_image_url?: string | null
+          style?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dimensions?: string | null
+          id?: string
+          image_url?: string | null
+          pin_description?: string | null
+          prompt?: string | null
+          reference_image_url?: string | null
+          style?: string | null
+          title?: string
         }
         Relationships: []
       }
