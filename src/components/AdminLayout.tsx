@@ -59,6 +59,7 @@ const NAV_SECTIONS: NavSection[] = [
       { to: '/admin/blog/new', icon: PlusCircle, label: 'New Post', exact: true },
       { to: '/admin/categories', icon: Tag, label: 'Categories', exact: true },
       { to: '/admin/blog/calendar', icon: Calendar, label: 'Calendar', exact: true },
+      { to: '/admin/pin-generator', icon: Sparkles, label: 'Pin Generator', exact: true },
     ],
   },
   {
