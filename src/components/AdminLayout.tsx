@@ -27,6 +27,7 @@ import {
   ChevronRight,
   Sparkles,
   Flame,
+  Headphones,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -79,6 +80,7 @@ const NAV_SECTIONS: NavSection[] = [
       { to: '/admin/subscribers', icon: Users, label: 'Subscribers', exact: true },
       { to: '/admin/contact-submissions', icon: MessageSquare, label: 'Messages', exact: true },
       { to: '/admin/photo-submissions', icon: Camera, label: 'Photos', exact: true },
+      { to: '/admin/chat', icon: Headphones, label: 'Live Chat', exact: true },
     ],
   },
   {
