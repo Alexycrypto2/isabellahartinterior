@@ -207,6 +207,18 @@ const AdminSettings = () => {
       setAiImageModel(ai.image_model || '');
       setAiImageEndpoint(ai.image_endpoint || '');
 
+      // Auto-persist 'My API' as the default priority if not already saved.
+      // This makes sure the system stays on the user's keys even when built-in credits run out.
+      if (!ai.priority) {
+        updateMutation.mutate({
+          key: 'ai_api',
+          value: {
+            ...ai,
+            priority: 'custom',
+          },
+        });
+      }
+
       // Affiliate alerts
       const alerts = getSetting('affiliate_alerts') as Record<string, any>;
       setAlertThreshold(alerts.threshold ?? 10);
