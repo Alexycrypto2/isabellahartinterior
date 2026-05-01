@@ -1,9 +1,41 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+async function getCustomTextConfig() {
+  try {
+    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data } = await sb.from("site_settings").select("value").eq("key", "ai_api").single();
+    if (!data) return null;
+    const v = data.value as Record<string, any>;
+    const key = v.text_api_key || v.api_key;
+    return {
+      priority: v.priority || "custom",
+      api_key: key || null,
+      provider: v.text_provider || v.provider || "openai",
+      model: v.text_model || v.model || "",
+      endpoint: v.text_endpoint || "",
+    };
+  } catch (_e) { return null; }
+}
+
+// OpenAI-style chat call (also works for OpenAI-compatible custom endpoints).
+async function callOpenAIStyle(cfg: any, payload: Record<string, any>): Promise<Response | null> {
+  if (!cfg?.api_key) return null;
+  const provider = cfg.provider || "openai";
+  // Tool calling is reliable on OpenAI / OpenAI-compatible. For other providers we still try.
+  const url = (provider === "custom" && cfg.endpoint) ? cfg.endpoint : "https://api.openai.com/v1/chat/completions";
+  const model = cfg.model || (provider === "openai" ? "gpt-4o-mini" : payload.model);
+  return await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${cfg.api_key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, model }),
+  });
+}
 
 const TOOLS = [
   {
@@ -236,41 +268,59 @@ serve(async (req) => {
 
     const { messages } = body;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const customCfg = await getCustomTextConfig();
+    const priority = customCfg?.priority || "custom";
+    const hasCustomKey = !!customCfg?.api_key;
+    // Tool-calling fallback is reliable on OpenAI and OpenAI-compatible providers.
+    const customSupportsTools = hasCustomKey && (customCfg.provider === "openai" || customCfg.provider === "custom");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        tools: TOOLS,
-        stream: false, // Need non-streaming for tool calls
-      }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add credits in Settings → Workspace → Usage." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const callLovable = async (msgs: any[], withTools = true) => {
+      if (!LOVABLE_API_KEY) return null;
+      const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: msgs,
+          ...(withTools ? { tools: TOOLS } : {}),
+          stream: false,
+        }),
       });
+      if (r.status === 429) throw Object.assign(new Error("Rate limited. Please try again in a moment."), { status: 429 });
+      if (r.status === 402) { console.log("Lovable credits exhausted in dev-chat"); return null; }
+      if (!r.ok) { console.error("AI gateway error:", r.status, await r.text()); return null; }
+      return r;
+    };
+
+    const callCustom = async (msgs: any[], withTools = true) => {
+      const payload: Record<string, any> = { messages: msgs, stream: false };
+      if (withTools && customSupportsTools) payload.tools = TOOLS;
+      return await callOpenAIStyle(customCfg, payload);
+    };
+
+    const initialMessages = [{ role: "system", content: systemPrompt }, ...messages];
+    let response: Response | null = null;
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        response = await callCustom(initialMessages);
+        if (!response || !response.ok) response = await callLovable(initialMessages);
+      } else {
+        response = await callLovable(initialMessages);
+        if (!response && hasCustomKey) response = await callCustom(initialMessages);
+      }
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      throw e;
+    }
+
+    if (!response || !response.ok) {
+      return new Response(JSON.stringify({
+        error: hasCustomKey
+          ? "AI service unavailable. Both built-in credits and your custom key failed."
+          : "AI credits exhausted. Add your own API key in Admin → Settings → AI API to keep using the dev assistant.",
+      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const data = await response.json();
@@ -324,21 +374,22 @@ serve(async (req) => {
         })),
       ];
 
-      const followUp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: followUpMessages,
-          stream: false,
-        }),
-      });
-
-      const followUpData = await followUp.json();
-      const followUpContent = followUpData.choices?.[0]?.message?.content || "Action completed.";
+      // Use the same priority for the follow-up summarization (no tools needed)
+      let followUp: Response | null = null;
+      try {
+        if (priority === "custom" && hasCustomKey) {
+          followUp = await callCustom(followUpMessages, false);
+          if (!followUp || !followUp.ok) followUp = await callLovable(followUpMessages, false);
+        } else {
+          followUp = await callLovable(followUpMessages, false);
+          if ((!followUp || !followUp.ok) && hasCustomKey) followUp = await callCustom(followUpMessages, false);
+        }
+      } catch (_e) { /* no-op, will fall through */ }
+      let followUpContent = "Action completed.";
+      if (followUp && followUp.ok) {
+        const followUpData = await followUp.json();
+        followUpContent = followUpData.choices?.[0]?.message?.content || followUpContent;
+      }
 
       return new Response(JSON.stringify({
         content: followUpContent,
