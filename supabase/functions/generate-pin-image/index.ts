@@ -6,6 +6,54 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function getCustomImageConfig() {
+  try {
+    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data } = await sb.from("site_settings").select("value").eq("key", "ai_api").single();
+    if (!data) return null;
+    const v = data.value as Record<string, any>;
+    return {
+      priority: v.priority || "custom",
+      api_key: v.image_api_key || null,
+      provider: v.image_provider || "openai",
+      model: v.image_model || (v.image_provider === "google" ? "gemini-2.0-flash-exp" : "dall-e-3"),
+      endpoint: v.image_endpoint || "",
+    };
+  } catch (_e) { return null; }
+}
+
+// Returns base64 image data (no prefix) or null.
+async function generateWithCustom(cfg: any, prompt: string): Promise<string | null> {
+  if (!cfg?.api_key) return null;
+  try {
+    if (cfg.provider === "openai" || cfg.provider === "custom") {
+      const url = cfg.endpoint || "https://api.openai.com/v1/images/generations";
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${cfg.api_key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: cfg.model || "dall-e-3", prompt, size: "1024x1792", response_format: "b64_json", n: 1 }),
+      });
+      if (!r.ok) { console.error("Custom image error:", r.status, await r.text()); return null; }
+      const j = await r.json();
+      return j.data?.[0]?.b64_json || null;
+    }
+    if (cfg.provider === "google") {
+      const url = cfg.endpoint || `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent`;
+      const r = await fetch(`${url}?key=${cfg.api_key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"] } }),
+      });
+      if (!r.ok) { console.error("Gemini image error:", r.status, await r.text()); return null; }
+      const j = await r.json();
+      const parts = j.candidates?.[0]?.content?.parts || [];
+      for (const p of parts) if (p.inlineData?.data) return p.inlineData.data;
+      return null;
+    }
+  } catch (e) { console.error("Custom image gen exception:", e); }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -30,9 +78,13 @@ serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "AI service not configured" }), {
-        status: 500,
+    const customCfg = await getCustomImageConfig();
+    const priority = customCfg?.priority || "custom";
+    const hasCustomKey = !!customCfg?.api_key;
+
+    if (!LOVABLE_API_KEY && !hasCustomKey) {
+      return new Response(JSON.stringify({ error: "No AI provider available. Add an image API key in Admin → Settings → AI API." }), {
+        status: 402,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -77,88 +129,84 @@ serve(async (req) => {
       });
     }
 
-    // Generate image with Gemini image model
-    const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-pro-image-preview",
-        messages: [{ role: "user", content: userContent }],
-        modalities: ["image", "text"],
-      }),
-    });
-
-    if (!imageResponse.ok) {
-      if (imageResponse.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    const callLovableImage = async (): Promise<{ b64: string | null; text: string } | null> => {
+      if (!LOVABLE_API_KEY) return null;
+      const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-3-pro-image-preview",
+          messages: [{ role: "user", content: userContent }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (r.status === 429) throw Object.assign(new Error("Rate limited. Please try again in a moment."), { status: 429 });
+      if (r.status === 402) { console.log("Lovable image credits exhausted, will try custom"); return null; }
+      if (!r.ok) { console.error("Lovable image error:", r.status, await r.text()); return null; }
+      const j = await r.json();
+      let b64: string | null = null;
+      let text = "";
+      const images = j.choices?.[0]?.message?.images;
+      if (images?.length) {
+        const u = images[0]?.image_url?.url;
+        if (u?.startsWith("data:image")) b64 = u.split(",")[1];
       }
-      if (imageResponse.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds in Settings → Workspace → Usage." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      const parts = j.choices?.[0]?.message?.parts || [];
+      if (!b64) for (const p of parts) { if (p.inline_data?.data) b64 = p.inline_data.data; if (p.text) text += p.text; }
+      const content = j.choices?.[0]?.message?.content || "";
+      if (!b64 && content) {
+        const m = content.match(/data:image\/[^;]+;base64,([A-Za-z0-9+/=]+)/);
+        if (m) b64 = m[1];
+        if (!text) text = content;
       }
-      const errText = await imageResponse.text();
-      console.error("Image generation error:", imageResponse.status, errText);
-      throw new Error("Failed to generate image");
-    }
+      return { b64, text };
+    };
 
-    const imageData = await imageResponse.json();
+    const customPrompt = `Pinterest pin, portrait ${aspectRatio} orientation. Title: "${title}". ${description ? description + ". " : ""}Style: ${styleDesc}. Beautiful typography with the title as elegant text overlay. Magazine-quality, eye-catching, high resolution.`;
 
-    // Extract image from the response
-    let imageBase64 = null;
+    let imageBase64: string | null = null;
     let textContent = "";
-
-    // Check for images array (Lovable AI Gateway format)
-    const images = imageData.choices?.[0]?.message?.images;
-    if (images && images.length > 0) {
-      const imgUrl = images[0]?.image_url?.url;
-      if (imgUrl && imgUrl.startsWith("data:image")) {
-        imageBase64 = imgUrl.split(",")[1];
+    try {
+      if (priority === "custom" && hasCustomKey) {
+        imageBase64 = await generateWithCustom(customCfg, customPrompt);
+        if (!imageBase64) {
+          const r = await callLovableImage();
+          imageBase64 = r?.b64 || null;
+          textContent = r?.text || "";
+        }
+      } else {
+        const r = await callLovableImage();
+        imageBase64 = r?.b64 || null;
+        textContent = r?.text || "";
+        if (!imageBase64 && hasCustomKey) imageBase64 = await generateWithCustom(customCfg, customPrompt);
       }
-    }
-
-    // Fallback: check parts
-    const parts = imageData.choices?.[0]?.message?.parts || [];
-    if (!imageBase64) {
-      for (const part of parts) {
-        if (part.inline_data?.data) imageBase64 = part.inline_data.data;
-        if (part.text) textContent += part.text;
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-    }
-
-    // Fallback: check content for base64
-    const content = imageData.choices?.[0]?.message?.content || "";
-    if (!imageBase64 && content) {
-      const match = content.match(/data:image\/[^;]+;base64,([A-Za-z0-9+/=]+)/);
-      if (match) imageBase64 = match[1];
-      if (!textContent) textContent = content;
+      throw e;
     }
 
     // Also generate a pin description using text model
-    const descResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: "You are a Pinterest SEO expert. Write a compelling pin description optimized for Pinterest search. Include relevant keywords, hashtags, and a call to action. Keep it under 500 characters." },
-          { role: "user", content: `Write a Pinterest pin description for: "${title}"${description ? `. Context: ${description}` : ""}` },
-        ],
-      }),
-    });
-
     let pinDescription = textContent || `${title} - Beautiful home decor inspiration`;
-    if (descResponse.ok) {
-      const descData = await descResponse.json();
-      pinDescription = descData.choices?.[0]?.message?.content || pinDescription;
+    if (LOVABLE_API_KEY) {
+      try {
+        const descResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-3-flash-preview",
+            messages: [
+              { role: "system", content: "You are a Pinterest SEO expert. Write a compelling pin description optimized for Pinterest search. Include relevant keywords, hashtags, and a call to action. Keep it under 500 characters." },
+              { role: "user", content: `Write a Pinterest pin description for: "${title}"${description ? `. Context: ${description}` : ""}` },
+            ],
+          }),
+        });
+        if (descResponse.ok) {
+          const descData = await descResponse.json();
+          pinDescription = descData.choices?.[0]?.message?.content || pinDescription;
+        }
+      } catch (_e) { /* keep fallback description */ }
     }
 
     if (imageBase64) {
@@ -203,17 +251,20 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({
-      success: true,
+      success: false,
       image_url: null,
       pin_description: pinDescription,
-      note: "Image generation returned text only. Try again or use a different style.",
+      error: hasCustomKey
+        ? "Image generation failed on both providers. Try a different style or check your API key."
+        : "Image generation requires AI credits. Add an image API key in Admin → Settings → AI API to keep generating when built-in credits run out.",
     }), {
+      status: 402,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (err) {
     console.error("Pin generation error:", err);
-    return new Response(JSON.stringify({ error: err.message || "Failed to generate pin" }), {
+    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Failed to generate pin" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
