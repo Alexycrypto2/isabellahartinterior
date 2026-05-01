@@ -996,6 +996,108 @@ const AdminSettings = () => {
           {/* AI API Section */}
           <TabsContent value="ai">
             <div className="space-y-6">
+              {/* Status banner: "My API" is default & always reachable */}
+              <Card className="border-emerald-200 dark:border-emerald-900 bg-emerald-50/50 dark:bg-emerald-950/20">
+                <CardContent className="pt-6 pb-5">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                        Your API keys are the default — no waiting if built-in credits run out.
+                      </p>
+                      <p className="text-xs text-emerald-800/80 dark:text-emerald-200/80 leading-relaxed">
+                        Add a key once below and every AI feature (blog writer, chatbot, pin generator,
+                        recommendations, dev assistant) will use it first. Built-in credits become a
+                        backup only. You can update or replace your key at any time from this page.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick add API key — emergency fast path */}
+              <Card className="border-primary/30 shadow-sm">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Zap className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Quick add: Text AI key</CardTitle>
+                      <CardDescription>
+                        Paste your OpenAI / Google Gemini / Anthropic key and save in one click.
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-3">
+                    <Select value={aiTextProvider} onValueChange={(v) => setAiTextProvider(v)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openai">OpenAI</SelectItem>
+                        <SelectItem value="google">Google Gemini</SelectItem>
+                        <SelectItem value="anthropic">Anthropic</SelectItem>
+                        <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type={showTextKey ? 'text' : 'password'}
+                      placeholder={getTextKeyPlaceholder(aiTextProvider)}
+                      value={aiTextKey}
+                      onChange={(e) => setAiTextKey(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowTextKey((v) => !v)}
+                    >
+                      {showTextKey ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+                      {showTextKey ? 'Hide' : 'Show'}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={async () => {
+                        // Force priority to 'custom' on quick-save to guarantee fallback works.
+                        setAiPriority('custom');
+                        await updateMutation.mutateAsync({
+                          key: 'ai_api',
+                          value: {
+                            priority: 'custom',
+                            text_provider: aiTextProvider,
+                            text_api_key: aiTextKey,
+                            text_model: aiTextModel || getDefaultTextModel(aiTextProvider),
+                            text_endpoint: aiTextEndpoint || getDefaultTextEndpoint(aiTextProvider, aiTextModel),
+                            image_provider: aiImageProvider,
+                            image_api_key: aiImageKey,
+                            image_model: aiImageModel,
+                            image_endpoint: aiImageEndpoint,
+                            provider: aiTextProvider,
+                            api_key: aiTextKey,
+                            model: aiTextModel || getDefaultTextModel(aiTextProvider),
+                          },
+                        });
+                        toast({
+                          title: 'Saved',
+                          description: 'Your API key is now the active AI provider.',
+                        });
+                      }}
+                      disabled={!aiTextKey || updateMutation.isPending}
+                      size="sm"
+                      className="ml-auto"
+                    >
+                      <Save className="h-4 w-4 mr-1" />Save & activate
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{getTextKeyHint(aiTextProvider)}</p>
+                </CardContent>
+              </Card>
+
               {/* How it works */}
               <Card>
                <CardHeader>
