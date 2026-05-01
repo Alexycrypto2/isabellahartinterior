@@ -1,62 +1,52 @@
+## Goal
 
+Make your own API keys the **default and persistent** AI provider so:
+1. When built-in Lovable credits run out, the app keeps working using your keys (no waiting).
+2. You can always reach **Admin → Settings → AI API** to add or change keys, even when built-in credits are exhausted.
 
-## Understanding the Request
+## What's already in place (good news)
 
-You want your in-app AI Engineer to **automatically make changes** to your site (like Lovable does) — not just give you instructions or show code. You want this as a backup when your Lovable credits run out.
+- The `priority` toggle ("My API" vs "Built-in") already exists in `AdminSettings.tsx`.
+- All AI edge functions (`generate-blog-post`, `home-decor-chat`, `generate-pin-image`, etc.) already check `priority === "custom"` first and use your custom key before touching `LOVABLE_API_KEY` when "My API" is selected.
+- Saving settings is a plain database upsert (`useUpsertSiteSetting`) — it does **not** consume any AI credits.
 
-## What's Realistically Possible
+## What's wrong / what we'll change
 
-The AI Engineer lives inside your deployed website. It **cannot edit your source code files** — only Lovable has access to the project repository. However, most of what makes your site work (products, blog posts, categories, settings, banners, etc.) lives in **the database**. The AI CAN directly create, update, and delete database records.
+### 1. Force "My API" to be the persistent default
 
-This means the AI Engineer can automatically:
-- Create new products with all details
-- Write and publish blog posts  
-- Add/edit room categories
-- Update site settings (hero text, contact info, colors, etc.)
-- Manage seasonal banners
-- Create newsletter campaigns
-- Moderate comments
-- Assign products to categories
+- On a fresh project, the `ai_api` row in `site_settings` doesn't exist yet, so the toggle falls back to `'custom'` in code — but it's never written to the database. If anything ever writes `'lovable'`, it becomes sticky.
+- Fix: on first load of the AI tab, if no `ai_api.priority` is saved, **automatically upsert `priority: 'custom'`** so it's persisted server-side. Edge functions then always read `'custom'` from the DB, even if the page hasn't been opened.
+- Also auto-seed `priority: 'custom'` via a one-time migration so the default is locked in immediately.
 
-What it **cannot** do (only Lovable can):
-- Add new pages or routes
-- Create new React components
-- Change the visual layout/design code
+### 2. Make sure the AI Settings page never breaks when credits are out
 
-## Plan
+- Currently `testBuiltInCredits` is a manual button — that's fine, no auto-run on mount. Confirmed safe.
+- We'll add a **prominent banner at the top of the AI tab** that detects "credits exhausted" status and tells you: "Built-in credits exhausted — your custom keys are now serving all AI traffic." This reassures you nothing is broken.
+- Add a **"Quick add API key"** card at the very top of the AI tab (before any other section) so you can paste a key and save in one click without scrolling — useful in an emergency.
 
-### 1. Create an "AI Actions" edge function
-A new edge function `ai-admin-actions` that can execute database operations. The AI will decide which action to take based on the user's request and call the appropriate Supabase query. Supported actions:
-- **create_product** — insert a new product with name, description, price, affiliate URL, category assignments
-- **update_product** — edit existing product fields
-- **create_blog_post** — write and save a full blog post (with AI-generated content)
-- **update_setting** — change any site setting (hero text, colors, contact info, etc.)
-- **create_category** — add a new room category
-- **list_products / list_posts** — read current data to understand what exists
+### 3. Harden edge-function fallback logic
 
-### 2. Upgrade the dev-chat edge function
-Update the system prompt and add tool-calling. Instead of just chatting, the AI will:
-- Analyze the user's request
-- Decide which action(s) to take
-- Execute them via Supabase client calls within the edge function
-- Report back: "Done! I created a new product called X and assigned it to Living Room and Bedroom."
+- A few functions return a generic 402 error if the custom key is missing. We'll improve the error message to: **"No custom AI key configured. Go to Admin → Settings → AI API and add your OpenAI/Google/Anthropic key."** so it's actionable.
+- Add explicit handling so a 402 from Lovable AI **automatically** falls through to your custom key without throwing — already mostly in place, will audit each AI function and patch any gaps (`generate-pin-image`, `generate-pin-description`, `home-decor-chat`, `dev-chat`, `ai-admin-actions`).
 
-### 3. Update the DevAIChat UI
-- Show a confirmation step: "I'm about to create a product called 'Rattan Mirror' — shall I proceed?" with Confirm/Cancel buttons
-- Show success feedback with links: "Product created! [View Product] [Edit in Admin]"
-- Add an "actions taken" indicator so the user sees what was changed
-- Keep the chat history working as-is
+### 4. Visual confirmation in admin
 
-### 4. Add action confirmation flow
-Before the AI executes any change, it will propose the action and wait for user confirmation. This prevents accidental changes. The flow:
-1. User: "Add a new rattan mirror product for $45"
-2. AI: "I'll create this product: **Rattan Mirror** - $45 - Categories: Living Room, Bedroom. Confirm?"
-3. User clicks Confirm
-4. AI executes and reports: "Done! Product created."
+- The existing **AI Status Indicator** card on the admin dashboard will now also show a **"Active source: My API key (OpenAI/Google/etc.)"** label when running on your key, so you have one-glance confidence.
 
-## Technical Approach
-- The dev-chat edge function will use Supabase admin client internally to perform CRUD operations
-- Tool-calling will be used to structure the AI's actions (create_product, update_setting, etc.)
-- The frontend will detect "action proposals" in the AI response and render confirm/cancel buttons
-- All changes go through the same database the admin panel uses, so everything stays in sync
+## Files to change
 
+- `src/pages/AdminSettings.tsx` — auto-persist `priority: 'custom'` on first load if not set; add status banner; add "Quick add" card at top of AI tab.
+- `src/components/AdminLayout.tsx` or dashboard AI status card — surface active source.
+- `supabase/functions/generate-pin-image/index.ts`, `generate-pin-description/index.ts`, `home-decor-chat/index.ts`, `dev-chat/index.ts`, `ai-admin-actions/index.ts`, `generate-blog-image/index.ts` — audit & ensure custom-key fallback on 402; improve error messages.
+- New migration: upsert `site_settings` row `key='ai_api'` with `value={"priority":"custom"}` if missing.
+
+## What you need to do after I ship this
+
+1. Open **Admin → Settings → AI API**.
+2. Paste your **OpenAI / Google Gemini / Anthropic** API key in the Text AI (and optionally Image AI) section. Click **Test** then **Save**.
+3. From that moment on, all AI features (blog writer, chatbot, pin generator, dev assistant, recommendations) use **your key first**. Built-in credits are only used as a backup if your key fails.
+
+## Out of scope
+
+- Adding entirely new providers beyond OpenAI / Google / Anthropic / custom-OpenAI-compatible (already supported).
+- Per-feature provider selection (currently one text key + one image key applies to all features — same as today).
