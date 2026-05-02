@@ -31,6 +31,7 @@ const getIconComponent = (name: string) => {
 };
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DEFAULT_NEWSLETTER_SETTINGS } from '@/hooks/useNewsletterSettings';
+import AIProviderStatusWidget from '@/components/admin/AIProviderStatusWidget';
 
 const AdminSettings = () => {
   const { data: settings, isLoading } = useSiteSettings();
@@ -996,6 +997,9 @@ const AdminSettings = () => {
           {/* AI API Section */}
           <TabsContent value="ai">
             <div className="space-y-6">
+              {/* Live status + Export/Import backup tools */}
+              <AIProviderStatusWidget />
+
               {/* Status banner: "My API" is default & always reachable */}
               <Card className="border-emerald-200 dark:border-emerald-900 bg-emerald-50/50 dark:bg-emerald-950/20">
                 <CardContent className="pt-6 pb-5">
