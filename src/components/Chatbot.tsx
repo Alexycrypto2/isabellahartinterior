@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   MessageCircle, X, Send, Bot, User, Trash2, UserCircle, Headphones,
-  HelpCircle, ChevronRight, FileDown, ArrowLeft, Sparkles
+  HelpCircle, ChevronRight, FileDown, ArrowLeft, Sparkles,
+  Sofa, DollarSign, Lightbulb, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
