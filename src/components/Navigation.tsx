@@ -7,6 +7,7 @@ import { useCart } from "@/hooks/useCart";
 import { Input } from "@/components/ui/input";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { resolveImageUrl } from "@/lib/imageResolver";
+import { useBrandingLogo } from "@/hooks/useBrandingLogo";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,6 +18,7 @@ const Navigation = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: products } = useActiveProducts();
+  const logoUrl = useBrandingLogo();
 
   const searchResults = searchQuery.trim().length >= 2
     ? (products || []).filter(p =>
@@ -64,17 +66,11 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          {/* Elegant IH monogram with Gold accent */}
-          <div className="relative w-10 h-10 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-lg bg-gradient-gold opacity-90 group-hover:opacity-100 transition-opacity" />
-            <span className="relative text-accent-foreground font-display text-xl font-bold tracking-tight">IH</span>
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-display text-lg font-semibold tracking-tight">
-              <span className="text-accent">Isabelle Hart</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Interiors</span>
-          </div>
+          <img
+            src={logoUrl}
+            alt="Isabelle Hart Interiors"
+            className="h-12 md:h-14 w-auto object-contain transition-opacity group-hover:opacity-90"
+          />
         </Link>
         
         <div className="hidden md:flex items-center space-x-10">

@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Instagram, Mail, Facebook, Twitter, Youtube } from "lucide-react";
 import { useSocialSettings } from "@/hooks/useSocialSettings";
+import { useBrandingLogo } from "@/hooks/useBrandingLogo";
 
 const Footer = () => {
   const { data: socialLinks } = useSocialSettings();
+  const logoUrl = useBrandingLogo();
 
   const hasSocialLinks = socialLinks && Object.values(socialLinks).some(link => link);
 
@@ -15,14 +17,11 @@ const Footer = () => {
             {/* Brand */}
             <div className="md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                {/* Gold IH monogram */}
-                <div className="relative w-8 h-8 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-lg bg-gradient-gold" />
-                  <span className="relative text-accent-foreground font-display text-xs font-bold">IH</span>
-                </div>
-                <span className="font-display text-xl font-semibold">
-                  <span className="text-accent">Isabelle Hart</span> <span className="text-foreground">Interiors</span>
-                </span>
+                <img
+                  src={logoUrl}
+                  alt="Isabelle Hart Interiors"
+                  className="h-12 w-auto object-contain"
+                />
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
                 Curating beautiful home decor finds to help you create spaces you love.
