@@ -87,8 +87,15 @@ export const Chatbot = () => {
   }, [conversationId]);
 
   const saveMessage = async (convId: string, role: string, content: string) => {
-    await supabase.from("chat_messages").insert({ conversation_id: convId, role, content });
+    const { data } = await supabase.from("chat_messages").insert({ conversation_id: convId, role, content }).select("*").single();
     await supabase.from("chat_conversations").update({ last_message_at: new Date().toISOString() }).eq("id", convId);
+    if (role === "user" && data) {
+      // Notify admins listening on this conversation channel
+      const ch = supabase.channel(`chat-${convId}`);
+      await ch.subscribe();
+      await ch.send({ type: "broadcast", event: "visitor-message", payload: data });
+      supabase.removeChannel(ch);
+    }
   };
 
   const streamChat = async (userMessages: Message[]) => {
