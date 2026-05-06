@@ -61,17 +61,12 @@ export const Chatbot = () => {
     if (!conversationId) return;
     const channel = supabase
       .channel(`chat-${conversationId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${conversationId}` },
-        (payload: any) => {
-          const msg = payload.new;
-          if (msg.role === "admin") {
-            setMessages(prev => [...prev, { role: "admin", content: msg.content }]);
-            setIsLiveChat(true);
-          }
-        }
-      )
+      .on("broadcast", { event: "admin-message" }, (payload: any) => {
+        const content = payload?.payload?.content;
+        if (!content) return;
+        setMessages(prev => [...prev, { role: "admin", content }]);
+        setIsLiveChat(true);
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [conversationId]);
