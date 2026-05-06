@@ -53,17 +53,12 @@ export default function AdminChatDashboard() {
   useEffect(() => {
     if (!selectedConv) return;
     const channel = supabase
-      .channel(`admin-chat-${selectedConv}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${selectedConv}` },
-        (payload: any) => {
-          setMessages(prev => {
-            if (prev.some(m => m.id === payload.new.id)) return prev;
-            return [...prev, payload.new];
-          });
-        }
-      )
+      .channel(`chat-${selectedConv}`)
+      .on('broadcast', { event: 'visitor-message' }, (payload: any) => {
+        const msg = payload?.payload;
+        if (!msg?.id) return;
+        setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [selectedConv]);
@@ -114,16 +109,23 @@ export default function AdminChatDashboard() {
     if (!replyText.trim() || !selectedConv || sending) return;
     setSending(true);
     try {
-      await supabase.from('chat_messages').insert({
+      const content = replyText.trim();
+      const { data: inserted } = await supabase.from('chat_messages').insert({
         conversation_id: selectedConv,
         role: 'admin',
-        content: replyText.trim(),
-      });
+        content,
+      }).select('*').single();
       await supabase.from('chat_conversations').update({
         last_message_at: new Date().toISOString(),
         is_live_chat: true,
         status: 'active',
       }).eq('id', selectedConv);
+      // Broadcast to visitor
+      const channel = supabase.channel(`chat-${selectedConv}`);
+      await channel.subscribe();
+      await channel.send({ type: 'broadcast', event: 'admin-message', payload: { content } });
+      supabase.removeChannel(channel);
+      if (inserted) setMessages(prev => prev.some(m => m.id === inserted.id) ? prev : [...prev, inserted]);
       setReplyText('');
       toast({ title: 'Message sent' });
     } catch {

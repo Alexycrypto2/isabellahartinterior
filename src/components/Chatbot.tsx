@@ -61,17 +61,12 @@ export const Chatbot = () => {
     if (!conversationId) return;
     const channel = supabase
       .channel(`chat-${conversationId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${conversationId}` },
-        (payload: any) => {
-          const msg = payload.new;
-          if (msg.role === "admin") {
-            setMessages(prev => [...prev, { role: "admin", content: msg.content }]);
-            setIsLiveChat(true);
-          }
-        }
-      )
+      .on("broadcast", { event: "admin-message" }, (payload: any) => {
+        const content = payload?.payload?.content;
+        if (!content) return;
+        setMessages(prev => [...prev, { role: "admin", content }]);
+        setIsLiveChat(true);
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [conversationId]);
@@ -92,8 +87,15 @@ export const Chatbot = () => {
   }, [conversationId]);
 
   const saveMessage = async (convId: string, role: string, content: string) => {
-    await supabase.from("chat_messages").insert({ conversation_id: convId, role, content });
+    const { data } = await supabase.from("chat_messages").insert({ conversation_id: convId, role, content }).select("*").single();
     await supabase.from("chat_conversations").update({ last_message_at: new Date().toISOString() }).eq("id", convId);
+    if (role === "user" && data) {
+      // Notify admins listening on this conversation channel
+      const ch = supabase.channel(`chat-${convId}`);
+      await ch.subscribe();
+      await ch.send({ type: "broadcast", event: "visitor-message", payload: data });
+      supabase.removeChannel(ch);
+    }
   };
 
   const streamChat = async (userMessages: Message[]) => {
