@@ -53,7 +53,7 @@ export default function AdminChatDashboard() {
   useEffect(() => {
     if (!selectedConv) return;
     const channel = supabase
-      .channel(`admin-chat-${selectedConv}`)
+      .channel(`chat-${selectedConv}`)
       .on('broadcast', { event: 'visitor-message' }, (payload: any) => {
         const msg = payload?.payload;
         if (!msg?.id) return;
