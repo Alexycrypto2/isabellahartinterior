@@ -16,20 +16,12 @@ const Footer = () => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
             {/* Brand */}
             <div className="md:col-span-1">
-              <Link to="/" className="flex items-center gap-3 mb-4">
+              <Link to="/" className="inline-flex items-center mb-4" aria-label="Isabelle Hart Interiors — Home">
                 <img
                   src={logoUrl}
                   alt="Isabelle Hart Interiors"
-                  className="h-12 w-auto object-contain"
+                  className="h-16 w-auto object-contain transition-opacity duration-300 hover:opacity-80"
                 />
-                <div className="flex flex-col leading-none border-l border-accent/30 pl-3">
-                  <span className="font-display text-lg font-semibold tracking-wide text-accent whitespace-nowrap">
-                    Isabelle Hart
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground mt-1">
-                    Interiors
-                  </span>
-                </div>
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
                 Curating beautiful home decor finds to help you create spaces you love.
