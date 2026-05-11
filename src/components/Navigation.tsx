@@ -65,20 +65,12 @@ const Navigation = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 group shrink-0">
+        <Link to="/" className="flex items-center group shrink-0" aria-label="Isabelle Hart Interiors — Home">
           <img
             src={logoUrl}
             alt="Isabelle Hart Interiors"
-            className="h-10 md:h-12 w-auto object-contain transition-opacity group-hover:opacity-90"
+            className="h-12 md:h-16 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
           />
-          <div className="hidden sm:flex flex-col leading-none border-l border-accent/30 pl-3">
-            <span className="font-display text-base md:text-lg font-semibold tracking-wide text-accent whitespace-nowrap">
-              Isabelle Hart
-            </span>
-            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.32em] text-muted-foreground mt-1">
-              Interiors
-            </span>
-          </div>
         </Link>
         
         <div className="hidden md:flex items-center space-x-10">
