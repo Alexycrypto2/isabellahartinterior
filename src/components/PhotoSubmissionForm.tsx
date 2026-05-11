@@ -95,7 +95,7 @@ const PhotoSubmissionForm = () => {
     try {
       // Upload photo
       const ext = file.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const fileName = `submissions/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("customer-photos")
