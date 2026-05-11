@@ -30,10 +30,9 @@ const BlogComments = ({ blogPostId }: BlogCommentsProps) => {
     queryKey: ['blog-comments', blogPostId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('blog_comments')
+        .from('public_blog_comments' as any)
         .select('id, author_name, content, created_at')
         .eq('blog_post_id', blogPostId)
-        .eq('is_approved', true)
         .order('created_at', { ascending: true });
       if (error) throw error;
       return data as Comment[];
