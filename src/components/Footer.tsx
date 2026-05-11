@@ -20,7 +20,7 @@ const Footer = () => {
                 <img
                   src={logoUrl}
                   alt="Isabelle Hart Interiors"
-                  className="h-16 w-auto object-contain transition-opacity duration-300 hover:opacity-80"
+                  className="h-24 w-auto object-contain transition-opacity duration-300 hover:opacity-80"
                 />
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
