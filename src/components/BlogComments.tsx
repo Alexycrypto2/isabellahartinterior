@@ -29,13 +29,13 @@ const BlogComments = ({ blogPostId }: BlogCommentsProps) => {
   const { data: comments = [], isLoading } = useQuery({
     queryKey: ['blog-comments', blogPostId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('public_blog_comments' as any)
+      const { data, error } = await (supabase as any)
+        .from('public_blog_comments')
         .select('id, author_name, content, created_at')
         .eq('blog_post_id', blogPostId)
         .order('created_at', { ascending: true });
       if (error) throw error;
-      return data as Comment[];
+      return (data || []) as Comment[];
     },
   });
 
