@@ -64,12 +64,12 @@ const Navigation = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-6 py-3 md:py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center group shrink-0" aria-label="Isabelle Hart Interiors — Home">
           <img
             src={logoUrl}
             alt="Isabelle Hart Interiors"
-            className="h-9 md:h-12 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+            className="h-7 md:h-10 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
           />
         </Link>
         
