@@ -69,7 +69,7 @@ const Navigation = () => {
           <img
             src={logoUrl}
             alt="Isabelle Hart Interiors"
-            className="h-14 md:h-20 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+            className="h-9 md:h-12 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
           />
         </Link>
         
