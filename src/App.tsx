@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CartProvider } from "@/hooks/useCart";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedAdminRoute from "@/components/ProtectedAdminRoute";
 import DeveloperPanel from './pages/DeveloperPanel';
 import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
@@ -85,32 +86,32 @@ const AnimatedRoutes = () => {
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/disclosure" element={<Disclosure />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/blog" element={<AdminBlogPosts />} />
-          <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
-          <Route path="/admin/blog/edit/:id" element={<AdminBlogEditor />} />
-          <Route path="/admin/categories" element={<AdminCategories />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/products/new" element={<AdminProductEditor />} />
-          <Route path="/admin/products/edit/:id" element={<AdminProductEditor />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/media" element={<AdminMedia />} />
-          <Route path="/admin/subscribers" element={<AdminSubscribers />} />
-          <Route path="/admin/appearance" element={<AdminAppearance />} />
-          <Route path="/admin/contact-submissions" element={<AdminContactSubmissions />} />
-          <Route path="/admin/photo-submissions" element={<AdminPhotoSubmissions />} />
-          <Route path="/admin/seasonal-banners" element={<AdminSeasonalBanners />} />
-          <Route path="/admin/blog/calendar" element={<AdminContentCalendar />} />
-          <Route path="/admin/account" element={<AdminAccountSettings />} />
-          <Route path="/admin/team" element={<AdminTeamManagement />} />
-          <Route path="/admin/security" element={<AdminSecurityLog />} />
-          <Route path="/admin/ownership" element={<AdminOwnershipTransfer />} />
-          <Route path="/admin/comments" element={<AdminComments />} />
-          <Route path="/admin/trending" element={<AdminTrending />} />
-          <Route path="/admin/developer" element={<AdminDeveloper />} />
-          <Route path="/admin/product-categories" element={<AdminProductCategories />} />
-          <Route path="/admin/pin-generator" element={<AdminPinGenerator />} />
-          <Route path="/admin/chat" element={<AdminChatDashboard />} />
+          <Route path="/admin" element={<ProtectedAdminRoute><Admin /></ProtectedAdminRoute>} />
+          <Route path="/admin/blog" element={<ProtectedAdminRoute><AdminBlogPosts /></ProtectedAdminRoute>} />
+          <Route path="/admin/blog/new" element={<ProtectedAdminRoute><AdminBlogEditor /></ProtectedAdminRoute>} />
+          <Route path="/admin/blog/edit/:id" element={<ProtectedAdminRoute><AdminBlogEditor /></ProtectedAdminRoute>} />
+          <Route path="/admin/categories" element={<ProtectedAdminRoute><AdminCategories /></ProtectedAdminRoute>} />
+          <Route path="/admin/products" element={<ProtectedAdminRoute><AdminProducts /></ProtectedAdminRoute>} />
+          <Route path="/admin/products/new" element={<ProtectedAdminRoute><AdminProductEditor /></ProtectedAdminRoute>} />
+          <Route path="/admin/products/edit/:id" element={<ProtectedAdminRoute><AdminProductEditor /></ProtectedAdminRoute>} />
+          <Route path="/admin/settings" element={<ProtectedAdminRoute><AdminSettings /></ProtectedAdminRoute>} />
+          <Route path="/admin/media" element={<ProtectedAdminRoute><AdminMedia /></ProtectedAdminRoute>} />
+          <Route path="/admin/subscribers" element={<ProtectedAdminRoute><AdminSubscribers /></ProtectedAdminRoute>} />
+          <Route path="/admin/appearance" element={<ProtectedAdminRoute><AdminAppearance /></ProtectedAdminRoute>} />
+          <Route path="/admin/contact-submissions" element={<ProtectedAdminRoute><AdminContactSubmissions /></ProtectedAdminRoute>} />
+          <Route path="/admin/photo-submissions" element={<ProtectedAdminRoute><AdminPhotoSubmissions /></ProtectedAdminRoute>} />
+          <Route path="/admin/seasonal-banners" element={<ProtectedAdminRoute><AdminSeasonalBanners /></ProtectedAdminRoute>} />
+          <Route path="/admin/blog/calendar" element={<ProtectedAdminRoute><AdminContentCalendar /></ProtectedAdminRoute>} />
+          <Route path="/admin/account" element={<ProtectedAdminRoute><AdminAccountSettings /></ProtectedAdminRoute>} />
+          <Route path="/admin/team" element={<ProtectedAdminRoute><AdminTeamManagement /></ProtectedAdminRoute>} />
+          <Route path="/admin/security" element={<ProtectedAdminRoute><AdminSecurityLog /></ProtectedAdminRoute>} />
+          <Route path="/admin/ownership" element={<ProtectedAdminRoute><AdminOwnershipTransfer /></ProtectedAdminRoute>} />
+          <Route path="/admin/comments" element={<ProtectedAdminRoute><AdminComments /></ProtectedAdminRoute>} />
+          <Route path="/admin/trending" element={<ProtectedAdminRoute><AdminTrending /></ProtectedAdminRoute>} />
+          <Route path="/admin/developer" element={<ProtectedAdminRoute><AdminDeveloper /></ProtectedAdminRoute>} />
+          <Route path="/admin/product-categories" element={<ProtectedAdminRoute><AdminProductCategories /></ProtectedAdminRoute>} />
+          <Route path="/admin/pin-generator" element={<ProtectedAdminRoute><AdminPinGenerator /></ProtectedAdminRoute>} />
+          <Route path="/admin/chat" element={<ProtectedAdminRoute><AdminChatDashboard /></ProtectedAdminRoute>} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/returns-policy" element={<ReturnsPolicy />} />
