@@ -4,18 +4,10 @@ import Hero from "@/components/Hero";
 import PageTransition from "@/components/PageTransition";
 
 // Lazy load below-fold components for better initial load performance
-const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"));
 const Categories = lazy(() => import("@/components/Categories"));
-const SocialProof = lazy(() => import("@/components/SocialProof"));
-const CustomerGallery = lazy(() => import("@/components/CustomerGallery"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
 const Newsletter = lazy(() => import("@/components/Newsletter"));
 const Footer = lazy(() => import("@/components/Footer"));
-const ProductRecommendations = lazy(() => 
-  import("@/components/ProductRecommendations").then(module => ({ 
-    default: module.ProductRecommendations 
-  }))
-);
 
 const SectionLoader = () => (
   <div className="py-24 flex items-center justify-center">
@@ -31,22 +23,10 @@ const Index = () => {
         <main>
           <Hero />
           <Suspense fallback={<SectionLoader />}>
-            <FeaturedProducts />
-          </Suspense>
-          <Suspense fallback={<SectionLoader />}>
-            <ProductRecommendations />
+            <BlogPreview />
           </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <Categories />
-          </Suspense>
-          <Suspense fallback={<SectionLoader />}>
-            <SocialProof />
-          </Suspense>
-          <Suspense fallback={<SectionLoader />}>
-            <CustomerGallery />
-          </Suspense>
-          <Suspense fallback={<SectionLoader />}>
-            <BlogPreview />
           </Suspense>
           <Suspense fallback={<SectionLoader />}>
             <Newsletter />
