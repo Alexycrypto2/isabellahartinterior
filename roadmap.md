@@ -1,0 +1,5 @@
+- [ ] Reframe public navigation and homepage around editorial discovery
+- [ ] Replace storefront hero with split editorial lead and real article content
+- [ ] Replace product/social-proof homepage sections with editorial features and room index
+- [ ] Refine newsletter, footer, and design tokens for Paper & Ink / Instrument Serif + Work Sans
+- [ ] Validate homepage, article routes, search, and responsive layout
