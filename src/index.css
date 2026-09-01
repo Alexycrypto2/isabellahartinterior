@@ -2,43 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern & Minimalist Design System - RoomRefine */
+/* Isabelle Hart Interiors — Paper & Ink editorial system */
 
 @layer base {
   :root {
     /* Background: Warm White */
-    --background: 45 14% 98%;
-    --foreground: 0 0% 18%;
+    --background: 40 25% 96%;
+    --foreground: 30 10% 13%;
     
     /* Card: Slightly warmer */
-    --card: 40 10% 97%;
-    --card-foreground: 0 0% 18%;
+    --card: 40 30% 98%;
+    --card-foreground: 30 10% 13%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 18%;
+    --popover-foreground: 30 10% 13%;
     
     /* Primary: Soft Greige */
-    --primary: 36 11% 82%;
-    --primary-foreground: 0 0% 18%;
+    --primary: 30 8% 24%;
+    --primary-foreground: 40 25% 96%;
     
     /* Secondary: Charcoal Gray */
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 38 18% 91%;
+    --secondary-foreground: 30 10% 13%;
     
     /* Muted: Light Gray */
-    --muted: 40 8% 95%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 38 18% 91%;
+    --muted-foreground: 30 7% 40%;
     
     /* Accent: Brushed Gold (restricted use) — darkened for WCAG AA contrast */
-    --accent: 40 52% 33%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 25 18% 38%;
+    --accent-foreground: 40 25% 96%;
     
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 40 10% 90%;
-    --input: 40 8% 94%;
-    --ring: 40 52% 33%;
+    --border: 30 10% 82%;
+    --input: 40 20% 94%;
+    --ring: 25 18% 38%;
 
     --radius: 0.5rem;
 
@@ -52,30 +52,30 @@
     --sidebar-ring: 40 52% 33%;
     
     /* Custom Design Tokens */
-    --greige: 36 11% 82%;
-    --greige-foreground: 0 0% 18%;
-    --charcoal: 0 0% 18%;
-    --warm-white: 45 14% 98%;
-    --gold: 40 52% 33%;
-    --gold-light: 40 45% 55%;
-    --gold-dark: 40 55% 28%;
+    --greige: 38 18% 91%;
+    --greige-foreground: 30 10% 13%;
+    --charcoal: 30 10% 13%;
+    --warm-white: 40 25% 96%;
+    --gold: 25 18% 38%;
+    --gold-light: 25 18% 55%;
+    --gold-dark: 25 20% 28%;
     
     /* Elegant Grays */
-    --gray-warm: 40 6% 70%;
-    --gray-soft: 40 4% 82%;
-    --gray-mist: 40 8% 92%;
+    --gray-warm: 30 7% 60%;
+    --gray-soft: 30 8% 72%;
+    --gray-mist: 38 18% 88%;
     
     /* Refined Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 15% / 0.55), hsl(0 0% 15% / 0.25));
-    --gradient-warm: linear-gradient(180deg, hsl(45 14% 98%), hsl(40 10% 95%));
-    --gradient-accent: linear-gradient(135deg, hsl(40 52% 60% / 0.1), hsl(40 8% 94% / 0.5));
-    --gradient-gold: linear-gradient(135deg, hsl(40 52% 60%), hsl(40 55% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(30 10% 13% / 0.42), hsl(30 10% 13% / 0.08));
+    --gradient-warm: linear-gradient(180deg, hsl(40 25% 96%), hsl(38 18% 91%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 18% 38% / 0.08), hsl(38 18% 91% / 0.45));
+    --gradient-gold: linear-gradient(135deg, hsl(25 18% 48%), hsl(25 20% 32%));
     
     /* Elegant Shadows */
-    --shadow-soft: 0 4px 24px -6px hsl(0 0% 18% / 0.06);
-    --shadow-warm: 0 12px 48px -12px hsl(40 52% 60% / 0.15);
-    --shadow-card: 0 2px 16px -4px hsl(0 0% 18% / 0.04);
-    --shadow-hover: 0 20px 60px -15px hsl(0 0% 18% / 0.12);
+    --shadow-soft: 0 4px 24px -6px hsl(30 10% 13% / 0.06);
+    --shadow-warm: 0 12px 48px -12px hsl(25 18% 38% / 0.12);
+    --shadow-card: 0 2px 16px -4px hsl(30 10% 13% / 0.04);
+    --shadow-hover: 0 20px 60px -15px hsl(30 10% 13% / 0.12);
     
     /* Smooth Transitions */
     --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -159,26 +159,26 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Work Sans', sans-serif;
   }
   
   /* Elegant Serif Typography */
   .font-display {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Instrument Serif', serif;
   }
   
   /* Elegant Script Typography */
   .font-script {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Instrument Serif', serif;
   }
   
   .text-display {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Instrument Serif', serif;
     @apply tracking-tight leading-[1.1];
   }
   
   .text-label {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Work Sans', sans-serif;
     @apply tracking-[0.2em] uppercase text-xs font-medium;
   }
   
