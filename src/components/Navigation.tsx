@@ -63,32 +63,33 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
-      <div className="container mx-auto px-6 py-3 md:py-4 flex items-center justify-between">
+    <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
+      <div className="container mx-auto flex items-center justify-between px-6 py-4 md:py-5">
         <Link to="/" className="flex items-center group shrink-0" aria-label="Isabelle Hart Interiors — Home">
           <img
             src={logoUrl}
             alt="Isabelle Hart Interiors"
-            className="h-7 md:h-10 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+            className="h-7 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80 md:h-9"
           />
         </Link>
         
-        <div className="hidden md:flex items-center space-x-10">
-          <Link to="/shop" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            Shop
+        <div className="hidden items-center space-x-8 md:flex">
+          <Link to="/" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+            Home
           </Link>
-          <Link to="/inspiration" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            AI Stylist
+          <Link to="/blog" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+            Decor Ideas
           </Link>
-          <Link to="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            Blog
+          <Link to="/blog?category=Rooms" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+            Rooms
           </Link>
-          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            About
+          <Link to="/blog?category=Style Guides" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+            Style Guides
           </Link>
-          <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 gold-underline">
-            Contact
+          <Link to="/shop" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+            Shop My Finds
           </Link>
+          <Link to="/about" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">About</Link>
         </div>
 
         <div className="hidden md:flex items-center space-x-3">
@@ -101,7 +102,7 @@ const Navigation = () => {
                   <Input
                     ref={inputRef}
                     type="text"
-                    placeholder="Search products..."
+                    placeholder="Search the journal..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9 pr-8 w-64 h-9 rounded-full border-border bg-background text-sm"
@@ -121,7 +122,7 @@ const Navigation = () => {
                 size="icon"
                 className="h-9 w-9 hover:bg-muted"
                 onClick={() => setIsSearchOpen(true)}
-                aria-label="Search products"
+                 aria-label="Search the journal"
               >
                 <Search className="h-4 w-4" />
               </Button>
@@ -205,7 +206,7 @@ const Navigation = () => {
 
       {/* Mobile Search */}
       {isSearchOpen && (
-        <div className="md:hidden bg-background border-b border-border animate-fade-in-up">
+              <div className="md:hidden bg-background border-b border-border animate-fade-in-up">
           <div className="container mx-auto px-6 py-4">
             <form onSubmit={handleSearchSubmit}>
               <div className="relative">
@@ -213,7 +214,7 @@ const Navigation = () => {
                 <Input
                   ref={inputRef}
                   type="text"
-                  placeholder="Search products..."
+                   placeholder="Search the journal..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 pr-9 rounded-full border-border bg-background"
@@ -261,11 +262,12 @@ const Navigation = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-background border-b border-border animate-fade-in-up">
           <div className="container mx-auto px-6 py-6 space-y-4">
-            <Link to="/shop" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Shop</Link>
-            <Link to="/inspiration" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>AI Stylist</Link>
-            <Link to="/blog" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Blog</Link>
-            <Link to="/about" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>About</Link>
-            <Link to="/contact" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+            <Link to="/" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Home</Link>
+            <Link to="/blog" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Decor Ideas</Link>
+            <Link to="/blog?category=Rooms" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Rooms</Link>
+            <Link to="/blog?category=Style Guides" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Style Guides</Link>
+            <Link to="/shop" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Shop My Finds</Link>
+            <Link to="/about" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>About</Link>
             <div className="pt-4 border-t border-border">
               <ThemeToggle />
             </div>

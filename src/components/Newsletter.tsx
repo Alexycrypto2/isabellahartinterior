@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Mail, Sparkles } from "lucide-react";
+import { Mail } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,113 +15,54 @@ const Newsletter = ({ variant = "default", className = "" }: NewsletterProps) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email.trim()) {
-      toast({
-        title: "Please enter your email",
-        variant: "destructive",
-      });
+      toast({ title: "Please enter your email", variant: "destructive" });
       return;
     }
-
     setIsSubmitting(true);
-    
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .insert({ email: email.trim() });
-
+    const { error } = await supabase.from("newsletter_subscribers").insert({ email: email.trim() });
     if (error) {
-      if (error.code === "23505") {
-        toast({
-          title: "You're already subscribed!",
-          description: "This email is already on our list.",
-        });
-      } else {
-        toast({
-          title: "Something went wrong",
-          description: "Please try again later.",
-          variant: "destructive",
-        });
-      }
-    } else {
       toast({
-        title: "Welcome to Isabelle Hart Interiors!",
-        description: "You'll receive our best decor finds in your inbox.",
+        title: error.code === "23505" ? "You're already on the list" : "Something went wrong",
+        description: error.code === "23505" ? "This email is already subscribed." : "Please try again later.",
+        variant: error.code === "23505" ? "default" : "destructive",
       });
+    } else {
+      toast({ title: "Welcome to the journal", description: "The next letter will be on its way soon." });
       setEmail("");
     }
-    
     setIsSubmitting(false);
   };
 
   if (variant === "compact") {
     return (
-      <div className={`bg-muted rounded-lg p-6 ${className}`}>
-        <div className="flex items-center gap-2 mb-3">
-          <Mail className="w-5 h-5 text-accent" />
-          <h3 className="font-display text-lg font-medium">Stay Inspired</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Get weekly decor tips and exclusive finds.
-        </p>
+      <div className={`border border-border bg-card p-6 ${className}`}>
+        <div className="mb-3 flex items-center gap-2"><Mail className="h-4 w-4 text-accent" /><h3 className="font-display text-2xl">Stay close</h3></div>
+        <p className="mb-4 text-sm leading-6 text-muted-foreground">A short, thoughtful note from the journal.</p>
         <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Your email"
-            className="flex-1 px-4 py-2 text-sm border border-border bg-background rounded-sm focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent transition-all"
-          />
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="bg-accent text-accent-foreground hover:brightness-110 rounded-sm px-4"
-          >
-            {isSubmitting ? "..." : "Join"}
-          </Button>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email" className="min-w-0 flex-1 border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent" />
+          <Button type="submit" disabled={isSubmitting} variant="outline">{isSubmitting ? "..." : "Join"}</Button>
         </form>
       </div>
     );
   }
 
   return (
-    <section className={`py-20 bg-muted/50 ${className}`}>
+    <section className={`border-b border-border bg-secondary py-20 md:py-28 ${className}`}>
       <div className="container mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent mb-6">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Join 10,000+ Home Decor Lovers</span>
+        <div className="grid gap-10 md:grid-cols-[1fr_1.2fr] md:items-end md:gap-20">
+          <div>
+            <p className="text-label mb-4 text-accent">The Sunday letter</p>
+            <h2 className="text-display max-w-md text-5xl font-normal leading-[0.98] md:text-6xl">Get beautiful home ideas in your inbox.</h2>
           </div>
-          
-          <h2 className="font-display text-3xl md:text-5xl font-medium text-display mb-4">
-            Get Weekly Amazon Home Decor Deals + Styling Tips
-          </h2>
-          
-          <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            We only send deals that actually save you money — top-rated products, price drops, and exclusive finds. No spam.
-          </p>
-          
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address"
-              className="newsletter-input flex-1"
-            />
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              size="lg"
-              className="bg-accent text-accent-foreground hover:brightness-110 rounded-sm px-8 py-4 font-medium tracking-wide"
-            >
-              {isSubmitting ? "Subscribing..." : "Subscribe"}
-            </Button>
-          </form>
-          
-          <p className="text-xs text-muted-foreground mt-4">
-            No spam, unsubscribe anytime. We respect your privacy.
-          </p>
+          <div>
+            <p className="max-w-lg text-lg leading-8 text-muted-foreground">Weekly decorating inspiration, practical styling tips, and beautiful finds — thoughtfully edited, never overwhelming.</p>
+            <form onSubmit={handleSubmit} className="mt-8 flex max-w-xl flex-col gap-3 sm:flex-row">
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email address" className="newsletter-input flex-1" />
+              <Button type="submit" disabled={isSubmitting} size="lg" className="rounded-none px-8">{isSubmitting ? "Joining..." : "Join the list"}</Button>
+            </form>
+            <p className="mt-4 text-xs text-muted-foreground">No noise. Unsubscribe any time.</p>
+          </div>
         </div>
       </div>
     </section>

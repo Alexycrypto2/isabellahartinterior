@@ -27,16 +27,15 @@ const Blog = () => {
         <Navigation />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-16 bg-muted/30">
+      <section className="border-b border-border pb-14 pt-32 md:pb-20">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="text-label text-accent mb-4 block">Inspiration & Tips</span>
-            <h1 className="font-display text-5xl md:text-7xl font-medium text-display mb-6">
-              Style Your Space
+            <span className="text-label mb-4 block text-accent">The Isabelle Hart Journal</span>
+            <h1 className="text-display mb-6 text-6xl font-normal md:text-8xl">
+              Decor ideas, thoughtfully edited
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Get inspired with styling guides, decorating tips, and ideas to transform 
-              every room in your home.
+              Room inspiration, practical styling guides, and the details that make a home feel like your own.
             </p>
           </div>
         </div>
@@ -51,10 +50,10 @@ const Blog = () => {
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                   className={`border-b px-1 py-2 text-sm transition-all duration-300 ${
                     activeCategory === category 
-                      ? "bg-accent text-accent-foreground" 
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                       ? "border-accent text-foreground" 
+                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {category}
@@ -90,7 +89,7 @@ const Blog = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredPosts?.map((post) => (
                   <article key={post.id} className="group">
-                    <div className="relative overflow-hidden rounded-2xl mb-5">
+                      <div className="relative mb-5 overflow-hidden">
                       <Link to={`/blog/${post.slug}`}>
                         {post.image_url ? (
                           <img 
@@ -108,7 +107,7 @@ const Blog = () => {
                       
                       {/* Category Badge */}
                       <div className="absolute top-4 left-4">
-                        <span className="category-badge">
+                           <span className="text-label bg-background/90 px-3 py-2 text-foreground">
                           {post.category}
                         </span>
                       </div>
@@ -140,8 +139,8 @@ const Blog = () => {
                         {post.excerpt}
                       </p>
                       
-                      <span className="inline-block text-sm font-medium text-accent gold-underline">
-                        Read More →
+                       <span className="inline-block text-sm font-medium text-accent gold-underline">
+                         Read story →
                       </span>
                     </Link>
                   </article>
