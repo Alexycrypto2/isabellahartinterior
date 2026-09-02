@@ -1,7 +1,6 @@
 import { memo } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import PinterestSaveButton from "@/components/PinterestSaveButton";
 import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,96 +9,71 @@ import { resolveImageUrl } from "@/lib/imageResolver";
 
 const BlogPreview = memo(() => {
   const { data: posts, isLoading } = usePublishedBlogPosts();
-  const recentPosts = posts?.slice(0, 3) || [];
+  const recentPosts = posts?.slice(0, 4) || [];
+  const [featured, ...supporting] = recentPosts;
 
   return (
-    <section className="py-24 bg-background">
+    <section className="border-b border-border bg-background py-20 md:py-28">
       <div className="container mx-auto px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
-            <div>
-              <span className="text-label text-muted-foreground mb-3 block">Inspiration & Shop the Look</span>
-              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4">
-                Style Your Space
-              </h2>
-              <p className="text-muted-foreground text-lg max-w-xl">
-                Get inspired with our styling guides — each post includes shoppable Amazon links.
-              </p>
-            </div>
-            <Link to="/blog" className="mt-6 md:mt-0">
-              <Button variant="outline" className="rounded-full">
-                View All Posts
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+        <div className="mb-12 flex items-end justify-between gap-6 md:mb-16">
+          <div>
+            <p className="text-label mb-3 text-accent">From the journal</p>
+            <h2 className="text-display text-5xl font-normal md:text-6xl">The latest stories</h2>
           </div>
-          
-          {/* Blog Posts Grid */}
-          {isLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-[4/3] rounded-2xl" />
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-6 w-full" />
-                </div>
-              ))}
-            </div>
-          ) : recentPosts.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {recentPosts.map((post) => (
-                <article key={post.id} className="group">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
-                    <Link to={`/blog/${post.slug}`} className="block w-full h-full">
-                      {post.image_url ? (
-                        <div className="w-full h-full transition-transform duration-700 group-hover:scale-105">
-                          <OptimizedImage 
-                            src={resolveImageUrl(post.image_url)} 
-                            alt={post.title}
-                            width={400}
-                            height={300}
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <span className="text-muted-foreground">No image</span>
-                        </div>
-                      )}
-                    </Link>
-                    
-                    {/* Pinterest Save Button */}
-                    {post.image_url && (
-                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <PinterestSaveButton
-                          imageUrl={resolveImageUrl(post.image_url)}
-                          description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
-                          url={window.location.origin + `/blog/${post.slug}`}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Content */}
-                  <Link to={`/blog/${post.slug}`}>
-                    <div className="flex items-center gap-4 mb-3">
-                      <span className="category-badge">{post.category}</span>
-                      <span className="text-sm text-muted-foreground">{post.read_time}</span>
+          <Link to="/blog" className="hidden items-center gap-2 text-sm font-medium text-foreground hover:text-accent md:flex">
+            View all stories <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <Skeleton className="aspect-[5/4]" />
+            <div className="space-y-6"><Skeleton className="h-24" /><Skeleton className="h-24" /></div>
+          </div>
+        ) : featured ? (
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
+            <article className="group">
+              <div className="relative aspect-[5/4] overflow-hidden bg-muted">
+                <Link to={`/blog/${featured.slug}`} className="block h-full">
+                  {featured.image_url ? (
+                    <div className="h-full transition-transform duration-700 group-hover:scale-[1.02]">
+                      <OptimizedImage src={resolveImageUrl(featured.image_url)} alt={featured.title} width={900} height={720} />
                     </div>
-                    
-                    <h3 className="font-display text-xl font-medium mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                      {post.title}
-                    </h3>
-                    
-                    <p className="text-muted-foreground text-sm line-clamp-2">
-                      {post.excerpt}
-                    </p>
+                  ) : <div className="h-full" />}
+                </Link>
+                {featured.image_url && (
+                  <div className="absolute right-4 top-4">
+                    <PinterestSaveButton imageUrl={resolveImageUrl(featured.image_url)} description={featured.title} url={`${window.location.origin}/blog/${featured.slug}`} />
+                  </div>
+                )}
+              </div>
+              <Link to={`/blog/${featured.slug}`} className="mt-5 block">
+                <p className="text-label mb-3 text-muted-foreground">{featured.category} · {featured.read_time}</p>
+                <h3 className="font-display max-w-2xl text-4xl leading-[1.05] transition-colors group-hover:text-accent md:text-5xl">{featured.title}</h3>
+                <p className="mt-4 max-w-xl leading-7 text-muted-foreground">{featured.excerpt}</p>
+              </Link>
+            </article>
+
+            <div className="divide-y divide-border border-y border-border">
+              {supporting.map((post, index) => (
+                <article key={post.id} className="group py-7 first:pt-0 last:pb-0">
+                  <Link to={`/blog/${post.slug}`} className="block">
+                    <p className="text-sm text-muted-foreground">0{index + 2} / {post.category}</p>
+                    <h3 className="mt-3 font-display text-3xl leading-tight transition-colors group-hover:text-accent">{post.title}</h3>
+                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{post.excerpt}</p>
+                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium">Read story <ArrowUpRight className="h-4 w-4 text-accent" /></span>
                   </Link>
                 </article>
               ))}
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : (
+          <p className="border-y border-border py-12 text-muted-foreground">New stories are coming soon.</p>
+        )}
+
+        <Link to="/blog" className="mt-10 inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent md:hidden">
+          View all stories <ArrowUpRight className="h-4 w-4" />
+        </Link>
       </div>
     </section>
   );
