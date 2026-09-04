@@ -154,11 +154,16 @@ export type Database = {
           image_url: string | null
           meta_description: string | null
           meta_title: string | null
+          newsletter_cta: string | null
           og_image_url: string | null
+          pinterest_description: string | null
+          pinterest_title: string | null
           published: boolean
           read_time: string
+          room: string | null
           scheduled_for: string | null
           slug: string
+          style: string | null
           title: string
           updated_at: string
         }
@@ -173,11 +178,16 @@ export type Database = {
           image_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          newsletter_cta?: string | null
           og_image_url?: string | null
+          pinterest_description?: string | null
+          pinterest_title?: string | null
           published?: boolean
           read_time?: string
+          room?: string | null
           scheduled_for?: string | null
           slug: string
+          style?: string | null
           title: string
           updated_at?: string
         }
@@ -192,11 +202,16 @@ export type Database = {
           image_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          newsletter_cta?: string | null
           og_image_url?: string | null
+          pinterest_description?: string | null
+          pinterest_title?: string | null
           published?: boolean
           read_time?: string
+          room?: string | null
           scheduled_for?: string | null
           slug?: string
+          style?: string | null
           title?: string
           updated_at?: string
         }

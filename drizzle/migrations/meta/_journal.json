@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1788491454078,
+      "tag": "0000_add_editorial_taxonomy_fields",
+      "breakpoints": true
+    }
+  ]
+}
