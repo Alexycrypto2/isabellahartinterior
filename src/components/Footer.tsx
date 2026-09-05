@@ -24,7 +24,7 @@ const Footer = () => {
                 />
               </Link>
               <p className="text-muted-foreground text-sm mb-6">
-                Curating beautiful home decor finds to help you create spaces you love.
+                A curated journal for thoughtful, beautiful living.
               </p>
               <div className="flex items-center gap-4">
                 {socialLinks?.pinterest && (
@@ -147,26 +147,26 @@ const Footer = () => {
             
             {/* Quick Links */}
             <div>
-              <h4 className="font-display text-lg font-medium mb-4">Shop</h4>
+                  <h4 className="font-display text-lg font-medium mb-4">Explore</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/shop" className="text-muted-foreground hover:text-accent transition-colors text-sm">
-                    All Products
+                    <Link to="/decor-ideas" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                     Decor Ideas
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=lighting" className="text-muted-foreground hover:text-accent transition-colors text-sm">
-                    Lighting
+                    <Link to="/rooms" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                     Rooms
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=decor-accents" className="text-muted-foreground hover:text-accent transition-colors text-sm">
-                    Decor & Accents
+                    <Link to="/style-guides" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                     Style Guides
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=textiles" className="text-muted-foreground hover:text-accent transition-colors text-sm">
-                    Textiles
+                    <Link to="/shop-my-finds" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                     Shop My Finds
                   </Link>
                 </li>
               </ul>
@@ -174,20 +174,20 @@ const Footer = () => {
             
             {/* Resources */}
             <div>
-              <h4 className="font-display text-lg font-medium mb-4">Inspiration</h4>
+                  <h4 className="font-display text-lg font-medium mb-4">Journal</h4>
               <ul className="space-y-3">
                 <li>
                   <Link to="/blog" className="text-muted-foreground hover:text-accent transition-colors text-sm">
-                    Blog
+                    All Stories
                   </Link>
                 </li>
                 <li>
-                  <Link to="/blog/cozy-bedroom-styling-guide" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                  <Link to="/rooms/bedroom" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Bedroom Ideas
                   </Link>
                 </li>
                 <li>
-                  <Link to="/blog/living-room-styling-tips" className="text-muted-foreground hover:text-accent transition-colors text-sm">
+                  <Link to="/rooms/living-room" className="text-muted-foreground hover:text-accent transition-colors text-sm">
                     Living Room Tips
                   </Link>
                 </li>

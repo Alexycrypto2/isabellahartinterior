@@ -17,6 +17,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Index from "./pages/Index";
+import { DecorIdeas, Rooms, RoomDetail, StyleGuides, StyleGuideDetail, ShopMyFinds } from "./pages/EditorialHub";
 
 // Lazy load non-critical pages
 const Shop = lazy(() => import("./pages/Shop"));
@@ -80,6 +81,12 @@ const AnimatedRoutes = () => {
           <Route path="/shop/:slug" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/inspiration" element={<Inspiration />} />
+          <Route path="/decor-ideas" element={<DecorIdeas />} />
+          <Route path="/rooms" element={<Rooms />} />
+          <Route path="/rooms/:slug" element={<RoomDetail />} />
+          <Route path="/style-guides" element={<StyleGuides />} />
+          <Route path="/style-guides/:slug" element={<StyleGuideDetail />} />
+          <Route path="/shop-my-finds" element={<ShopMyFinds />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<Blog />} />

@@ -77,16 +77,16 @@ const Navigation = () => {
           <Link to="/" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
             Home
           </Link>
-          <Link to="/blog" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+          <Link to="/decor-ideas" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
             Decor Ideas
           </Link>
-          <Link to="/blog?category=Rooms" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+          <Link to="/rooms" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
             Rooms
           </Link>
-          <Link to="/blog?category=Style Guides" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+          <Link to="/style-guides" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
             Style Guides
           </Link>
-          <Link to="/shop" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
+          <Link to="/shop-my-finds" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">
             Shop My Finds
           </Link>
           <Link to="/about" className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground gold-underline">About</Link>
@@ -263,10 +263,10 @@ const Navigation = () => {
         <div className="md:hidden bg-background border-b border-border animate-fade-in-up">
           <div className="container mx-auto px-6 py-6 space-y-4">
             <Link to="/" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Home</Link>
-            <Link to="/blog" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Decor Ideas</Link>
-            <Link to="/blog?category=Rooms" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Rooms</Link>
-            <Link to="/blog?category=Style Guides" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Style Guides</Link>
-            <Link to="/shop" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Shop My Finds</Link>
+            <Link to="/decor-ideas" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Decor Ideas</Link>
+            <Link to="/rooms" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Rooms</Link>
+            <Link to="/style-guides" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Style Guides</Link>
+            <Link to="/shop-my-finds" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Shop My Finds</Link>
             <Link to="/about" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(false)}>About</Link>
             <div className="pt-4 border-t border-border">
               <ThemeToggle />

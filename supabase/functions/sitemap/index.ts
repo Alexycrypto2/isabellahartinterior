@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SITE_URL = "https://roomrefine.com";
+const SITE_URL = "https://isabellehartinterior.store";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -37,6 +37,10 @@ Deno.serve(async (req) => {
       { loc: "/", changefreq: "weekly", priority: "1.0" },
       { loc: "/shop", changefreq: "daily", priority: "0.9" },
       { loc: "/blog", changefreq: "daily", priority: "0.9" },
+      { loc: "/decor-ideas", changefreq: "daily", priority: "0.9" },
+      { loc: "/rooms", changefreq: "weekly", priority: "0.8" },
+      { loc: "/style-guides", changefreq: "weekly", priority: "0.8" },
+      { loc: "/shop-my-finds", changefreq: "weekly", priority: "0.8" },
       { loc: "/inspiration", changefreq: "weekly", priority: "0.8" },
       { loc: "/about", changefreq: "monthly", priority: "0.6" },
       { loc: "/contact", changefreq: "monthly", priority: "0.6" },

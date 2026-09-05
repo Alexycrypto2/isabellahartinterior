@@ -18,6 +18,11 @@ export interface BlogPost {
   meta_title: string | null;
   meta_description: string | null;
   og_image_url: string | null;
+  room: string | null;
+  style: string | null;
+  pinterest_title: string | null;
+  pinterest_description: string | null;
+  newsletter_cta: string | null;
 }
 
 export interface BlogPostInput {
@@ -33,6 +38,11 @@ export interface BlogPostInput {
   meta_title?: string | null;
   meta_description?: string | null;
   og_image_url?: string | null;
+  room?: string | null;
+  style?: string | null;
+  pinterest_title?: string | null;
+  pinterest_description?: string | null;
+  newsletter_cta?: string | null;
 }
 
 // Helper to log activity
@@ -63,7 +73,7 @@ export const usePublishedBlogPosts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, content, author, category, image_url, read_time, published, created_at, updated_at, meta_title, meta_description, og_image_url')
+        .select('id, title, slug, excerpt, content, author, category, image_url, read_time, published, created_at, updated_at, meta_title, meta_description, og_image_url, room, style, pinterest_title, pinterest_description, newsletter_cta')
         .eq('published', true)
         .order('created_at', { ascending: false });
       
