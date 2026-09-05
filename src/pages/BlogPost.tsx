@@ -32,7 +32,7 @@ const BlogPost = () => {
 
   const blogOgTitle = post ? post.title : "";
   const blogOgDescription = post ? post.excerpt : "";
-  const blogOgImage = post ? resolveImageUrl(post.image_url) : "";
+  const blogOgImage = post ? resolveImageUrl(post.og_image_url || post.image_url) : "";
   
 
   // Make TOC collapsible on mobile — toggle toc-open class
@@ -125,9 +125,12 @@ const BlogPost = () => {
   const relatedPosts = (() => {
     if (!allPosts) return [];
     const others = allPosts.filter(p => p.id !== post.id);
-    const sameCategory = others.filter(p => p.category === post.category);
-    const differentCategory = others.filter(p => p.category !== post.category);
-    return [...sameCategory, ...differentCategory].slice(0, 3);
+    const sameRoomOrStyle = others.filter(p =>
+      (post.room && p.room === post.room) || (post.style && p.style === post.style)
+    );
+    const sameCategory = others.filter(p => p.category === post.category && !sameRoomOrStyle.includes(p));
+    const differentCategory = others.filter(p => p.category !== post.category && !sameRoomOrStyle.includes(p));
+    return [...sameRoomOrStyle, ...sameCategory, ...differentCategory].slice(0, 3);
   })();
 
   // Extract FAQ data from content for schema markup
@@ -187,7 +190,7 @@ const BlogPost = () => {
     <PageTransition>
       <div className="min-h-screen">
         <Helmet>
-          <title>{blogOgTitle} | Isabelle Hart Interiors</title>
+          <title>{post.meta_title || blogOgTitle} | Isabelle Hart Interiors</title>
           <meta property="og:type" content="article" />
           <meta property="og:title" content={blogOgTitle} />
           <meta property="og:description" content={blogOgDescription} />
@@ -202,8 +205,9 @@ const BlogPost = () => {
           <meta name="twitter:title" content={blogOgTitle} />
           <meta name="twitter:description" content={blogOgDescription} />
           <meta name="twitter:image" content={blogOgImage} />
-          <meta name="pinterest:description" content={`${blogOgTitle} | Home styling tips from Isabelle Hart Interiors`} />
-          <meta name="description" content={blogOgDescription} />
+          <meta name="pinterest:title" content={post.pinterest_title || blogOgTitle} />
+          <meta name="pinterest:description" content={post.pinterest_description || `${blogOgTitle} | Home styling tips from Isabelle Hart Interiors`} />
+          <meta name="description" content={post.meta_description || blogOgDescription} />
         </Helmet>
         <Navigation />
         <JsonLd data={articleJsonLd} />
@@ -213,12 +217,16 @@ const BlogPost = () => {
       <section className="pt-32 pb-8">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
-            <Link to="/blog" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
+            <Link to="/decor-ideas" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Blog
+              Back to Decor Ideas
             </Link>
             
-            <span className="category-badge mb-4 inline-block">{post.category}</span>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="category-badge inline-block">{post.category}</span>
+              {post.room && <Link to={`/rooms/${post.room}`} className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">{post.room.replace(/-/g, ' ')}</Link>}
+              {post.style && <Link to={`/style-guides/${post.style}`} className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">{post.style.replace(/-/g, ' ')}</Link>}
+            </div>
             
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-6 leading-tight">
               {post.title}
@@ -260,7 +268,7 @@ const BlogPost = () => {
               <div className="absolute top-4 right-4">
                 <PinterestSaveButton
                   imageUrl={resolveImageUrl(post.image_url)}
-                  description={`${post.title} | Home Styling Tips from Cozy Nest Decor`}
+                  description={post.pinterest_description || `${post.title} | Home Styling Tips from Isabelle Hart Interiors`}
                   url={window.location.href}
                   size="medium"
                 />
@@ -313,7 +321,7 @@ const BlogPost = () => {
                 Related Posts
               </h2>
               <p className="text-muted-foreground text-center mb-10">
-                More from <span className="font-medium text-foreground">{post.category}</span> and beyond
+                More from <span className="font-medium text-foreground">{post.room ? post.room.replace(/-/g, ' ') : post.category}</span> and beyond
               </p>
               <div className="grid md:grid-cols-3 gap-8">
                 {relatedPosts.map((relatedPost) => (

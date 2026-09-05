@@ -1,5 +1,4 @@
 import { memo, useMemo } from "react";
-import { useProductCategories, useProductCategoryAssignments } from "@/hooks/useProducts";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -21,16 +20,16 @@ const roomImages: Record<string, string> = {
   "outdoor-patio": outdoorPatioImg,
 };
 
+const editorialRooms = [
+  { slug: "living-room", name: "Living Room", description: "Layouts, furniture, and details for the room everyone gathers in.", image: livingRoomImg },
+  { slug: "bedroom", name: "Bedroom", description: "Calming layers and thoughtful details for better rest.", image: bedroomImg },
+  { slug: "kitchen", name: "Kitchen", description: "Practical styling ideas for a kitchen that feels like home.", image: kitchenImg },
+  { slug: "bathroom", name: "Bathroom", description: "Small luxuries and clever storage for everyday rituals.", image: bathroomImg },
+  { slug: "home-office", name: "Home Office", description: "Focused, comfortable spaces with a point of view.", image: homeOfficeImg },
+  { slug: "entryway", name: "Entryway", description: "Welcoming first impressions and smart solutions.", image: entrywayImg },
+];
+
 const Categories = memo(() => {
-  const { data: dbCategories } = useProductCategories();
-  const { data: assignments } = useProductCategoryAssignments();
-
-  const displayCategories = (dbCategories || []).filter(cat => cat.slug !== "all-rooms" && cat.slug !== "all");
-
-  const getCategoryCount = (slug: string) => {
-    if (!assignments) return 0;
-    return assignments.filter(a => a.category_slug === slug).length;
-  };
 
   return (
     <section className="border-b border-border bg-secondary py-20 md:py-28">
@@ -66,9 +65,8 @@ const Categories = memo(() => {
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 lg:grid-cols-4">
-            {displayCategories.map((category, index) => {
-              const count = getCategoryCount(category.slug);
-              const coverImg = category.cover_image_url || roomImages[category.slug];
+            {editorialRooms.map((category, index) => {
+              const coverImg = category.image;
               return (
                 <motion.div
                   key={category.id}
@@ -78,7 +76,7 @@ const Categories = memo(() => {
                   transition={{ delay: index * 0.08 }}
                 >
                   <Link
-                    to={`/shop?category=${category.slug}`}
+                    to={`/rooms/${category.slug}`}
                     className="group block"
                   >
                     <div className="group relative aspect-[4/5] overflow-hidden border border-border transition-all duration-300 hover:border-accent/40 hover:shadow-xl">
@@ -94,16 +92,13 @@ const Categories = memo(() => {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/15 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-background md:p-5">
-                        <span className="mb-1 block text-2xl">{category.icon || "·"}</span>
                         <h3 className="font-display mb-0.5 text-lg font-normal md:text-2xl">
                           {category.name}
                         </h3>
                         <p className="text-xs text-background/75 mb-2">
-                          {count} {count === 1 ? "story" : "stories"}
+                          Explore the room
                         </p>
-                        {category.description && (
-                          <p className="hidden text-xs text-background/70 line-clamp-2 md:block">{category.description}</p>
-                        )}
+                         <p className="hidden text-xs text-background/70 line-clamp-2 md:block">{category.description}</p>
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
                            Explore <ArrowRight className="w-3 h-3" />
                         </span>
@@ -124,10 +119,10 @@ const Categories = memo(() => {
             className="text-center mt-10"
           >
             <Link
-              to="/shop"
+              to="/rooms"
               className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline transition-colors"
             >
-              Browse all rooms <ArrowRight className="w-4 h-4" />
+              Browse the room library <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
         </div>
