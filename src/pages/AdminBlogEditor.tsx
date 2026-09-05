@@ -27,6 +27,7 @@ import { ArrowLeft, Save, Image as ImageIcon, Upload, Sparkles, Link2, ShoppingB
 import AiBlogWriter from '@/components/AiBlogWriter';
 import FeaturedImageEditor from '@/components/FeaturedImageEditor';
 import PinDescriptionGenerator from '@/components/PinDescriptionGenerator';
+import { roomTaxonomy, styleTaxonomy } from '@/data/editorialTaxonomy';
 
 const generateSlug = (title: string) => {
   return title
@@ -73,6 +74,11 @@ const AdminBlogEditor = () => {
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [ogImageUrl, setOgImageUrl] = useState('');
+  const [room, setRoom] = useState('none');
+  const [style, setStyle] = useState('none');
+  const [pinterestTitle, setPinterestTitle] = useState('');
+  const [pinterestDescription, setPinterestDescription] = useState('');
+  const [newsletterCta, setNewsletterCta] = useState('');
 
   // Resolve /src/assets/ paths in HTML content so images display in the editor
   const resolveContentImages = (html: string) => {
@@ -98,6 +104,11 @@ const AdminBlogEditor = () => {
       setMetaTitle((existingPost as any).meta_title || '');
       setMetaDescription((existingPost as any).meta_description || '');
       setOgImageUrl((existingPost as any).og_image_url || '');
+      setRoom(existingPost.room || 'none');
+      setStyle(existingPost.style || 'none');
+      setPinterestTitle(existingPost.pinterest_title || '');
+      setPinterestDescription(existingPost.pinterest_description || '');
+      setNewsletterCta(existingPost.newsletter_cta || '');
     }
   }, [existingPost]);
 
@@ -255,6 +266,11 @@ const AdminBlogEditor = () => {
         meta_title: metaTitle || null,
         meta_description: metaDescription || null,
         og_image_url: ogImageUrl || null,
+        room: room === 'none' ? null : room,
+        style: style === 'none' ? null : style,
+        pinterest_title: pinterestTitle || null,
+        pinterest_description: pinterestDescription || null,
+        newsletter_cta: newsletterCta || null,
       };
 
       if (isEditing && id) {
@@ -585,6 +601,36 @@ const AdminBlogEditor = () => {
             <RichTextEditor content={content} onChange={setContent} onImageUpload={handleContentImageUpload} />
           </div>
 
+          {/* Editorial taxonomy */}
+          <div className="border border-border p-6 space-y-4 bg-muted/30">
+            <div>
+              <h3 className="font-medium text-lg">Editorial organization</h3>
+              <p className="text-sm text-muted-foreground">Connect this story to a room and a style guide so readers can discover it from the new hubs.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="room">Room</Label>
+                <Select value={room} onValueChange={setRoom}>
+                  <SelectTrigger id="room"><SelectValue placeholder="No room" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No room</SelectItem>
+                    {roomTaxonomy.map(item => <SelectItem key={item.slug} value={item.slug}>{item.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="style">Style guide</Label>
+                <Select value={style} onValueChange={setStyle}>
+                  <SelectTrigger id="style"><SelectValue placeholder="No style" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No style</SelectItem>
+                    {styleTaxonomy.map(item => <SelectItem key={item.slug} value={item.slug}>{item.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
           {/* Pinterest Pin Description */}
           <PinDescriptionGenerator
             title={title}
@@ -614,6 +660,21 @@ const AdminBlogEditor = () => {
                 placeholder="SEO title (defaults to post title)"
                 maxLength={60}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pinterestTitle">Pinterest Title <span className="text-muted-foreground text-sm">({pinterestTitle.length}/100)</span></Label>
+              <Input id="pinterestTitle" value={pinterestTitle} onChange={(e) => setPinterestTitle(e.target.value)} maxLength={100} placeholder="A save-worthy title for Pinterest" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pinterestDescription">Pinterest Description <span className="text-muted-foreground text-sm">({pinterestDescription.length}/500)</span></Label>
+              <Textarea id="pinterestDescription" value={pinterestDescription} onChange={(e) => setPinterestDescription(e.target.value)} maxLength={500} rows={3} placeholder="Describe the idea in a natural, searchable way" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newsletterCta">Newsletter CTA</Label>
+              <Input id="newsletterCta" value={newsletterCta} onChange={(e) => setNewsletterCta(e.target.value)} placeholder="Get the Sunday Edit" />
             </div>
 
             <div className="space-y-2">
