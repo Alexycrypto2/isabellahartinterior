@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import PageTransition from "@/components/PageTransition";
 import { usePublishedBlogPosts } from "@/hooks/useBlogPosts";
+import type { BlogPost } from "@/hooks/useBlogPosts";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { decorIdeaTaxonomy, roomTaxonomy, styleTaxonomy, EditorialTaxonomyItem } from "@/data/editorialTaxonomy";
 import { resolveImageUrl } from "@/lib/imageResolver";
@@ -41,7 +42,7 @@ const hubConfig: Record<HubKind, { title: string; description: string; eyebrow: 
 
 const formatLabel = (value: string) => value.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 
-const ArticleCard = ({ post }: { post: NonNullable<ReturnType<typeof usePublishedBlogPosts>["data"]>[number] }) => (
+const ArticleCard = ({ post }: { post: BlogPost }) => (
   <article className="group">
     <Link to={`/blog/${post.slug}`} className="block">
       <div className="mb-4 aspect-[4/3] overflow-hidden border border-border bg-muted">
