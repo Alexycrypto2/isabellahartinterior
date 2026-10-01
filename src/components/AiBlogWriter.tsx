@@ -341,6 +341,14 @@ const AiBlogWriter = ({
         image_url: imageUrl || undefined,
         faq_schema: textData.faq_schema || [],
         featured_image_alt: textData.featured_image_alt || "",
+        category: textData.category || category || undefined,
+        room: textData.room || undefined,
+        style: textData.style || undefined,
+        pinterest_title: textData.pinterest_title || undefined,
+        pinterest_description: textData.pinterest_description || undefined,
+        newsletter_cta: textData.newsletter_cta || undefined,
+        section: textData.section || undefined,
+        recommendation_reason: textData.recommendation_reason || undefined,
       };
 
       setGeneratedData(blogData);
@@ -692,11 +700,11 @@ const AiBlogWriter = ({
                 <div>
                   <p className="text-sm font-medium">
                     {step === "discovering-products"
-                      ? "Discovering trending products..."
-                      : `Products discovered${discoveredProducts.length > 0 ? ` (${discoveredProducts.length} added to shop)` : ""}`}
+                      ? "Analysing topic & search intent..."
+                      : "Topic analysed"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Finding relevant Amazon products for your topic
+                    Choosing the best section, room and style for your article
                   </p>
                 </div>
               </div>
@@ -738,7 +746,7 @@ const AiBlogWriter = ({
                       : step === "discovering-products" || step === "researching-competitors" ? "Write blog content" : "Content generated"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Brand voice, product embeds, FAQ schema, and auto alt text
+                    Editorial voice, in-depth sections, FAQ schema, and internal links
                   </p>
                 </div>
               </div>
