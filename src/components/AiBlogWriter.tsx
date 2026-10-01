@@ -274,41 +274,11 @@ const AiBlogWriter = ({
     setDiscoveredProducts([]);
 
     try {
-      // Step 0: Discover & auto-add trending products
-      const discoverInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 1, 15));
-      }, 800);
-
-      let newProducts: any[] = [];
-      try {
-        const { data: discoverData, error: discoverError } =
-          await supabase.functions.invoke("discover-blog-products", {
-            body: { topic: effectiveTopic, category },
-          });
-
-        if (!discoverError && discoverData?.products) {
-          newProducts = discoverData.products;
-          setDiscoveredProducts(newProducts);
-        }
-      } catch (discErr) {
-        console.warn("Product discovery failed, continuing with existing products:", discErr);
-      }
-
-      clearInterval(discoverInterval);
-      setProgress(18);
-
-      // Step 1: Competitor Research (simulated — actual research is done by AI in the prompt)
+      // Step 1: Topic & search-intent research (done by AI inside the prompt)
       setStep("researching-competitors");
-      const researchInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 2, 30));
-      }, 400);
+      setProgress(15);
 
-      // Brief pause to simulate research phase (AI does competitor analysis in its prompt)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      clearInterval(researchInterval);
-      setProgress(30);
-
-      // Step 2: Generate blog content with all new features
+      // Step 2: Generate editorial blog content
       setStep("generating-text");
       const progressInterval = setInterval(() => {
         setProgress((prev) => Math.min(prev + 2, 55));
@@ -316,7 +286,18 @@ const AiBlogWriter = ({
 
       const { data: textData, error: textError } =
         await supabase.functions.invoke("generate-blog-post", {
-          body: { topic: effectiveTopic, tone: "warm", category, keywords, targetWordCount },
+          body: {
+            topic: effectiveTopic,
+            tone: "warm",
+            category: category || "auto",
+            keywords,
+            targetWordCount,
+            section,
+            room,
+            style: styleChoice,
+            articleFormat,
+            availableCategories: categories.map((c) => c.name),
+          },
         });
 
       clearInterval(progressInterval);
