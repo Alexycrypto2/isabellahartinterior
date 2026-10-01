@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import { roomTaxonomy, styleTaxonomy } from "@/data/editorialTaxonomy";
+
 interface BlogPostData {
   title: string;
   slug: string;
@@ -48,7 +50,32 @@ interface BlogPostData {
   image_url?: string;
   faq_schema?: { question: string; answer: string }[];
   featured_image_alt?: string;
+  category?: string;
+  room?: string;
+  style?: string;
+  pinterest_title?: string;
+  pinterest_description?: string;
+  newsletter_cta?: string;
+  section?: string;
+  recommendation_reason?: string;
 }
+
+const SECTIONS = [
+  { value: "auto", label: "✨ Let AI recommend" },
+  { value: "decor-ideas", label: "Decor Ideas" },
+  { value: "rooms", label: "Rooms" },
+  { value: "style-guides", label: "Style Guides" },
+];
+
+const ARTICLE_FORMATS = [
+  { value: "auto", label: "✨ AI picks best format" },
+  { value: "listicle", label: "Listicle (e.g. 27 ideas)" },
+  { value: "how-to", label: "Step-by-step how-to" },
+  { value: "ultimate-guide", label: "Ultimate guide" },
+  { value: "style-explainer", label: "Style explainer (What is…)" },
+  { value: "comparison", label: "Comparison (X vs Y)" },
+  { value: "mistakes", label: "Mistakes to avoid" },
+];
 
 interface AiBlogWriterProps {
   isOpen: boolean;
@@ -201,6 +228,10 @@ const AiBlogWriter = ({
   const [topic, setTopic] = useState(initialTopic);
   const [category, setCategory] = useState(initialCategory);
   const [keywords, setKeywords] = useState(initialKeywords);
+  const [section, setSection] = useState("auto");
+  const [room, setRoom] = useState("auto");
+  const [styleChoice, setStyleChoice] = useState("auto");
+  const [articleFormat, setArticleFormat] = useState("auto");
   const [targetWordCount, setTargetWordCount] = useState(1500);
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
