@@ -13,7 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, category, keywords, targetWordCount } = await req.json();
+    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories } = await req.json();
+    const ROOMS = ["living-room","bedroom","kitchen","bathroom","dining","home-office","entryway","small-spaces","outdoor"];
+    const STYLES = ["modern","minimalist","japandi","scandinavian","organic-modern","contemporary","traditional","quiet-luxury","warm-minimalism"];
+    const SECTIONS = ["decor-ideas","rooms","style-guides"];
+    const cats: string[] = Array.isArray(availableCategories) ? availableCategories : [];
 
     const wordCountTarget = Math.max(800, Math.min(3000, targetWordCount || 1500));
 
@@ -21,7 +25,7 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const baseUrl = "https://roomeefine.lovable.app";
+    const baseUrl = "https://isabellehartinterior.store";
 
     async function getExistingPosts() {
       try {
@@ -47,7 +51,7 @@ serve(async (req) => {
       } catch { return []; }
     }
 
-    const [existingPosts, products] = await Promise.all([getExistingPosts(), getProducts()]);
+    const existingPosts = await getExistingPosts();
 
     async function getCustomAiConfig() {
       try {
@@ -110,36 +114,17 @@ INTERNAL LINKING RULES:
 - Example: "For more tips, check out our guide on <a href="${baseUrl}/blog/hygge-styling">creating a hygge-inspired living space</a>."`
       : "";
 
-    // Build product embedding reference for AI
-    const productEmbedRef = products.length > 0
-      ? `\n\nINLINE PRODUCT EMBEDS (CRITICAL — THIS IS WHAT MAKES OUR BLOG MONETIZABLE):
-When you mention a product type (e.g., lamp, rug, throw pillow, bookshelf), you MUST embed the matching product from our catalog inline in the content.
-
-PRODUCT EMBED FORMAT — use this exact HTML structure:
-<div class="product-embed" style="margin: 24px 0; padding: 16px; border: 1px solid #e5e5e5; border-radius: 12px; display: flex; align-items: center; gap: 16px; background: #fafafa;">
-  <a href="AFFILIATE_URL" target="_blank" rel="noopener noreferrer nofollow" style="flex-shrink: 0;">
-    <img src="IMAGE_URL" alt="PRODUCT_NAME" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />
-  </a>
-  <div>
-    <a href="AFFILIATE_URL" target="_blank" rel="noopener noreferrer nofollow" style="font-weight: 600; font-size: 16px; color: #1a1a1a; text-decoration: none;">PRODUCT_NAME</a>
-    <div style="margin-top: 4px; font-size: 14px; color: #666;">PRICE${" · "}⭐ RATING (REVIEWS reviews)</div>
-    <a href="AFFILIATE_URL" target="_blank" rel="noopener noreferrer nofollow" style="display: inline-block; margin-top: 8px; padding: 6px 16px; background: #1a1a1a; color: #fff; border-radius: 20px; font-size: 13px; text-decoration: none; font-weight: 500;">Shop on Amazon →</a>
-  </div>
-</div>
-
-ALSO: When you first mention a product keyword (like "lamp" or "throw blanket") in a paragraph, link that WORD directly to the affiliate URL:
-<a href="AFFILIATE_URL" target="_blank" rel="noopener noreferrer nofollow">product keyword</a>
-
-AVAILABLE PRODUCTS FROM OUR CATALOG:
-${products.map(p => `- "${p.name}" | Category: ${p.category} | Price: ${p.price}${p.original_price ? ` (was ${p.original_price})` : ""} | Rating: ${p.rating || "N/A"} (${p.reviews || 0} reviews) | Image: ${p.image_url || "none"} | Affiliate: ${p.affiliate_url}`).join("\n")}
-
-PRODUCT EMBED RULES:
-- Embed 2-4 products throughout the article, placed naturally after paragraphs that mention the product type
-- Match products to what you're discussing (e.g., talking about lighting → embed a lamp product)
-- NEVER embed products in a list at the end — they must be woven into the content
-- Also hyperlink the first mention of each product keyword in your text to its affiliate URL
-- Each embed must use the EXACT affiliate_url and image_url from the catalog above`
-      : "";
+    const placementRef = `
+EDITORIAL PLACEMENT (our site is an editorial home decor BLOG & media brand, NOT a store):
+Sections: decor-ideas (inspiration & idea roundups — main Pinterest traffic engine), rooms (room-by-room library guides), style-guides (deep explanations of a design style).
+Rooms (slugs): ${ROOMS.join(", ")}. Styles (slugs): ${STYLES.join(", ")}.
+Blog categories available: ${cats.join(", ") || "any fitting name"}.
+- Section: ${section && section !== "auto" ? `MUST be "${section}"` : "choose the best fit for the topic and search intent"}
+- Room: ${room === "none" ? "return empty string" : room && room !== "auto" ? `MUST be "${room}"` : "choose the most relevant room slug, or empty string if none"}
+- Style: ${style === "none" ? "return empty string" : style && style !== "auto" ? `MUST be "${style}"` : "choose the most relevant style slug, or empty string if none"}
+- Category: ${category && category !== "auto" ? `MUST be "${category}"` : "choose the best matching category from the list"}
+- Article format: ${articleFormat && articleFormat !== "auto" ? articleFormat : "choose the format that best matches what currently ranks for this query (listicle, how-to, ultimate-guide, style-explainer, comparison, mistakes)"}
+Explain your placement choice in one sentence in recommendation_reason.`;
 
     const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "Isabelle Hart Interiors", a premium home decor and interior design brand.
 
@@ -149,7 +134,7 @@ BRAND VOICE (ALWAYS APPLY — DO NOT DEVIATE):
 - Language: Second person ("you"), encouraging, aspirational yet practical
 - Avoid: Cold corporate language, overly technical jargon, condescending tone
 - Channel: Think Joanna Gaines meets a best friend chat over coffee
-- Use phrases like: "Here's the thing…", "Trust me on this one", "The secret is…", "You deserve…"
+- Sound like a respected interiors magazine editor (Architectural Digest meets a warm friend) — confident, specific, never salesy; avoid filler clichés
 
 Your mission is to write blog posts that RANK ON PAGE 1 OF GOOGLE. Every post must follow proven SEO frameworks.
 
@@ -211,16 +196,23 @@ IMAGE PROMPT RULES:
 - Specify: room type, lighting (natural golden hour preferred), camera angle, color palette, styling details
 - Always include: "editorial interior design photography, high-end magazine quality, 4K, shallow depth of field"
 ${internalLinksRef}
-${productEmbedRef}
+${placementRef}
 
 COMPETITOR RESEARCH APPROACH:
-When writing, imagine you've already analyzed the top 10 Google results for "${topic}". Your content MUST:
+Before writing, reason about the search intent and the top 10 Google results for "${topic}". Your content MUST:
+- Demonstrate E-E-A-T: first-hand styling experience, designer reasoning ("why this works"), precise measurements, materials, colour names and proportions
+- Answer the core query directly in the first 2-3 sentences (featured-snippet ready), then go deep
+- Use descriptive, scannable H2/H3s that mirror real searches and long-tail variations
+- Include at least one comparison table or step list where useful, plus a short "Designer's note" blockquote
+- Cover budget, renters/small-space, and mistakes-to-avoid angles where relevant
 - Cover every angle competitors would cover PLUS unique insights they miss
 - Include more specific, actionable advice than typical articles
 - Add unique value: expert tips, cost breakdowns, before/after scenarios, seasonal considerations
 - Be more comprehensive and better structured than any existing article on this topic
 - Address common misconceptions and provide nuanced answers
-- Include specific product recommendations, measurements, and price ranges where relevant
+- Give specific measurements and approximate price ranges as guidance only
+
+CONTENT FOCUS (STRICT): This is an editorial article, not a sales page. Do NOT embed products, product cards, "Shop" buttons, Amazon or affiliate links. Do not push readers to buy. Mention generic item types (e.g. "a linen throw") only as styling advice. The only links allowed are internal links to our own articles.
 
 You MUST return structured data using the "generate_blog_post" tool.`;
 
@@ -236,7 +228,7 @@ IMPORTANT REQUIREMENTS:
 3. Cover this topic more comprehensively than any competitor — add unique angles, specific tips, and expert insights
 4. Every image must have descriptive, keyword-rich alt text
 5. Maintain warm, conversational brand voice throughout (audience: women 25-45 who want beautiful affordable homes)
-6. Embed real product images and affiliate links inline when mentioning product types
+6. Do NOT promote or link to any products — focus 100% on teaching and inspiring around the topic
 7. The content should feel like advice from a trusted friend, not a corporate blog`;
 
     const toolsDef = [
@@ -244,14 +236,14 @@ IMPORTANT REQUIREMENTS:
         type: "function",
         function: {
           name: "generate_blog_post",
-          description: "Generate a complete SEO-optimized blog post with FAQ schema, table of contents, and inline product embeds",
+          description: "Generate a complete SEO-optimized editorial blog post with FAQ schema, table of contents and editorial placement",
           parameters: {
             type: "object",
             properties: {
               title: { type: "string", description: "Blog post title, under 60 chars" },
               slug: { type: "string", description: "URL-friendly slug derived from title, lowercase with hyphens" },
               excerpt: { type: "string", description: "1-2 sentence summary, plain text, no HTML" },
-              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Inline product embeds, 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
+              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Internal links to our articles (no product embeds or affiliate links), 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
               meta_title: { type: "string", description: "SEO meta title, under 60 chars" },
               meta_description: { type: "string", description: "SEO meta description, under 160 chars" },
               read_time: { type: "string", description: 'Estimated read time, e.g. "5 min read"' },
@@ -270,8 +262,16 @@ IMPORTANT REQUIREMENTS:
                 },
               },
               featured_image_alt: { type: "string", description: "SEO-friendly alt text for the featured image, descriptive and keyword-rich" },
+              section: { type: "string", description: "decor-ideas, rooms or style-guides" },
+              category: { type: "string", description: "Blog category name" },
+              room: { type: "string", description: "Room slug or empty string" },
+              style: { type: "string", description: "Style slug or empty string" },
+              recommendation_reason: { type: "string", description: "One sentence on why this placement fits" },
+              pinterest_title: { type: "string", description: "Clickable Pinterest pin title under 100 chars" },
+              pinterest_description: { type: "string", description: "Natural Pinterest description, 200-400 chars, keyword-rich" },
+              newsletter_cta: { type: "string", description: "Short newsletter invitation tied to the topic" },
             },
-            required: ["title", "slug", "excerpt", "content", "meta_title", "meta_description", "read_time", "image_prompt", "faq_schema", "featured_image_alt"],
+            required: ["section", "category", "room", "style", "recommendation_reason", "pinterest_title", "pinterest_description", "newsletter_cta", "title", "slug", "excerpt", "content", "meta_title", "meta_description", "read_time", "image_prompt", "faq_schema", "featured_image_alt"],
             additionalProperties: false,
           },
         },
@@ -399,6 +399,13 @@ IMPORTANT REQUIREMENTS:
     }
 
     const blogPost = JSON.parse(toolCall.function.arguments);
+    if (!SECTIONS.includes(blogPost.section)) blogPost.section = section && section !== "auto" ? section : "decor-ideas";
+    if (!ROOMS.includes(blogPost.room)) blogPost.room = "";
+    if (!STYLES.includes(blogPost.style)) blogPost.style = "";
+    // Strip any affiliate/Amazon links the model might still add
+    blogPost.content = String(blogPost.content || "")
+      .replace(/<div class="product-embed"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g, "")
+      .replace(/<a [^>]*href="[^"]*(amazon\.|amzn\.)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, "$2");
 
     return new Response(JSON.stringify(blogPost), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
