@@ -352,6 +352,9 @@ const AiBlogWriter = ({
       };
 
       setGeneratedData(blogData);
+      if (blogData.recommendation_reason) {
+        toast.success(`Placed in ${blogData.section || "blog"}${blogData.room ? ` · ${blogData.room}` : ""}${blogData.style ? ` · ${blogData.style}` : ""}`, { description: blogData.recommendation_reason });
+      }
       setStep("done");
     } catch (error) {
       console.error("AI generation error:", error);
