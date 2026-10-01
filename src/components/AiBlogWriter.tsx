@@ -505,14 +505,55 @@ const AiBlogWriter = ({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Label className="text-sm font-medium">Website section</Label>
+                <Select value={section} onValueChange={setSection}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SECTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Article format</Label>
+                <Select value={articleFormat} onValueChange={setArticleFormat}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ARTICLE_FORMATS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Room</Label>
+                <Select value={room} onValueChange={setRoom}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">✨ Let AI recommend</SelectItem>
+                    <SelectItem value="none">No specific room</SelectItem>
+                    {roomTaxonomy.map((r) => <SelectItem key={r.slug} value={r.slug}>{r.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Style</Label>
+                <Select value={styleChoice} onValueChange={setStyleChoice}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">✨ Let AI recommend</SelectItem>
+                    <SelectItem value="none">No specific style</SelectItem>
+                    {styleTaxonomy.map((s) => <SelectItem key={s.slug} value={s.slug}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Blog category</Label>
+                <Select value={category || "auto"} onValueChange={(v) => setCategory(v === "auto" ? "" : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="auto">✨ Let AI recommend</SelectItem>
                     {categories?.map((cat) => (
                       <SelectItem key={cat.id} value={cat.name}>
                         {cat.name}
