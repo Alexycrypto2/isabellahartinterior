@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import { roomTaxonomy, styleTaxonomy } from "@/data/editorialTaxonomy";
+
 interface BlogPostData {
   title: string;
   slug: string;
@@ -48,7 +50,32 @@ interface BlogPostData {
   image_url?: string;
   faq_schema?: { question: string; answer: string }[];
   featured_image_alt?: string;
+  category?: string;
+  room?: string;
+  style?: string;
+  pinterest_title?: string;
+  pinterest_description?: string;
+  newsletter_cta?: string;
+  section?: string;
+  recommendation_reason?: string;
 }
+
+const SECTIONS = [
+  { value: "auto", label: "✨ Let AI recommend" },
+  { value: "decor-ideas", label: "Decor Ideas" },
+  { value: "rooms", label: "Rooms" },
+  { value: "style-guides", label: "Style Guides" },
+];
+
+const ARTICLE_FORMATS = [
+  { value: "auto", label: "✨ AI picks best format" },
+  { value: "listicle", label: "Listicle (e.g. 27 ideas)" },
+  { value: "how-to", label: "Step-by-step how-to" },
+  { value: "ultimate-guide", label: "Ultimate guide" },
+  { value: "style-explainer", label: "Style explainer (What is…)" },
+  { value: "comparison", label: "Comparison (X vs Y)" },
+  { value: "mistakes", label: "Mistakes to avoid" },
+];
 
 interface AiBlogWriterProps {
   isOpen: boolean;
@@ -201,6 +228,10 @@ const AiBlogWriter = ({
   const [topic, setTopic] = useState(initialTopic);
   const [category, setCategory] = useState(initialCategory);
   const [keywords, setKeywords] = useState(initialKeywords);
+  const [section, setSection] = useState("auto");
+  const [room, setRoom] = useState("auto");
+  const [styleChoice, setStyleChoice] = useState("auto");
+  const [articleFormat, setArticleFormat] = useState("auto");
   const [targetWordCount, setTargetWordCount] = useState(1500);
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
@@ -243,41 +274,11 @@ const AiBlogWriter = ({
     setDiscoveredProducts([]);
 
     try {
-      // Step 0: Discover & auto-add trending products
-      const discoverInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 1, 15));
-      }, 800);
-
-      let newProducts: any[] = [];
-      try {
-        const { data: discoverData, error: discoverError } =
-          await supabase.functions.invoke("discover-blog-products", {
-            body: { topic: effectiveTopic, category },
-          });
-
-        if (!discoverError && discoverData?.products) {
-          newProducts = discoverData.products;
-          setDiscoveredProducts(newProducts);
-        }
-      } catch (discErr) {
-        console.warn("Product discovery failed, continuing with existing products:", discErr);
-      }
-
-      clearInterval(discoverInterval);
-      setProgress(18);
-
-      // Step 1: Competitor Research (simulated — actual research is done by AI in the prompt)
+      // Step 1: Topic & search-intent research (done by AI inside the prompt)
       setStep("researching-competitors");
-      const researchInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 2, 30));
-      }, 400);
+      setProgress(15);
 
-      // Brief pause to simulate research phase (AI does competitor analysis in its prompt)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      clearInterval(researchInterval);
-      setProgress(30);
-
-      // Step 2: Generate blog content with all new features
+      // Step 2: Generate editorial blog content
       setStep("generating-text");
       const progressInterval = setInterval(() => {
         setProgress((prev) => Math.min(prev + 2, 55));
@@ -285,7 +286,18 @@ const AiBlogWriter = ({
 
       const { data: textData, error: textError } =
         await supabase.functions.invoke("generate-blog-post", {
-          body: { topic: effectiveTopic, tone: "warm", category, keywords, targetWordCount },
+          body: {
+            topic: effectiveTopic,
+            tone: "warm",
+            category: category || "auto",
+            keywords,
+            targetWordCount,
+            section,
+            room,
+            style: styleChoice,
+            articleFormat,
+            availableCategories: categories.map((c) => c.name),
+          },
         });
 
       clearInterval(progressInterval);
@@ -329,9 +341,20 @@ const AiBlogWriter = ({
         image_url: imageUrl || undefined,
         faq_schema: textData.faq_schema || [],
         featured_image_alt: textData.featured_image_alt || "",
+        category: textData.category || category || undefined,
+        room: textData.room || undefined,
+        style: textData.style || undefined,
+        pinterest_title: textData.pinterest_title || undefined,
+        pinterest_description: textData.pinterest_description || undefined,
+        newsletter_cta: textData.newsletter_cta || undefined,
+        section: textData.section || undefined,
+        recommendation_reason: textData.recommendation_reason || undefined,
       };
 
       setGeneratedData(blogData);
+      if (blogData.recommendation_reason) {
+        toast.success(`Placed in ${blogData.section || "blog"}${blogData.room ? ` · ${blogData.room}` : ""}${blogData.style ? ` · ${blogData.style}` : ""}`, { description: blogData.recommendation_reason });
+      }
       setStep("done");
     } catch (error) {
       console.error("AI generation error:", error);
@@ -485,14 +508,55 @@ const AiBlogWriter = ({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Label className="text-sm font-medium">Website section</Label>
+                <Select value={section} onValueChange={setSection}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SECTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Article format</Label>
+                <Select value={articleFormat} onValueChange={setArticleFormat}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ARTICLE_FORMATS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Room</Label>
+                <Select value={room} onValueChange={setRoom}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">✨ Let AI recommend</SelectItem>
+                    <SelectItem value="none">No specific room</SelectItem>
+                    {roomTaxonomy.map((r) => <SelectItem key={r.slug} value={r.slug}>{r.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Style</Label>
+                <Select value={styleChoice} onValueChange={setStyleChoice}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">✨ Let AI recommend</SelectItem>
+                    <SelectItem value="none">No specific style</SelectItem>
+                    {styleTaxonomy.map((s) => <SelectItem key={s.slug} value={s.slug}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Blog category</Label>
+                <Select value={category || "auto"} onValueChange={(v) => setCategory(v === "auto" ? "" : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="auto">✨ Let AI recommend</SelectItem>
                     {categories?.map((cat) => (
                       <SelectItem key={cat.id} value={cat.name}>
                         {cat.name}
@@ -680,11 +744,11 @@ const AiBlogWriter = ({
                 <div>
                   <p className="text-sm font-medium">
                     {step === "discovering-products"
-                      ? "Discovering trending products..."
-                      : `Products discovered${discoveredProducts.length > 0 ? ` (${discoveredProducts.length} added to shop)` : ""}`}
+                      ? "Analysing topic & search intent..."
+                      : "Topic analysed"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Finding relevant Amazon products for your topic
+                    Choosing the best section, room and style for your article
                   </p>
                 </div>
               </div>
@@ -726,7 +790,7 @@ const AiBlogWriter = ({
                       : step === "discovering-products" || step === "researching-competitors" ? "Write blog content" : "Content generated"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Brand voice, product embeds, FAQ schema, and auto alt text
+                    Editorial voice, in-depth sections, FAQ schema, and internal links
                   </p>
                 </div>
               </div>

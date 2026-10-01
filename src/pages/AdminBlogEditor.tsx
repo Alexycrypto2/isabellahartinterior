@@ -725,6 +725,12 @@ const AdminBlogEditor = () => {
             setMetaTitle(data.meta_title);
             setMetaDescription(data.meta_description);
             setReadTime(data.read_time);
+            if (data.category) setCategory(data.category);
+            if (data.room) setRoom(data.room);
+            if (data.style) setStyle(data.style);
+            if (data.pinterest_title) setPinterestTitle(data.pinterest_title);
+            if (data.pinterest_description) setPinterestDescription(data.pinterest_description);
+            if (data.newsletter_cta) setNewsletterCta(data.newsletter_cta);
             if (data.image_url) {
               setImageUrl(data.image_url);
               setOgImageUrl(data.image_url);
