@@ -164,6 +164,7 @@ export type Database = {
           scheduled_for: string | null
           slug: string
           style: string | null
+          target_keywords: string | null
           title: string
           updated_at: string
         }
@@ -188,6 +189,7 @@ export type Database = {
           scheduled_for?: string | null
           slug: string
           style?: string | null
+          target_keywords?: string | null
           title: string
           updated_at?: string
         }
@@ -212,6 +214,7 @@ export type Database = {
           scheduled_for?: string | null
           slug?: string
           style?: string | null
+          target_keywords?: string | null
           title?: string
           updated_at?: string
         }
