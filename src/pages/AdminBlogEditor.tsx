@@ -73,6 +73,7 @@ const AdminBlogEditor = () => {
   // SEO fields
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
+  const [targetKeywords, setTargetKeywords] = useState('');
   const [ogImageUrl, setOgImageUrl] = useState('');
   const [room, setRoom] = useState('none');
   const [style, setStyle] = useState('none');
@@ -103,6 +104,7 @@ const AdminBlogEditor = () => {
       // SEO fields
       setMetaTitle((existingPost as any).meta_title || '');
       setMetaDescription((existingPost as any).meta_description || '');
+      setTargetKeywords((existingPost as any).target_keywords || '');
       setOgImageUrl((existingPost as any).og_image_url || '');
       setRoom(existingPost.room || 'none');
       setStyle(existingPost.style || 'none');
@@ -265,6 +267,7 @@ const AdminBlogEditor = () => {
         published,
         meta_title: metaTitle || null,
         meta_description: metaDescription || null,
+        target_keywords: targetKeywords.trim() || null,
         og_image_url: ogImageUrl || null,
         room: room === 'none' ? null : room,
         style: style === 'none' ? null : style,
@@ -692,6 +695,47 @@ const AdminBlogEditor = () => {
                 maxLength={160}
                 rows={2}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="targetKeywords">Target Keywords <span className="text-muted-foreground text-sm">(comma separated, main keyword first)</span></Label>
+              <Input id="targetKeywords" value={targetKeywords} onChange={(e) => setTargetKeywords(e.target.value)} placeholder="cozy living room ideas, warm living room decor" />
+              {(() => {
+                const main = targetKeywords.split(',')[0]?.trim().toLowerCase();
+                const t = (metaTitle || title).toLowerCase();
+                const d = (metaDescription || excerpt).toLowerCase();
+                const body = content.replace(/<[^>]*>/g, ' ').toLowerCase();
+                const checks = [
+                  { ok: (metaTitle || title).length >= 30 && (metaTitle || title).length <= 60, label: 'Title is 30–60 characters' },
+                  { ok: (metaDescription || excerpt).length >= 120 && (metaDescription || excerpt).length <= 160, label: 'Description is 120–160 characters' },
+                  { ok: !!main && t.includes(main), label: 'Main keyword in title' },
+                  { ok: !!main && d.includes(main), label: 'Main keyword in description' },
+                  { ok: !!main && body.slice(0, 800).includes(main), label: 'Main keyword in the opening' },
+                  { ok: /<h2/i.test(content), label: 'Uses H2 section headings' },
+                  { ok: body.split(/\s+/).filter(Boolean).length >= 1200, label: 'At least 1,200 words' },
+                  { ok: !!(ogImageUrl || imageUrl), label: 'Has a featured/social image' },
+                ];
+                const score = Math.round((checks.filter(c => c.ok).length / checks.length) * 100);
+                return (
+                  <div className="space-y-3 pt-2">
+                    <div className="rounded-md border bg-background p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Google preview</p>
+                      <p className="text-xs text-muted-foreground truncate">isabellehartinteriors › blog › {slug || 'your-post'}</p>
+                      <p className="text-primary text-lg leading-snug truncate">{metaTitle || title || 'Your SEO title'}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{metaDescription || excerpt || 'Your meta description will appear here.'}</p>
+                    </div>
+                    <div className="rounded-md border bg-background p-4">
+                      <p className="text-sm font-medium mb-2">SEO score: {score}/100</p>
+                      <ul className="grid gap-1 sm:grid-cols-2 text-sm">
+                        {checks.map(c => (
+                          <li key={c.label} className={c.ok ? 'text-foreground' : 'text-muted-foreground'}>{c.ok ? '✓' : '○'} {c.label}</li>
+                        ))}
+                      </ul>
+                      <a href="/sitemap.xml" target="_blank" rel="noopener" className="inline-block mt-3 text-xs underline text-muted-foreground">View sitemap.xml</a>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="space-y-2">
