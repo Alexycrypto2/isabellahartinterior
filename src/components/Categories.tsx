@@ -32,10 +32,10 @@ const editorialRooms = [
 const Categories = memo(() => {
 
   return (
-    <section className="border-b border-border bg-secondary py-20 md:py-28">
-      <div className="container mx-auto px-6">
+    <section className="border-b border-border bg-secondary py-14 md:py-28">
+      <div className="container mx-auto px-5 md:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-12 flex flex-col justify-between gap-5 md:mb-16 md:flex-row md:items-end">
+          <div className="mb-8 flex flex-col justify-between gap-5 md:mb-16 md:flex-row md:items-end">
             <motion.span
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ const Categories = memo(() => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="font-display text-4xl md:text-5xl font-semibold text-foreground mb-4"
+              className="font-display text-3xl md:text-5xl font-normal text-foreground mb-4"
             >
               Rooms with a point of view
             </motion.h2>
@@ -58,17 +58,18 @@ const Categories = memo(() => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-muted-foreground text-lg max-w-2xl mx-auto"
+              className="text-muted-foreground text-base md:text-lg max-w-2xl"
             >
               Ideas, palettes, and practical details for the spaces where life happens.
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 lg:grid-cols-4">
+          <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:gap-5 lg:grid-cols-4">
             {editorialRooms.map((category, index) => {
               const coverImg = category.image;
               return (
                 <motion.div
+                  className="w-[68%] shrink-0 snap-start sm:w-[45%] md:w-auto"
                   key={category.slug}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}

@@ -13,12 +13,12 @@ const BlogPreview = memo(() => {
   const [featured, ...supporting] = recentPosts;
 
   return (
-    <section className="border-b border-border bg-background py-20 md:py-28">
-      <div className="container mx-auto px-6">
-        <div className="mb-12 flex items-end justify-between gap-6 md:mb-16">
+    <section className="border-b border-border bg-background py-14 md:py-28">
+      <div className="container mx-auto px-5 md:px-6">
+        <div className="mb-8 flex items-end justify-between gap-6 md:mb-16">
           <div>
             <p className="text-label mb-3 text-accent">From the journal</p>
-            <h2 className="text-display text-5xl font-normal md:text-6xl">The latest stories</h2>
+            <h2 className="text-display text-4xl font-normal md:text-6xl">The latest stories</h2>
           </div>
           <Link to="/blog" className="hidden items-center gap-2 text-sm font-medium text-foreground hover:text-accent md:flex">
             View all stories <ArrowUpRight className="h-4 w-4" />
@@ -49,19 +49,24 @@ const BlogPreview = memo(() => {
               </div>
               <Link to={`/blog/${featured.slug}`} className="mt-5 block">
                 <p className="text-label mb-3 text-muted-foreground">{featured.category} · {featured.read_time}</p>
-                <h3 className="font-display max-w-2xl text-4xl leading-[1.05] transition-colors group-hover:text-accent md:text-5xl">{featured.title}</h3>
+                <h3 className="font-display max-w-2xl text-3xl leading-[1.08] transition-colors group-hover:text-accent md:text-5xl">{featured.title}</h3>
                 <p className="mt-4 max-w-xl leading-7 text-muted-foreground">{featured.excerpt}</p>
               </Link>
             </article>
 
             <div className="divide-y divide-border border-y border-border">
               {supporting.map((post, index) => (
-                <article key={post.id} className="group py-7 first:pt-0 last:pb-0">
-                  <Link to={`/blog/${post.slug}`} className="block">
-                    <p className="text-sm text-muted-foreground">0{index + 2} / {post.category}</p>
-                    <h3 className="mt-3 font-display text-3xl leading-tight transition-colors group-hover:text-accent">{post.title}</h3>
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{post.excerpt}</p>
-                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium">Read story <ArrowUpRight className="h-4 w-4 text-accent" /></span>
+                <article key={post.id} className="group py-5 md:py-7 first:pt-0 last:pb-0">
+                  <Link to={`/blog/${post.slug}`} className="flex gap-4 lg:block">
+                    {post.image_url && (
+                      <img src={resolveImageUrl(post.image_url)} alt={post.title} loading="lazy" className="h-24 w-24 shrink-0 object-cover lg:hidden" />
+                    )}
+                    <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground md:text-sm">0{index + 2} / {post.category}</p>
+                    <h3 className="mt-2 font-display text-xl md:mt-3 md:text-3xl leading-tight transition-colors group-hover:text-accent">{post.title}</h3>
+                    <p className="mt-3 hidden line-clamp-2 text-sm leading-6 text-muted-foreground md:block">{post.excerpt}</p>
+                    <span className="mt-4 hidden items-center gap-2 text-sm font-medium md:inline-flex">Read story <ArrowUpRight className="h-4 w-4 text-accent" /></span>
+                    </div>
                   </Link>
                 </article>
               ))}
