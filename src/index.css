@@ -414,3 +414,9 @@
   .editorial-article img { border-radius: 0 !important; }
   .editorial-article a { text-underline-offset: 3px; }
 }
+@layer components {
+  .editorial-article p { margin: 0 0 1.25em; }
+  .editorial-article ul, .editorial-article ol { margin: 0 0 1.25em; }
+  .editorial-article .blog-toc { margin: 2em 0; padding: 1.25em; border: 1px solid hsl(var(--border)); background: hsl(var(--secondary)); }
+  .editorial-article .blog-toc a { text-decoration: none; font-size: 0.95rem; }
+}
