@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
@@ -22,6 +22,15 @@ const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, error } = useBlogPostBySlug(slug || '');
   const { data: allPosts } = usePublishedBlogPosts();
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(h > 0 ? Math.min(100, (window.scrollY / h) * 100) : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Track blog view
   useEffect(() => {
@@ -209,34 +218,35 @@ const BlogPost = () => {
           <meta name="pinterest:description" content={post.pinterest_description || `${blogOgTitle} | Home styling tips from Isabelle Hart Interiors`} />
           <meta name="description" content={post.meta_description || blogOgDescription} />
         </Helmet>
+        <div className="fixed left-0 top-0 z-[60] h-0.5 bg-accent transition-[width]" style={{ width: `${progress}%` }} aria-hidden />
         <Navigation />
         <JsonLd data={articleJsonLd} />
         {faqJsonLd && <JsonLd data={faqJsonLd} />}
 
       {/* Hero Section */}
-      <section className="pt-32 pb-8">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
+      <section className="pt-24 pb-6 md:pt-32 md:pb-8">
+        <div className="container mx-auto px-5 md:px-6">
+          <div className="max-w-4xl mx-auto md:text-center">
             <Link to="/decor-ideas" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Decor Ideas
             </Link>
             
-            <div className="mb-4 flex flex-wrap items-center gap-2">
+            <div className="mb-4 flex flex-wrap items-center gap-2 md:justify-center">
               <span className="category-badge inline-block">{post.category}</span>
               {post.room && <Link to={`/rooms/${post.room}`} className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">{post.room.replace(/-/g, ' ')}</Link>}
               {post.style && <Link to={`/style-guides/${post.style}`} className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">{post.style.replace(/-/g, ' ')}</Link>}
             </div>
             
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-6 leading-tight">
+            <h1 className="text-display text-[2.4rem] font-normal leading-[1.05] mb-5 md:text-6xl lg:text-7xl">
               {post.title}
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="font-script text-xl italic text-muted-foreground mb-7 md:text-2xl md:max-w-2xl md:mx-auto">
               {post.excerpt}
             </p>
             
-            <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground pb-8 border-b border-border">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground pb-6 border-b md:justify-center md:pb-8 border-border">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
                 <span>{post.author}</span>
@@ -256,14 +266,14 @@ const BlogPost = () => {
 
       {/* Featured Image */}
       {post.image_url && (
-        <section className="pb-12">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto relative">
+        <section className="pb-10 md:pb-14">
+          <div className="container mx-auto px-0 md:px-6">
+            <div className="max-w-5xl mx-auto relative">
               <img 
                 src={resolveImageUrl(post.image_url)} 
                 alt={`${post.title} - ${post.category} styling tips by ${post.author}`}
-                className="w-full aspect-[1200/630] object-cover rounded-2xl"
-                loading="lazy"
+                className="w-full aspect-[4/3] object-cover md:aspect-[1200/630]"
+                fetchPriority="high"
               />
               <div className="absolute top-4 right-4">
                 <PinterestSaveButton
@@ -280,9 +290,9 @@ const BlogPost = () => {
 
       {/* Content */}
       <section className="pb-12">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-5 md:px-6">
           <article 
-            className="max-w-3xl mx-auto prose prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent blog-content"
+            className="max-w-3xl mx-auto prose prose-base md:prose-lg prose-headings:font-display prose-headings:font-medium prose-a:text-accent blog-content editorial-article"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
 
@@ -317,8 +327,8 @@ const BlogPost = () => {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-6">
             <div className="max-w-7xl mx-auto">
-              <h2 className="font-display text-3xl font-medium text-center mb-3">
-                Related Posts
+              <h2 className="text-display text-4xl font-normal text-center mb-3">
+                Keep reading
               </h2>
               <p className="text-muted-foreground text-center mb-10">
                 More from <span className="font-medium text-foreground">{post.room ? post.room.replace(/-/g, ' ') : post.category}</span> and beyond
@@ -326,7 +336,7 @@ const BlogPost = () => {
               <div className="grid md:grid-cols-3 gap-8">
                 {relatedPosts.map((relatedPost) => (
                   <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`} className="group">
-                    <div className="rounded-2xl overflow-hidden mb-4">
+                    <div className="overflow-hidden mb-4">
                       {relatedPost.image_url ? (
                         <img 
                           src={resolveImageUrl(relatedPost.image_url)} 
