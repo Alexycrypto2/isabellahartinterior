@@ -724,15 +724,17 @@ const AdminBlogEditor = () => {
                       <p className="text-primary text-lg leading-snug truncate">{metaTitle || title || 'Your SEO title'}</p>
                       <p className="text-sm text-muted-foreground line-clamp-2">{metaDescription || excerpt || 'Your meta description will appear here.'}</p>
                     </div>
-                    <div className="rounded-md border bg-background p-4">
-                      <p className="text-sm font-medium mb-2">SEO score: {score}/100</p>
-                      <ul className="grid gap-1 sm:grid-cols-2 text-sm">
-                        {checks.map(c => (
-                          <li key={c.label} className={c.ok ? 'text-foreground' : 'text-muted-foreground'}>{c.ok ? '✓' : '○'} {c.label}</li>
-                        ))}
-                      </ul>
-                      <a href="/sitemap.xml" target="_blank" rel="noopener" className="inline-block mt-3 text-xs underline text-muted-foreground">View sitemap.xml</a>
-                    </div>
+                    <SeoDoctor
+                      input={{ title, metaTitle, metaDescription, excerpt, content, slug, targetKeywords, imageUrl: ogImageUrl || imageUrl }}
+                      onTreat={(t) => {
+                        if (t.meta_title) setMetaTitle(t.meta_title);
+                        if (t.meta_description) setMetaDescription(t.meta_description);
+                        if (t.excerpt) setExcerpt(t.excerpt);
+                        if (t.content) setContent(t.content);
+                      }}
+                    />
+                    <a href="/sitemap.xml" target="_blank" rel="noopener" className="inline-block text-xs underline text-muted-foreground">View sitemap.xml</a>
+                    {void score}
                   </div>
                 );
               })()}
