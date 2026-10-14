@@ -1,3 +1,4 @@
+import SeoDoctor from '@/components/admin/SeoDoctor';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
@@ -734,7 +735,6 @@ const AdminBlogEditor = () => {
                       }}
                     />
                     <a href="/sitemap.xml" target="_blank" rel="noopener" className="inline-block text-xs underline text-muted-foreground">View sitemap.xml</a>
-                    {void score}
                   </div>
                 );
               })()}
