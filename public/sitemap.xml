@@ -71,7 +71,7 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://isabellehartinterior.store/blog/biophilic-decor-spring-indoor-plants</loc>
+    <loc>https://isabellehartinterior.store/blog/diy-home-decor-fall</loc>
     <lastmod>2026-10-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -95,12 +95,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://isabellehartinterior.store/blog/diy-home-decor-fall</loc>
-    <lastmod>2026-10-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://isabellehartinterior.store/blog/vintage-style-antique-decor-sustainable-home</loc>
     <lastmod>2026-10-13</lastmod>
     <changefreq>monthly</changefreq>
@@ -108,6 +102,12 @@
   </url>
   <url>
     <loc>https://isabellehartinterior.store/blog/how-to-create-a-warm-minimalist-bedroom</loc>
+    <lastmod>2026-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://isabellehartinterior.store/blog/biophilic-decor-spring-indoor-plants</loc>
     <lastmod>2026-10-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
