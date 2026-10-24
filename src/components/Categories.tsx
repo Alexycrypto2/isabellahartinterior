@@ -64,7 +64,7 @@ const Categories = memo(() => {
             </motion.p>
           </div>
 
-          <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:gap-5 lg:grid-cols-4">
+          <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:gap-5">
             {editorialRooms.map((category, index) => {
               const coverImg = category.image;
               return (

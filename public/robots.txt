@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://isabellehartinterior.store/sitemap.xml
+Sitemap: https://isabellehartinteriors.com/sitemap.xml

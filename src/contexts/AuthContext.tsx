@@ -42,6 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // Send password-reset links to the reset form, wherever they land
+        if (event === "PASSWORD_RECOVERY" && window.location.pathname !== "/reset-password") {
+          window.location.replace("/reset-password" + window.location.hash);
+        }
         
         // Defer admin check with setTimeout to prevent deadlock
         if (session?.user) {
