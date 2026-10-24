@@ -20,7 +20,7 @@ const Hero = memo(() => {
               Beautiful spaces, thoughtfully styled.
             </h1>
             <p className="mt-5 max-w-md text-base md:mt-8 leading-7 text-muted-foreground md:text-lg">
-              A considered home decor journal for rooms with warmth, character, and a point of view.
+              Home decor ideas, room-by-room styling guides, and interior design tips for rooms with warmth, character, and a point of view.
             </p>
             <div className="mt-7 flex flex-wrap md:mt-9 items-center gap-6">
               <Link

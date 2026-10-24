@@ -145,7 +145,6 @@ const App = () => (
                 <AnalyticsTracker />
                 <AnimatedRoutes />
                 <Chatbot />
-                <EmailCapturePopup />
                 <ExitIntentPopup />
               </BrowserRouter>
             </CartProvider>
