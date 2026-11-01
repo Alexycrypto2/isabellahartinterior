@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Stethoscope, Loader2, CheckCircle2, AlertTriangle, XCircle, Wand2 } from "lucide-react";
+import { Stethoscope, Loader2, CheckCircle2, AlertTriangle, XCircle, Wand2, Globe, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
