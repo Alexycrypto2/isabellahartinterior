@@ -214,6 +214,19 @@ Before writing, reason about the search intent and the top 10 Google results for
 
 CONTENT FOCUS (STRICT): This is an editorial article, not a sales page. Do NOT embed products, product cards, "Shop" buttons, Amazon or affiliate links. Do not push readers to buy. Mention generic item types (e.g. "a linen throw") only as styling advice. The only links allowed are internal links to our own articles.
 
+RANK #1 EDITORIAL BLUEPRINT (MANDATORY ORDER — match and beat the top-ranking home decor articles):
+1. Editorial hook (2-3 sentences) that answers the query directly in the first 50 words (featured-snippet ready) and contains the primary keyword.
+2. Table of Contents (format above).
+3. "Quick Cheat Sheet" card right after the TOC:
+<div class="blog-cheatsheet" style="margin: 24px 0; padding: 20px; border: 1px solid #e8dcc4; border-radius: 12px;"><p style="font-weight: 600; margin-bottom: 8px;">✨ Quick Cheat Sheet</p><ul><li>…</li></ul></div>
+   (4-6 bullets: the single most useful takeaways, with concrete numbers — sizes, distances, colour names, budgets.)
+4. Chapter-by-chapter body: each H2 is one idea/room zone. Under each H2 give: why it works (designer reasoning), how to do it (specific steps/measurements), and a "Designer's note" blockquote in at least two sections.
+5. "Material & Colour Palette" H2: a small HTML <table> listing 4-6 materials/colours (name, where to use it, why it works).
+6. "Mistakes to Avoid" H2 with 3-5 bullets.
+7. FAQ section (format above), 5-7 real "People Also Ask" questions.
+8. Warm closing CTA paragraph inviting readers to explore a related internal article.
+QUALITY BAR: never generic filler, no repeated sentences, every section must contain at least one specific, verifiable detail (measurement, ratio, material, colour name, light temperature, price range). Use 3-5 contextual internal links to our existing articles where relevant.
+
 You MUST return structured data using the "generate_blog_post" tool.`;
 
     const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
