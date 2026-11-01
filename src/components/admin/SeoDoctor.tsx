@@ -223,7 +223,72 @@ const SeoDoctor = ({ input, onTreat }: Props) => {
           <ul className="list-disc pl-5 text-xs text-muted-foreground">{notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">The Doctor checks proven ranking basics. It can't see live Google rankings, so results also depend on competition and time.</p>
+      {/* Live Google SERP Intelligence */}
+      <div className="space-y-3 rounded-md border border-accent/30 bg-accent/5 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="flex items-center gap-2 text-sm font-medium text-accent"><Globe className="h-4 w-4" /> Live Google Check</p>
+          <Button onClick={runLiveCheck} disabled={liveLoading} variant="outline" size="sm" className="rounded-full">
+            {liveLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Searching Google…</> : <><Globe className="mr-2 h-4 w-4" />{live ? "Re-check live results" : "Check live Google results"}</>}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">Searches Google right now for your main keyword, then compares your article against what actually ranks today.</p>
+
+        {liveLoading && (
+          <p className="text-xs text-muted-foreground"><Loader2 className="mr-1 inline h-3 w-3 animate-spin" /> Reading today's top results — this takes up to a minute…</p>
+        )}
+
+        {live && !liveLoading && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-4 rounded-md border border-border bg-background p-3">
+              <div className="text-center">
+                <p className={`font-display text-3xl ${liveColor}`}>{live.rankability_score}</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Rank potential</p>
+              </div>
+              <div className="flex-1 min-w-[200px] space-y-1">
+                <p className="text-sm font-medium">{live.verdict}</p>
+                <p className={`flex items-center gap-1.5 text-xs ${live.is_indexed ? "text-accent" : "text-muted-foreground"}`}>
+                  {live.is_indexed ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+                  {live.is_indexed ? "Found in live Google results" : "Not found in live Google results yet"}
+                </p>
+                {live.as_of && <p className="text-[10px] text-muted-foreground">Checked against Google on {live.as_of}</p>}
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">{live.summary}</p>
+
+            {live.competitors.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Who ranks today</p>
+                {live.competitors.slice(0, 8).map((c, i) => (
+                  <div key={i} className="flex flex-col gap-0.5 rounded-md border border-border bg-background p-2.5 sm:flex-row sm:items-center sm:gap-3">
+                    <span className="font-display text-sm text-muted-foreground">#{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{c.title}<ExternalLink className="ml-1 inline h-3 w-3 text-muted-foreground" /></a> : c.title}</p>
+                      {c.why_it_ranks && <p className="text-xs text-muted-foreground">{c.domain}{c.word_count_estimate ? ` · ~${c.word_count_estimate.toLocaleString()} words` : ""} — {c.why_it_ranks}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {live.content_gaps.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">What your article is missing</p>
+                <ul className="space-y-1 text-sm">{live.content_gaps.map((g, i) => <li key={i} className="flex gap-2"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />{g}</li>)}</ul>
+              </div>
+            )}
+
+            {live.recommendations.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Do these next (in order)</p>
+                <ol className="list-decimal space-y-1 pl-5 text-sm">{live.recommendations.map((r, i) => <li key={i}>{r}</li>)}</ol>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-muted-foreground">The Doctor checks proven ranking basics, and the Live Google Check compares your article against what actually ranks today. Results also depend on competition and time.</p>
     </div>
   );
 };
