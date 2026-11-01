@@ -11,7 +11,6 @@ import { CartProvider } from "@/hooks/useCart";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedAdminRoute from "@/components/ProtectedAdminRoute";
 import DeveloperPanel from './pages/DeveloperPanel';
-import { Chatbot } from "@/components/Chatbot";
 import { EmailCapturePopup } from "@/components/EmailCapturePopup";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
@@ -144,7 +143,6 @@ const App = () => (
                 <ScrollToTop />
                 <AnalyticsTracker />
                 <AnimatedRoutes />
-                <Chatbot />
                 <ExitIntentPopup />
               </BrowserRouter>
             </CartProvider>
