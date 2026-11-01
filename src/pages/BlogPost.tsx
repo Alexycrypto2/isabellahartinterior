@@ -200,11 +200,12 @@ const BlogPost = () => {
       <div className="min-h-screen">
         <Helmet>
           <title>{post.meta_title || blogOgTitle} | Isabelle Hart Interiors</title>
+          <link rel="canonical" href={`https://isabellehartinteriors.com/blog/${post.slug}`} />
+          <meta property="og:url" content={`https://isabellehartinteriors.com/blog/${post.slug}`} />
           <meta property="og:type" content="article" />
           <meta property="og:title" content={blogOgTitle} />
           <meta property="og:description" content={blogOgDescription} />
           <meta property="og:image" content={blogOgImage} />
-          <meta property="og:url" content={window.location.href} />
           <meta property="og:site_name" content="Isabelle Hart Interiors" />
           <meta property="article:published_time" content={post.created_at} />
           <meta property="article:modified_time" content={post.updated_at} />

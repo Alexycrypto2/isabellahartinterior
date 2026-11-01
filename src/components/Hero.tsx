@@ -72,13 +72,13 @@ const Hero = memo(() => {
           <div className="md:col-span-1">
             <p className="text-label text-muted-foreground">Inside this issue</p>
           </div>
-          <Link to="/rooms" className="group border-l border-border pl-5">
+          <Link to="/blog/27-cozy-living-room-ideas-that-make-a-home-feel-expensive" className="group border-l border-border pl-5">
             <p className="text-sm text-muted-foreground">01 / Rooms</p>
             <p className="mt-1 font-display text-xl leading-tight md:mt-2 md:text-2xl transition-colors group-hover:text-accent">
               A softer approach to the everyday living room
             </p>
           </Link>
-          <Link to="/style-guides" className="group border-l border-border pl-5">
+          <Link to="/blog/what-is-organic-modern-interior-design" className="group border-l border-border pl-5">
             <p className="text-sm text-muted-foreground">02 / Style guides</p>
             <p className="mt-1 font-display text-xl leading-tight md:mt-2 md:text-2xl transition-colors group-hover:text-accent">
               Five details that make a home feel collected
