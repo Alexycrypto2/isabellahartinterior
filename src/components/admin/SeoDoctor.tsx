@@ -74,6 +74,17 @@ export function diagnoseSeo(p: SeoDoctorInput): Check[] {
   ];
 }
 
+interface LiveSerpResult {
+  rankability_score: number;
+  verdict: string;
+  is_indexed: boolean;
+  summary: string;
+  competitors: { title: string; domain: string; url?: string; word_count_estimate?: number; why_it_ranks?: string }[];
+  content_gaps: string[];
+  recommendations: string[];
+  as_of?: string;
+}
+
 interface Props {
   input: SeoDoctorInput;
   onTreat: (t: SeoDoctorTreatment) => void;
@@ -82,6 +93,8 @@ interface Props {
 const SeoDoctor = ({ input, onTreat }: Props) => {
   const [treating, setTreating] = useState(false);
   const [notes, setNotes] = useState<string[]>([]);
+  const [live, setLive] = useState<LiveSerpResult | null>(null);
+  const [liveLoading, setLiveLoading] = useState(false);
   const checks = useMemo(() => diagnoseSeo(input), [input]);
   const total = checks.reduce((s, c) => s + c.weight, 0);
   const score = Math.round((checks.filter((c) => c.ok).reduce((s, c) => s + c.weight, 0) / total) * 100);
