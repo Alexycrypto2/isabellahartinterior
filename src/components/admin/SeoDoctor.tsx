@@ -142,7 +142,36 @@ const SeoDoctor = ({ input, onTreat }: Props) => {
     }
   };
 
+  const runLiveCheck = async () => {
+    const keyword = input.targetKeywords.split(",")[0]?.trim();
+    if (!keyword) return toast.error("Add a target keyword first so the Doctor knows what to search.");
+    setLiveLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("check-live-serp", {
+        body: {
+          keyword,
+          title: input.metaTitle || input.title,
+          url: `https://isabellehartinteriors.com/blog/${input.slug}`,
+          excerpt: input.metaDescription || input.excerpt,
+          wordCount: (input.content || "").replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length,
+        },
+      });
+      if (error) {
+        const s = (error as any)?.context?.status;
+        throw new Error(s === 429 ? "The AI is busy. Try again in a minute." : s === 402 ? "AI credits have run out." : error.message);
+      }
+      if (data?.error) throw new Error(data.error);
+      setLive(data as LiveSerpResult);
+      toast.success("Live Google check complete.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Live check failed");
+    } finally {
+      setLiveLoading(false);
+    }
+  };
+
   const ringColor = score >= 80 ? "text-accent" : score >= 55 ? "text-muted-foreground" : "text-destructive";
+  const liveColor = live ? (live.rankability_score >= 60 ? "text-accent" : live.rankability_score >= 40 ? "text-muted-foreground" : "text-destructive") : "";
 
   return (
     <div className="rounded-lg border border-border bg-card p-5 space-y-5">
