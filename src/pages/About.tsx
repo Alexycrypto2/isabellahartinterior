@@ -34,7 +34,7 @@ const About = () => {
               )}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              {about.description || 'Helping you create spaces that feel like home, one beautiful find at a time.'}
+              {about.description || 'An editorial journal of home decor ideas, room-by-room styling, and spaces with warmth and character.'}
             </p>
           </div>
         </div>
@@ -47,27 +47,24 @@ const About = () => {
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
                 <h2 className="font-display text-3xl md:text-4xl font-medium text-display mb-6">
-                  It started with a Pinterest board and a dream home
+                  It started with a love of rooms that feel lived in
                 </h2>
                 
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    Hi there! I'm Isabelle Hart, the creator behind Isabelle Hart Interiors. Like many of you, I spent 
-                    countless hours scrolling through Pinterest, saving beautiful home inspiration 
-                    but never quite knowing where to find the pieces I loved.
+                    I'm Isabelle Hart, the editor behind Isabelle Hart Interiors. Like many of you, I spent
+                    years saving rooms that moved me — sunlit linen, worn oak, plaster walls — and wondering
+                    what made them feel so quietly right.
                   </p>
-                  
+
                   <p>
-                    After moving into my first apartment and struggling to create that "Pinterest-worthy" 
-                    space on a budget, I realized there had to be a better way. That's when I started 
-                    curating the best home decor finds from Amazon – pieces that look expensive but 
-                    won't break the bank.
+                    That curiosity became this journal: a place to study rooms closely, decode the formulas
+                    designers use, and translate them into homes with warmth, character, and a point of view.
                   </p>
-                  
+
                   <p>
-                    Now, I spend my days hunting down the most beautiful, cozy, and affordable home 
-                    decor so you don't have to. Every product on this site has been personally vetted 
-                    for quality, style, and value.
+                    Today I research room-by-room styling guides, designer-approved palettes, and tactile
+                    materials, so every story here gives you something real to bring home.
                   </p>
                 </div>
               </div>
@@ -80,9 +77,9 @@ const About = () => {
                         <Heart className="w-6 h-6 text-accent" />
                       </div>
                       <div>
-                        <h3 className="font-display text-xl font-medium mb-2">Handpicked with Love</h3>
+                        <h3 className="font-display text-xl font-medium mb-2">Thoughtfully Curated</h3>
                         <p className="text-muted-foreground text-sm">
-                          Every product is personally selected for quality and style.
+                          Every piece and palette is chosen for craft, texture, and longevity.
                         </p>
                       </div>
                     </div>
@@ -92,9 +89,9 @@ const About = () => {
                         <Sparkles className="w-6 h-6 text-accent" />
                       </div>
                       <div>
-                        <h3 className="font-display text-xl font-medium mb-2">Budget-Friendly Finds</h3>
+                        <h3 className="font-display text-xl font-medium mb-2">Intentional Sourcing</h3>
                         <p className="text-muted-foreground text-sm">
-                          Beautiful home decor that won't break the bank.
+                          A high-low approach: lasting investments paired with accessible accents.
                         </p>
                       </div>
                     </div>
@@ -104,9 +101,9 @@ const About = () => {
                         <Home className="w-6 h-6 text-accent" />
                       </div>
                       <div>
-                        <h3 className="font-display text-xl font-medium mb-2">Styling Inspiration</h3>
+                        <h3 className="font-display text-xl font-medium mb-2">Designer Formulas</h3>
                         <p className="text-muted-foreground text-sm">
-                          Tips and guides to help you style like a pro.
+                          Measurements, materials, and palettes you can actually use.
                         </p>
                       </div>
                     </div>
@@ -128,8 +125,8 @@ const About = () => {
                 <p className="text-sm text-muted-foreground">Pinterest Followers</p>
               </div>
               <div>
-                <p className="font-display text-4xl md:text-5xl font-medium text-accent mb-2">500+</p>
-                <p className="text-sm text-muted-foreground">Curated Products</p>
+                <p className="font-display text-4xl md:text-5xl font-medium text-accent mb-2">100+</p>
+                <p className="text-sm text-muted-foreground">Design Guides &amp; Room Studies</p>
               </div>
               <div>
                 <p className="font-display text-4xl md:text-5xl font-medium text-accent mb-2">10K+</p>
@@ -150,11 +147,11 @@ const About = () => {
           <div className="max-w-3xl mx-auto text-center">
             <span className="text-label text-accent mb-4 block">Our Mission</span>
             <h2 className="font-display text-3xl md:text-5xl font-medium text-display mb-6">
-              Making beautiful homes accessible to everyone
+              Homes with warmth, poise, and perspective
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              I believe everyone deserves to live in a space that brings them joy. That's why I'm 
-              committed to finding affordable decor that doesn't compromise on style. Whether you're 
+              I believe everyone deserves to live in a space that brings them joy. Every guide here
+              is written to help you shape rooms that feel personal and timeless. Whether you're 
               decorating your first apartment or refreshing your forever home, you'll find something 
               here to inspire you.
             </p>
@@ -179,7 +176,7 @@ const About = () => {
               an affiliate advertising program designed to provide a means for sites to earn 
               advertising fees by advertising and linking to Amazon.com. This means I may earn 
               a small commission when you purchase through my links, at no extra cost to you. 
-              This helps support the site and allows me to keep curating beautiful finds for you!
+              This helps support the site and allows me to keep publishing in-depth design stories.
             </p>
           </div>
         </div>
