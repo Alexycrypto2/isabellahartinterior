@@ -34,7 +34,7 @@ const About = () => {
               )}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              {about.description || 'Helping you create spaces that feel like home, one beautiful find at a time.'}
+              {about.description || 'An editorial journal of home decor ideas, room-by-room styling, and spaces with warmth and character.'}
             </p>
           </div>
         </div>
@@ -52,22 +52,19 @@ const About = () => {
                 
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    Hi there! I'm Isabelle Hart, the creator behind Isabelle Hart Interiors. Like many of you, I spent 
-                    countless hours scrolling through Pinterest, saving beautiful home inspiration 
-                    but never quite knowing where to find the pieces I loved.
+                    I'm Isabelle Hart, the editor behind Isabelle Hart Interiors. Like many of you, I spent
+                    years saving rooms that moved me — sunlit linen, worn oak, plaster walls — and wondering
+                    what made them feel so quietly right.
                   </p>
-                  
+
                   <p>
-                    After moving into my first apartment and struggling to create that "Pinterest-worthy" 
-                    space on a budget, I realized there had to be a better way. That's when I started 
-                    curating the best home decor finds from Amazon – pieces that look expensive but 
-                    won't break the bank.
+                    That curiosity became this journal: a place to study rooms closely, decode the formulas
+                    designers use, and translate them into homes with warmth, character, and a point of view.
                   </p>
-                  
+
                   <p>
-                    Now, I spend my days hunting down the most beautiful, cozy, and affordable home 
-                    decor so you don't have to. Every product on this site has been personally vetted 
-                    for quality, style, and value.
+                    Today I research room-by-room styling guides, designer-approved palettes, and tactile
+                    materials, so every story here gives you something real to bring home.
                   </p>
                 </div>
               </div>
