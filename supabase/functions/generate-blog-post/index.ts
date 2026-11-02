@@ -311,12 +311,12 @@ IMPORTANT REQUIREMENTS:
     const priority = customConfig?.priority || "custom";
     const hasCustomKey = customConfig?.api_key;
 
-    async function callLovable() {
+    async function callLovable(msgs: any[] = messages) {
       if (!LOVABLE_API_KEY) return null;
       const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
+        body: JSON.stringify({ model: "google/gemini-3-flash-preview", max_tokens: 16000, messages: msgs, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
       });
       if (resp.status === 429) {
         throw { status: 429, message: "Rate limit exceeded. Please try again in a moment." };
@@ -356,7 +356,7 @@ IMPORTANT REQUIREMENTS:
       const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${customConfig.api_key}` },
-        body: JSON.stringify({ model, messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
+        body: JSON.stringify({ model, max_tokens: 8192, messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
       });
       if (!resp.ok) return null;
       return resp;
