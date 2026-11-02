@@ -13,13 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories } = await req.json();
+    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories, existingContent } = await req.json();
     const ROOMS = ["living-room","bedroom","kitchen","bathroom","dining","home-office","entryway","small-spaces","outdoor"];
     const STYLES = ["modern","minimalist","japandi","scandinavian","organic-modern","contemporary","traditional","quiet-luxury","warm-minimalism"];
     const SECTIONS = ["decor-ideas","rooms","style-guides"];
     const cats: string[] = Array.isArray(availableCategories) ? availableCategories : [];
 
-    const wordCountTarget = Math.max(800, Math.min(3000, targetWordCount || 1500));
+    // Rank #1 floor: never generate thin articles
+    const wordCountTarget = Math.max(1800, Math.min(2800, targetWordCount || 2000));
+    const MIN_WORDS = 1200;
+    const countWords = (html: string) => String(html || "").replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -227,13 +230,19 @@ RANK #1 EDITORIAL BLUEPRINT (MANDATORY ORDER — match and beat the top-ranking 
 8. Warm closing CTA paragraph inviting readers to explore a related internal article.
 QUALITY BAR: never generic filler, no repeated sentences, every section must contain at least one specific, verifiable detail (measurement, ratio, material, colour name, light temperature, price range). Use 3-5 contextual internal links to our existing articles where relevant.
 
+LENGTH IS NON-NEGOTIABLE: the article MUST be at least ${wordCountTarget} words. Write 5-7 H2 chapters and EACH chapter body must be at least 250 words (multiple paragraphs, plus H3 sub-points where useful). Include real paint names (e.g. Farrow & Ball, Benjamin Moore shade names), exact measurements in inches and cm, bulb temperatures in Kelvin, and named materials. A short outline or 1-2 sentences per heading is a FAILED answer.
+
 You MUST return structured data using the "generate_blog_post" tool.`;
+
+    const expandBlock = existingContent
+      ? `\n\nRE-EXPAND MODE: Below is a thin existing draft. Keep its topic, angle and headings where good, but rewrite and expand it into a complete ${wordCountTarget}+ word Rank #1 guide following the full blueprint. Existing draft:\n"""\n${String(existingContent).slice(0, 12000)}\n"""`
+      : "";
 
     const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
 ${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant Isabelle Hart Interiors brand voice underneath)` : ""}
 ${category ? `Category: ${category}` : ""}
 ${keywords ? `Primary and secondary keywords to target: ${keywords}` : ""}
-Target word count: ${wordCountTarget} words
+Target word count: ${wordCountTarget} words MINIMUM (not an approximation — anything under ${MIN_WORDS} words will be rejected)
 
 IMPORTANT REQUIREMENTS:
 1. Include a Table of Contents after the intro paragraph with anchor links to all H2s
@@ -242,7 +251,8 @@ IMPORTANT REQUIREMENTS:
 4. Every image must have descriptive, keyword-rich alt text
 5. Maintain warm, conversational brand voice throughout (audience: women 25-45 who want beautiful affordable homes)
 6. Do NOT promote or link to any products — focus 100% on teaching and inspiring around the topic
-7. The content should feel like advice from a trusted friend, not a corporate blog`;
+7. The content should feel like advice from a trusted friend, not a corporate blog
+8. Each H2 chapter: at least 250 words with specific paint names, measurements and materials${expandBlock}`;
 
     const toolsDef = [
       {
