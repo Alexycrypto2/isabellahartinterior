@@ -81,6 +81,27 @@ const AdminBlogEditor = () => {
   const [pinterestTitle, setPinterestTitle] = useState('');
   const [pinterestDescription, setPinterestDescription] = useState('');
   const [newsletterCta, setNewsletterCta] = useState('');
+  const [isExpanding, setIsExpanding] = useState(false);
+  const wordCount = content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length;
+
+  const handleReexpand = async () => {
+    if (!title) { toast({ title: 'Add a title first', variant: 'destructive' }); return; }
+    setIsExpanding(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-blog-post', {
+        body: { topic: title, keywords: targetKeywords, category, targetWordCount: 2200, existingContent: content },
+      });
+      if (error || data?.error) throw new Error(data?.error || error?.message);
+      if (data.content) setContent(data.content);
+      if (data.metaDescription || data.meta_description) setMetaDescription(data.metaDescription || data.meta_description);
+      if (data.read_time || data.readTime) setReadTime(data.read_time || data.readTime);
+      toast({ title: 'Guide expanded', description: `Now ${data.word_count ?? ''} words. Review, then save.` });
+    } catch (e) {
+      toast({ title: 'Expansion failed', description: e instanceof Error ? e.message : 'Try again', variant: 'destructive' });
+    } finally {
+      setIsExpanding(false);
+    }
+  };
 
   // Resolve /src/assets/ paths in HTML content so images display in the editor
   const resolveContentImages = (html: string) => {
@@ -724,6 +745,15 @@ const AdminBlogEditor = () => {
                       <p className="text-xs text-muted-foreground truncate">isabellehartinteriors › blog › {slug || 'your-post'}</p>
                       <p className="text-primary text-lg leading-snug truncate">{metaTitle || title || 'Your SEO title'}</p>
                       <p className="text-sm text-muted-foreground line-clamp-2">{metaDescription || excerpt || 'Your meta description will appear here.'}</p>
+                    </div>
+                    <div className={`rounded-md border p-3 text-sm ${wordCount < 1200 ? 'border-destructive/50 bg-destructive/5' : 'bg-background'}`}>
+                      <p className="mb-2">
+                        <strong>{wordCount}</strong> words{wordCount < 1200 ? ' — too thin to rank. Aim for 1,800+.' : ' — good depth.'}
+                      </p>
+                      <Button type="button" size="sm" variant={wordCount < 1200 ? 'default' : 'outline'} onClick={handleReexpand} disabled={isExpanding}>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        {isExpanding ? 'Expanding (about 1 min)…' : 'Re-expand to Rank #1 Guide'}
+                      </Button>
                     </div>
                     <SeoDoctor
                       input={{ title, metaTitle, metaDescription, excerpt, content, slug, targetKeywords, imageUrl: ogImageUrl || imageUrl }}
