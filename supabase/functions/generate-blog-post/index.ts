@@ -397,31 +397,42 @@ IMPORTANT REQUIREMENTS:
       throw e;
     }
 
-    if (anthropicDirect) {
-      return new Response(JSON.stringify(anthropicDirect), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let blogPost: any = anthropicDirect;
+
+    if (!blogPost) {
+      if (!response || !response.ok) {
+        return new Response(JSON.stringify({
+          error: "No AI provider available. Configure an API key in Admin → Settings → AI API tab.",
+        }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const data = await response.json();
+      const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+      if (!toolCall || toolCall.function.name !== "generate_blog_post") {
+        throw new Error("AI did not return structured blog data");
+      }
+      blogPost = JSON.parse(toolCall.function.arguments);
     }
 
-    if (!response || !response.ok) {
-      return new Response(JSON.stringify({
-        error: "No AI provider available. Configure an API key in Admin → Settings → AI API tab.",
-      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Validator: thin output gets one forced expansion pass
+    if (countWords(blogPost.content) < MIN_WORDS) {
+      console.log("Thin draft detected:", countWords(blogPost.content), "words — expanding");
+      try {
+        const retry = await callLovable([
+          ...messages,
+          { role: "assistant", content: `Draft (too short):\n${String(blogPost.content).slice(0, 8000)}` },
+          { role: "user", content: `That draft is only ${countWords(blogPost.content)} words and is REJECTED. Rewrite it as a full ${wordCountTarget}+ word article. Every H2 chapter must have 250+ words with paint names, measurements, materials, a Designer's note, plus the cheat sheet, palette table, mistakes and FAQ. Return via the generate_blog_post tool.` },
+        ]);
+        if (retry) {
+          const rd = await retry.json();
+          const tc = rd.choices?.[0]?.message?.tool_calls?.[0];
+          if (tc) {
+            const expanded = JSON.parse(tc.function.arguments);
+            if (countWords(expanded.content) > countWords(blogPost.content)) blogPost = expanded;
+          }
+        }
+      } catch (e) { console.error("Expansion retry failed:", e); }
     }
 
-    if (!response!.ok) {
-      const errorText = await response!.text();
-      console.error("AI error:", response!.status, errorText);
-      throw new Error(`AI error: ${response!.status}`);
-    }
-
-    const data = await response!.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== "generate_blog_post") {
-      throw new Error("AI did not return structured blog data");
-    }
-
-    const blogPost = JSON.parse(toolCall.function.arguments);
     if (!SECTIONS.includes(blogPost.section)) blogPost.section = section && section !== "auto" ? section : "decor-ideas";
     if (!ROOMS.includes(blogPost.room)) blogPost.room = "";
     if (!STYLES.includes(blogPost.style)) blogPost.style = "";
@@ -429,6 +440,7 @@ IMPORTANT REQUIREMENTS:
     blogPost.content = String(blogPost.content || "")
       .replace(/<div class="product-embed"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g, "")
       .replace(/<a [^>]*href="[^"]*(amazon\.|amzn\.)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, "$2");
+    blogPost.word_count = countWords(blogPost.content);
 
     return new Response(JSON.stringify(blogPost), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
