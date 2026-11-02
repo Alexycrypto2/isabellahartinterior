@@ -12,9 +12,13 @@
 - [ ] Add keyword-bearing supporting line for SEO (e.g. "Home decor ideas, room-by-room styling guides, and interior design tips")
 - [ ] Fix "Inside this issue" teasers: link to real articles or retitle as section links
 
-## 3. Blog upgrades (planned)
-- [ ] AI Blog Writer Rank #1 Editorial Blueprint (1,800+ word guides, designer specs, Quick Cheat Sheet, Designer Secrets, FAQ schema, section-tied image prompts)
-- [ ] In-Article Image Studio & Regeneration (media hub sidebar, per-image regenerate/replace, SEO alt-text)
+## 3. Blog upgrades
+- [x] AI writer hardening: 1,800+ word floor, 250+ words per chapter, auto re-try under 1,200 words
+- [x] "Re-expand to Rank #1 Guide" button + word counter in Blog Editor
+- [x] Build-time prerendering for homepage + every /blog/:slug (scripts/prerender.ts)
+- [ ] In-Article Image Studio: 6–9 images per post (hero, 4–6 section images, palette board, tall pin), per-image regenerate/replace, SEO alt-text
+- [ ] Featured-snippet answer box styling + Designer's note styling on article page
+- [ ] Netlify build hook on publish so new posts are prerendered automatically
 
 ## 4. SEO & AI tooling (planned)
 - [ ] Live Google SERP Intelligence for SEO Doctor (competitor benchmark, content gap, live indexing checker)

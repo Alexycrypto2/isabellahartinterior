@@ -13,13 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories } = await req.json();
+    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories, existingContent } = await req.json();
     const ROOMS = ["living-room","bedroom","kitchen","bathroom","dining","home-office","entryway","small-spaces","outdoor"];
     const STYLES = ["modern","minimalist","japandi","scandinavian","organic-modern","contemporary","traditional","quiet-luxury","warm-minimalism"];
     const SECTIONS = ["decor-ideas","rooms","style-guides"];
     const cats: string[] = Array.isArray(availableCategories) ? availableCategories : [];
 
-    const wordCountTarget = Math.max(800, Math.min(3000, targetWordCount || 1500));
+    // Rank #1 floor: never generate thin articles
+    const wordCountTarget = Math.max(1800, Math.min(2800, targetWordCount || 2000));
+    const MIN_WORDS = 1200;
+    const countWords = (html: string) => String(html || "").replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -227,13 +230,19 @@ RANK #1 EDITORIAL BLUEPRINT (MANDATORY ORDER — match and beat the top-ranking 
 8. Warm closing CTA paragraph inviting readers to explore a related internal article.
 QUALITY BAR: never generic filler, no repeated sentences, every section must contain at least one specific, verifiable detail (measurement, ratio, material, colour name, light temperature, price range). Use 3-5 contextual internal links to our existing articles where relevant.
 
+LENGTH IS NON-NEGOTIABLE: the article MUST be at least ${wordCountTarget} words. Write 5-7 H2 chapters and EACH chapter body must be at least 250 words (multiple paragraphs, plus H3 sub-points where useful). Include real paint names (e.g. Farrow & Ball, Benjamin Moore shade names), exact measurements in inches and cm, bulb temperatures in Kelvin, and named materials. A short outline or 1-2 sentences per heading is a FAILED answer.
+
 You MUST return structured data using the "generate_blog_post" tool.`;
+
+    const expandBlock = existingContent
+      ? `\n\nRE-EXPAND MODE: Below is a thin existing draft. Keep its topic, angle and headings where good, but rewrite and expand it into a complete ${wordCountTarget}+ word Rank #1 guide following the full blueprint. Existing draft:\n"""\n${String(existingContent).slice(0, 12000)}\n"""`
+      : "";
 
     const userPrompt = `Write a comprehensive, Google-ranking blog post about: "${topic}"
 ${tone ? `Tone: ${tone} (but ALWAYS maintain the warm, elegant Isabelle Hart Interiors brand voice underneath)` : ""}
 ${category ? `Category: ${category}` : ""}
 ${keywords ? `Primary and secondary keywords to target: ${keywords}` : ""}
-Target word count: ${wordCountTarget} words
+Target word count: ${wordCountTarget} words MINIMUM (not an approximation — anything under ${MIN_WORDS} words will be rejected)
 
 IMPORTANT REQUIREMENTS:
 1. Include a Table of Contents after the intro paragraph with anchor links to all H2s
@@ -242,7 +251,8 @@ IMPORTANT REQUIREMENTS:
 4. Every image must have descriptive, keyword-rich alt text
 5. Maintain warm, conversational brand voice throughout (audience: women 25-45 who want beautiful affordable homes)
 6. Do NOT promote or link to any products — focus 100% on teaching and inspiring around the topic
-7. The content should feel like advice from a trusted friend, not a corporate blog`;
+7. The content should feel like advice from a trusted friend, not a corporate blog
+8. Each H2 chapter: at least 250 words with specific paint names, measurements and materials${expandBlock}`;
 
     const toolsDef = [
       {
@@ -301,12 +311,12 @@ IMPORTANT REQUIREMENTS:
     const priority = customConfig?.priority || "custom";
     const hasCustomKey = customConfig?.api_key;
 
-    async function callLovable() {
+    async function callLovable(msgs: any[] = messages) {
       if (!LOVABLE_API_KEY) return null;
       const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
+        body: JSON.stringify({ model: "google/gemini-3-flash-preview", max_tokens: 16000, messages: msgs, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
       });
       if (resp.status === 429) {
         throw { status: 429, message: "Rate limit exceeded. Please try again in a moment." };
@@ -346,7 +356,7 @@ IMPORTANT REQUIREMENTS:
       const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${customConfig.api_key}` },
-        body: JSON.stringify({ model, messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
+        body: JSON.stringify({ model, max_tokens: 8192, messages, tools: toolsDef, tool_choice: { type: "function", function: { name: "generate_blog_post" } } }),
       });
       if (!resp.ok) return null;
       return resp;
@@ -387,31 +397,42 @@ IMPORTANT REQUIREMENTS:
       throw e;
     }
 
-    if (anthropicDirect) {
-      return new Response(JSON.stringify(anthropicDirect), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let blogPost: any = anthropicDirect;
+
+    if (!blogPost) {
+      if (!response || !response.ok) {
+        return new Response(JSON.stringify({
+          error: "No AI provider available. Configure an API key in Admin → Settings → AI API tab.",
+        }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const data = await response.json();
+      const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+      if (!toolCall || toolCall.function.name !== "generate_blog_post") {
+        throw new Error("AI did not return structured blog data");
+      }
+      blogPost = JSON.parse(toolCall.function.arguments);
     }
 
-    if (!response || !response.ok) {
-      return new Response(JSON.stringify({
-        error: "No AI provider available. Configure an API key in Admin → Settings → AI API tab.",
-      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Validator: thin output gets one forced expansion pass
+    if (countWords(blogPost.content) < MIN_WORDS) {
+      console.log("Thin draft detected:", countWords(blogPost.content), "words — expanding");
+      try {
+        const retry = await callLovable([
+          ...messages,
+          { role: "assistant", content: `Draft (too short):\n${String(blogPost.content).slice(0, 8000)}` },
+          { role: "user", content: `That draft is only ${countWords(blogPost.content)} words and is REJECTED. Rewrite it as a full ${wordCountTarget}+ word article. Every H2 chapter must have 250+ words with paint names, measurements, materials, a Designer's note, plus the cheat sheet, palette table, mistakes and FAQ. Return via the generate_blog_post tool.` },
+        ]);
+        if (retry) {
+          const rd = await retry.json();
+          const tc = rd.choices?.[0]?.message?.tool_calls?.[0];
+          if (tc) {
+            const expanded = JSON.parse(tc.function.arguments);
+            if (countWords(expanded.content) > countWords(blogPost.content)) blogPost = expanded;
+          }
+        }
+      } catch (e) { console.error("Expansion retry failed:", e); }
     }
 
-    if (!response!.ok) {
-      const errorText = await response!.text();
-      console.error("AI error:", response!.status, errorText);
-      throw new Error(`AI error: ${response!.status}`);
-    }
-
-    const data = await response!.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== "generate_blog_post") {
-      throw new Error("AI did not return structured blog data");
-    }
-
-    const blogPost = JSON.parse(toolCall.function.arguments);
     if (!SECTIONS.includes(blogPost.section)) blogPost.section = section && section !== "auto" ? section : "decor-ideas";
     if (!ROOMS.includes(blogPost.room)) blogPost.room = "";
     if (!STYLES.includes(blogPost.style)) blogPost.style = "";
@@ -419,6 +440,7 @@ IMPORTANT REQUIREMENTS:
     blogPost.content = String(blogPost.content || "")
       .replace(/<div class="product-embed"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g, "")
       .replace(/<a [^>]*href="[^"]*(amazon\.|amzn\.)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, "$2");
+    blogPost.word_count = countWords(blogPost.content);
 
     return new Response(JSON.stringify(blogPost), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
