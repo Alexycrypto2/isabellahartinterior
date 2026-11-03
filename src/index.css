@@ -419,4 +419,38 @@
   .editorial-article ul, .editorial-article ol { margin: 0 0 1.25em; }
   .editorial-article .blog-toc { margin: 2em 0; padding: 1.25em; border: 1px solid hsl(var(--border)); background: hsl(var(--secondary)); }
   .editorial-article .blog-toc a { text-decoration: none; font-size: 0.95rem; }
+  /* Quick answer (featured snippet) — first paragraph styled as an editorial card */
+  .editorial-article > p:first-of-type {
+    padding: 1.25em 1.4em; margin-bottom: 2em;
+    background: hsl(var(--secondary)); border-left: 3px solid hsl(var(--accent));
+    font-size: 1.08em;
+  }
+  .editorial-article > p:first-of-type::before {
+    content: "The short answer"; display: block; margin-bottom: 0.5em;
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: hsl(var(--accent));
+  }
+  .editorial-article > p:first-of-type::first-letter { float: none; font-size: inherit; padding: 0; line-height: inherit; color: inherit; font-family: inherit; }
+  /* Quick Cheat Sheet card */
+  .editorial-article .blog-cheatsheet {
+    margin: 2em 0 !important; padding: 1.5em 1.6em !important; border-radius: 0 !important;
+    border: 1px solid hsl(var(--accent) / 0.45) !important; background: hsl(var(--card));
+  }
+  .editorial-article .blog-cheatsheet > p:first-child {
+    font-family: 'Instrument Serif', serif; font-weight: 400 !important; font-size: 1.5rem; color: hsl(var(--accent));
+  }
+  .editorial-article .blog-cheatsheet ul { margin-bottom: 0; }
+  /* Designer's note blockquotes */
+  .editorial-article blockquote {
+    position: relative; margin: 2em 0; padding: 1.4em 1.4em 1.2em 1.6em;
+    background: hsl(var(--secondary) / 0.6);
+  }
+  .editorial-article blockquote::before {
+    content: "Designer's note"; display: block; margin-bottom: 0.5em;
+    font-family: inherit; font-style: normal; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: hsl(var(--accent));
+  }
+  .editorial-article blockquote p { margin: 0; }
+  .editorial-article table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+  .editorial-article th { text-align: left; border-bottom: 1px solid hsl(var(--accent) / 0.5); padding: 0.6em; font-weight: 500; }
+  .editorial-article td { border-bottom: 1px solid hsl(var(--border)); padding: 0.6em; vertical-align: top; }
 }
