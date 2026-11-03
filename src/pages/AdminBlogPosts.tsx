@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, Eye, EyeOff, Search, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { PostHealthBadges } from '@/components/admin/PostHealthBadges';
 
 const AdminBlogPosts = () => {
   const { data: posts, isLoading, error } = useAllBlogPosts();
@@ -120,6 +121,7 @@ const AdminBlogPosts = () => {
                           <TableCell>
                             <p className="font-medium line-clamp-1">{post.title}</p>
                             <p className="text-sm text-muted-foreground line-clamp-1">{post.excerpt}</p>
+                            <PostHealthBadges content={post.content} imageUrl={post.image_url} />
                           </TableCell>
                           <TableCell><Badge variant="secondary">{post.category}</Badge></TableCell>
                           <TableCell>
@@ -173,6 +175,7 @@ const AdminBlogPosts = () => {
                         <div className="min-w-0 flex-1">
                           <p className="font-medium text-sm line-clamp-1">{post.title}</p>
                           <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{post.excerpt}</p>
+                          <PostHealthBadges content={post.content} imageUrl={post.image_url} />
                         </div>
                         <Badge variant={post.published ? 'default' : 'outline'} className="text-xs flex-shrink-0">
                           {post.published ? 'Published' : 'Draft'}
