@@ -327,6 +327,44 @@ const AiBlogWriter = ({
         console.warn("Image generation failed, continuing without image:", imgErr);
       }
 
+      // Step 4: In-article images (4 section photos + palette board + tall pin)
+      let finalContent: string = textData.content || "";
+      try {
+        const doc = new DOMParser().parseFromString(`<div id="r">${finalContent}</div>`, "text/html");
+        const root = doc.getElementById("r")!;
+        const h2s = Array.from(root.querySelectorAll("h2")).filter(
+          (h) => !/faq|question|takeaway|table of contents|conclusion|final/i.test(h.textContent || "")
+        ).slice(0, 4);
+        const style = textData.style || "";
+        const jobs: { prompt: string; alt: string; anchor: Element | null; pin?: boolean }[] = h2s.map((h) => ({
+          prompt: `${textData.title}. Section: ${h.textContent}. ${style} interior, editorial photograph, natural light, square composition`,
+          alt: `${h.textContent} — ${textData.title}`,
+          anchor: h,
+        }));
+        const lastH2 = h2s[h2s.length - 1] || null;
+        jobs.push({ prompt: `Flat-lay material and colour palette mood board for ${textData.title}: paint swatches, fabric samples, wood and stone textures, ${style}`, alt: `Material and colour palette for ${textData.title}`, anchor: lastH2 });
+        jobs.push({ prompt: `Tall vertical 2:3 Pinterest-style interior photograph for ${textData.title}, ${style}, airy, editorial`, alt: `${textData.title} — save this idea`, anchor: null, pin: true });
+
+        for (const job of jobs) {
+          try {
+            const { data: img } = await supabase.functions.invoke("generate-blog-image", { body: { prompt: job.prompt } });
+            if (!img?.image_url) continue;
+            const fig = doc.createElement("figure");
+            fig.className = "article-figure";
+            const el = doc.createElement("img");
+            el.src = img.image_url; el.alt = job.alt; el.loading = "lazy";
+            fig.appendChild(el);
+            if (job.pin) { root.appendChild(fig); continue; }
+            let target: Element | null = job.anchor?.nextElementSibling || null;
+            if (target && target.tagName === "P") target.after(fig);
+            else if (job.anchor) job.anchor.after(fig);
+            else root.appendChild(fig);
+          } catch (e) { console.warn("Section image failed", e); }
+        }
+        finalContent = root.innerHTML;
+      } catch (e) { console.warn("Multi-image step failed", e); }
+      textData.content = finalContent;
+
       clearInterval(imageProgressInterval);
       setProgress(100);
 

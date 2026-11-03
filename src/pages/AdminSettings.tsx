@@ -1217,6 +1217,17 @@ const AdminSettings = () => {
                     <Label className="text-sm font-medium">Model {aiTextProvider === 'custom' ? '' : '(optional)'}</Label>
                     <Input value={aiTextModel} onChange={(e) => setAiTextModel(e.target.value)} placeholder={getDefaultTextModel(aiTextProvider) || 'e.g. llama-3.1-70b-versatile'} />
                     {getDefaultTextModel(aiTextProvider) && <p className="text-xs text-muted-foreground">Leave blank to use the default: {getDefaultTextModel(aiTextProvider)}</p>}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {[
+                        { label: 'Claude 3.7 Sonnet', model: 'claude-3-7-sonnet-20250219' },
+                        { label: 'Claude 3.5 Sonnet', model: 'claude-3-5-sonnet-20241022' },
+                      ].map((p) => (
+                        <Button key={p.model} type="button" size="sm" variant={aiTextProvider === 'anthropic' && aiTextModel === p.model ? 'default' : 'outline'} className="rounded-full"
+                          onClick={() => { setAiTextProvider('anthropic'); setAiTextModel(p.model); setAiTextEndpoint(getDefaultTextEndpoint('anthropic', p.model)); }}>
+                          {p.label}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
                   <div className="space-y-3">
                     {aiTextKey && (
