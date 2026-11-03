@@ -16,13 +16,16 @@
 - [x] AI writer hardening: 1,800+ word floor, 250+ words per chapter, auto re-try under 1,200 words
 - [x] "Re-expand to Rank #1 Guide" button + word counter in Blog Editor
 - [x] Build-time prerendering for homepage + every /blog/:slug (scripts/prerender.ts)
-- [ ] In-Article Image Studio: 6–9 images per post (hero, 4–6 section images, palette board, tall pin), per-image regenerate/replace, SEO alt-text
+- [x] Multi-image writer: new AI posts get hero + 4 section photos + palette board + tall pin
+- [ ] In-Article Image Studio: per-image regenerate/replace panel; 6–9 images per post (hero, 4–6 section images, palette board, tall pin), per-image regenerate/replace, SEO alt-text
 - [ ] Featured-snippet answer box styling + Designer's note styling on article page
-- [ ] Netlify build hook on publish so new posts are prerendered automatically
+- [x] Netlify edge function injects per-article title/canonical/OG tags on /blog/* (no redeploy needed for tags)
 
 ## 4. SEO & AI tooling (planned)
 - [ ] Live Google SERP Intelligence for SEO Doctor (competitor benchmark, content gap, live indexing checker)
 - [ ] Magic Hour Image API Integration (replace Gemini, admin config, multi-format generation)
+
+- [x] Claude 3.7 / 3.5 Sonnet one-click presets in Admin Settings
 
 ## 5. Additional backlog
 - [ ] Global search dropdown deep-linking across articles, rooms, and styles
