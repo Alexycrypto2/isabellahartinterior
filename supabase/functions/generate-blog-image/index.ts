@@ -57,6 +57,37 @@ async function generateWithOpenAIDalle(apiKey: string, model: string, prompt: st
   return `data:image/png;base64,${b64}`;
 }
 
+async function generateWithMagicHour(apiKey: string, prompt: string): Promise<string> {
+  const headers = { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" };
+  const start = await fetch("https://api.magichour.ai/v1/ai-image-generator", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      name: "Blog image",
+      image_count: 1,
+      orientation: "landscape",
+      style: { prompt: `Photorealistic editorial interior design photograph, magazine quality, soft natural light, warm tones. ${prompt}` },
+    }),
+  });
+  if (!start.ok) throw new Error(`Magic Hour error: ${start.status} ${(await start.text()).slice(0, 200)}`);
+  const { id } = await start.json();
+  for (let i = 0; i < 40; i++) {
+    await new Promise((r) => setTimeout(r, 3000));
+    const res = await fetch(`https://api.magichour.ai/v1/image-projects/${id}`, { headers });
+    const p = await res.json();
+    if (p.status === "complete" && p.downloads?.[0]?.url) {
+      const img = await fetch(p.downloads[0].url);
+      const type = img.headers.get("content-type") || "image/png";
+      const bytes = new Uint8Array(await img.arrayBuffer());
+      let bin = "";
+      for (let j = 0; j < bytes.length; j += 0x8000) bin += String.fromCharCode(...bytes.subarray(j, j + 0x8000));
+      return `data:${type};base64,${btoa(bin)}`;
+    }
+    if (p.status === "error" || p.status === "canceled") throw new Error("Magic Hour could not create the image");
+  }
+  throw new Error("Magic Hour timed out");
+}
+
 async function generateWithGeminiImage(apiKey: string, model: string, prompt: string, endpoint?: string): Promise<string> {
   const modelName = model || "gemini-2.0-flash-exp";
   const url = endpoint || `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -151,7 +182,9 @@ serve(async (req) => {
     async function tryCustomImage() {
       if (!hasCustomKey) return null;
       console.log(`Using custom image provider: ${customConfig.provider}, model: ${customConfig.model}`);
-      if (customConfig.provider === "google") {
+      if (customConfig.provider === "magichour") {
+        return await generateWithMagicHour(customConfig.api_key, prompt);
+      } else if (customConfig.provider === "google") {
         return await generateWithGeminiImage(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);
       } else if (customConfig.provider === "custom" && customConfig.endpoint) {
         return await generateWithOpenAIDalle(customConfig.api_key, customConfig.model, prompt, customConfig.endpoint);

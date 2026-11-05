@@ -1043,6 +1043,7 @@ const AdminSettings = () => {
                       <SelectContent>
                         <SelectItem value="openai">OpenAI</SelectItem>
                         <SelectItem value="google">Google Gemini</SelectItem>
+                        <SelectItem value="magichour">Magic Hour</SelectItem>
                         <SelectItem value="anthropic">Anthropic</SelectItem>
                         <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
                       </SelectContent>
