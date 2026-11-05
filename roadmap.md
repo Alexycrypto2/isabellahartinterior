@@ -17,19 +17,19 @@
 - [x] "Re-expand to Rank #1 Guide" button + word counter in Blog Editor
 - [x] Build-time prerendering for homepage + every /blog/:slug (scripts/prerender.ts)
 - [x] Multi-image writer: new AI posts get hero + 4 section photos + palette board + tall pin
-- [ ] In-Article Image Studio: per-image regenerate/replace panel; 6–9 images per post (hero, 4–6 section images, palette board, tall pin), per-image regenerate/replace, SEO alt-text
+- [x] In-Article Image Studio: per-image regenerate/replace panel; 6–9 images per post (hero, 4–6 section images, palette board, tall pin), per-image regenerate/replace, SEO alt-text
 - [ ] Featured-snippet answer box styling + Designer's note styling on article page
 - [x] Netlify edge function injects per-article title/canonical/OG tags on /blog/* (no redeploy needed for tags)
 
 ## 4. SEO & AI tooling (planned)
 - [ ] Live Google SERP Intelligence for SEO Doctor (competitor benchmark, content gap, live indexing checker)
-- [ ] Magic Hour Image API Integration (replace Gemini, admin config, multi-format generation)
+- [x] Magic Hour added as an image provider in Admin Settings (needs user API key)
 
 - [x] Claude 3.7 / 3.5 Sonnet one-click presets in Admin Settings
 
 ## 5. Additional backlog
 - [ ] Global search dropdown deep-linking across articles, rooms, and styles
-- [ ] Pinterest Content & Design Studio (24-section spec, unimplemented)
+
 - [ ] Domain alignment: finalize primary address across sitemaps, canonicals, meta tags
 - [ ] Article-page paragraph spacing fix (verify)
 - [ ] AdminBlogPosts catalog health badges
@@ -42,3 +42,4 @@
 - [x] Replace product/social-proof homepage sections with editorial features and room index
 - [x] Refine newsletter, footer, and design tokens for Paper & Ink / Instrument Serif + Work Sans
 - [x] Validate homepage, article routes, and responsive layout
+- [x] Netlify edge function wired in netlify.toml for /blog/*

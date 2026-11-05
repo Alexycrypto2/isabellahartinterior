@@ -195,7 +195,7 @@ serve(async (req) => {
 
     try {
       if (priority === "custom" && hasCustomKey) {
-        imageData = await tryCustomImage();
+        try { imageData = await tryCustomImage(); } catch (e) { console.error("Custom image provider failed, falling back:", e); }
         if (!imageData) imageData = await tryLovable();
       } else {
         imageData = await tryLovable();
