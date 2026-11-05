@@ -1,4 +1,5 @@
 import SeoDoctor from '@/components/admin/SeoDoctor';
+import ArticleImageStudio from '@/components/admin/ArticleImageStudio';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
@@ -625,6 +626,8 @@ const AdminBlogEditor = () => {
             <Label>Content *</Label>
             <RichTextEditor content={content} onChange={setContent} onImageUpload={handleContentImageUpload} />
           </div>
+
+          <ArticleImageStudio content={content} onChange={setContent} />
 
           {/* Editorial taxonomy */}
           <div className="border border-border p-6 space-y-4 bg-muted/30">
