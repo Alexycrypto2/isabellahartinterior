@@ -31,20 +31,47 @@ serve(async (req) => {
     const today = new Date();
     const weekStr = `${today.getFullYear()}-W${String(Math.ceil((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / 604800000)).padStart(2, '0')}`;
 
-    const systemPrompt = `You are a home decor trend analyst for Isabelle Hart Interiors. Research and identify 10 trending home decor topics for this week (${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}).
+    let focus = "all";
+    try { const b = await req.json(); if (b?.focus) focus = String(b.focus).slice(0, 40); } catch {}
+    const dateStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-Consider seasonal trends, social media buzz, interior design movements, and consumer behavior.
+    const systemPrompt = `You are the senior content strategist and trend researcher for "Isabelle Hart Interiors", an editorial home decor blog that earns from Pinterest/Google traffic and Amazon affiliate links. Today is ${dateStr}.
 
-Return a JSON array of exactly 10 objects, each with:
-- "rank": number 1-10
-- "trend": the trending topic name (short, 3-6 words)
-- "description": 1-2 sentence explanation of why it's trending
-- "suggested_title": a ready-to-use blog post title for this trend
-- "keywords": array of exactly 3 target keywords for SEO
+Do deep research reasoning on what is rising RIGHT NOW on Pinterest (Pinterest Trends, Pinterest Predicts, save velocity) and Google (rising searches, People Also Ask, seasonal demand). Seasonal topics must target holidays/seasons 6-8 weeks AHEAD of today so they have time to rank.
+
+Spread the 12 ideas across these blog formats (exact values):
+- "idea-roundup": "25 Small Living Room Ideas" style. Pinterest traffic engine.
+- "product-roundup": "12 Best Floor Lamps Under $100". Affiliate money.
+- "room-guide": room-by-room guide. Easy to rank.
+- "seasonal": holiday/seasonal decor (Christmas, Ramadan, fall, spring...).
+- "buying-guide": "How to Choose the Right Rug Size". Trust + sales.
+- "comparison": "Linen vs Velvet Curtains: Which to Buy".
+- "style-guide": "What Is Japandi? How to Get the Look".
+- "diy": tutorial / budget / renter-friendly how-to.
+- "gift-guide": gift guides.
+${focus !== "all" ? `FOCUS: at least 8 of the 12 ideas MUST use the format "${focus}".` : "Include at least 3 product-roundup/gift-guide/comparison ideas, 3 idea-roundups, 2 seasonal."}
+
+Return a JSON array of exactly 12 objects, sorted by overall_score desc, each with:
+- "rank": 1-12
+- "trend": short trend name (3-6 words)
+- "description": 1-2 sentences on what is happening
+- "why_trending": 1-2 sentences of evidence/reasoning (signals on Pinterest/Google, season, competitor gap)
+- "suggested_title": Google SEO title, keyword first, under 65 chars, with number where natural
+- "pinterest_title": curiosity-driven Pinterest pin title
+- "format": one of the format values above
+- "category": a broad blog category like "Living Room", "Bedroom", "Decor", "Trends", "Seasonal", "DIY", "Kitchen"
+- "room": one of living-room, bedroom, kitchen, bathroom, dining, home-office, entryway, small-spaces, outdoor, or ""
+- "style": one of modern, minimalist, japandi, scandinavian, organic-modern, contemporary, traditional, quiet-luxury, warm-minimalism, or ""
+- "section": "decor-ideas" | "rooms" | "style-guides"
+- "keywords": array of 3-5 SEO keywords (primary first)
+- "pinterest_score": 0-100, "google_score": 0-100, "affiliate_score": 0-100, "competition": "low"|"medium"|"high", "overall_score": 0-100
+- "season_peak": e.g. "December" or "Evergreen"
+- "publish_by": ISO date (YYYY-MM-DD) to publish by for seasonal ideas, else ""
+- "product_seeds": for product-roundup, gift-guide, comparison, buying-guide: 4-8 objects {"name": realistic Amazon product name, "price_range": "$xx-$yy", "why": short reason, "search_query": Amazon search query}. Otherwise [].
 
 Return ONLY valid JSON, no markdown, no code blocks.`;
 
-    const userContent = `Generate 10 trending home decor topics for the week of ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. Consider current season, Pinterest trends, Instagram reels, TikTok home content, and interior design shows.`;
+    const userContent = `Run a deep Pinterest + Google trend scan for home decor as of ${dateStr} and return the 12 best blog opportunities for us, scored and explained.`;
 
     const msgs = [
       { role: "system", content: systemPrompt },
@@ -56,7 +83,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
       const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: msgs }),
+        body: JSON.stringify({ model: "google/gemini-2.5-pro", messages: msgs }),
       });
       if (resp.status === 429) throw { status: 429, message: "Rate limit exceeded." };
       if (resp.status === 402) { console.log("Lovable credits exhausted"); return null; }
@@ -77,7 +104,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
         const resp = await fetch(url, {
           method: "POST",
           headers: { "x-api-key": customTextConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-          body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: [{ role: "user", content: userContent }] }),
+          body: JSON.stringify({ model, max_tokens: 8000, system: systemPrompt, messages: [{ role: "user", content: userContent }] }),
         });
         if (!resp.ok) return null;
         const d = await resp.json();
@@ -139,7 +166,8 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
     }
 
     content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-    const trends = JSON.parse(content);
+    const m = content.match(/\[[\s\S]*\]/);
+    const trends = JSON.parse(m ? m[0] : content);
 
     // Save to site_settings so the admin dashboard can display it
     await supabase.from("site_settings").upsert({
@@ -171,7 +199,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
                 <div style="font-size:13px;color:#333;font-weight:500;">${t.suggested_title}</div>
               </div>
               <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
-                ${t.keywords.map((kw: string) => `<span style="display:inline-block;padding:2px 8px;background:#f5f0e8;color:#8b7355;border-radius:12px;font-size:11px;">${kw}</span>`).join(' ')}
+                ${(t.keywords||[]).map((kw: string) => `<span style="display:inline-block;padding:2px 8px;background:#f5f0e8;color:#8b7355;border-radius:12px;font-size:11px;">${kw}</span>`).join(' ')}
               </div>
             </td>
           </tr>

@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories, existingContent } = await req.json();
+    const { topic, tone, category, keywords, targetWordCount, section, room, style, articleFormat, availableCategories, existingContent, products } = await req.json();
     const ROOMS = ["living-room","bedroom","kitchen","bathroom","dining","home-office","entryway","small-spaces","outdoor"];
     const STYLES = ["modern","minimalist","japandi","scandinavian","organic-modern","contemporary","traditional","quiet-luxury","warm-minimalism"];
     const SECTIONS = ["decor-ideas","rooms","style-guides"];
@@ -129,6 +129,40 @@ Blog categories available: ${cats.join(", ") || "any fitting name"}.
 - Article format: ${articleFormat && articleFormat !== "auto" ? articleFormat : "choose the format that best matches what currently ranks for this query (listicle, how-to, ultimate-guide, style-explainer, comparison, mistakes)"}
 Explain your placement choice in one sentence in recommendation_reason.`;
 
+    const MONEY = ["product-roundup", "buying-guide", "comparison", "gift-guide"];
+    const isMoney = MONEY.includes(articleFormat);
+    const withTag = (u: string) => { try { const x = new URL(u); if (/amazon\./.test(x.hostname)) x.searchParams.set("tag", "roomrefine-20"); return x.toString(); } catch { return u; } };
+    const productList = (Array.isArray(products) ? products : []).slice(0, 15).map((p: any) => ({
+      name: String(p.name || "").slice(0, 200),
+      price: String(p.price || "").slice(0, 40),
+      image_url: String(p.image_url || ""),
+      url: withTag(p.affiliate_url || `https://www.amazon.com/s?k=${encodeURIComponent(p.search_query || p.name || "")}`),
+      rating: p.rating || "",
+      why: String(p.why || "").slice(0, 200),
+    })).filter((p: any) => p.name);
+
+    const FORMAT_BLUEPRINTS: Record<string, string> = {
+      "idea-roundup": `IDEA ROUNDUP (Pinterest traffic engine): Title starts with a number ("25 Small Living Room Ideas…"). After the cheat sheet, write that many numbered ideas as H2s ("1. Idea name"). Each idea: 90-150 words — what it is, why it works, how to copy it (measurement/colour/material), plus a one-line "Steal this:" tip. Group nothing; keep it scannable. Then Mistakes + FAQ.`,
+      "product-roundup": `PRODUCT ROUNDUP (affiliate money post): Intro + "How we chose" (criteria: price, reviews, materials, size, style). Then a quick "At a glance" table (Award | Product | Price). Then one H2 per product using the PRODUCT CARD HTML below, followed by 120-200 words: who it's for, what we like, what to know, styling tip. Award badges like "Best Overall", "Best Budget", "Best for Small Spaces", "Splurge Pick". End with a buying-guide H2 (what to look for) + FAQ.`,
+      "room-guide": `ROOM-BY-ROOM GUIDE: Organise by zones of the room (layout, lighting, textiles, storage, decor, colour). Include a layout/measurement table (clearances in inches and cm). Designer's notes, budget tiers, renter options.`,
+      "seasonal": `SEASONAL / HOLIDAY DECOR: Numbered ideas grouped by room or area (entryway, mantel, table, living room, outdoor). Include a "Timeline: when to start" box, a budget/no-buy section using things already at home, and how to transition decor after the season. Respect cultural accuracy (e.g. Ramadan, Eid, Christmas).`,
+      "buying-guide": `BUYING GUIDE (How to choose X): Answer in the first 2 sentences. Include a sizing/spec cheat table (e.g. rug sizes per room, lamp heights, curtain lengths) with inches and cm, step-by-step decision process, materials compared (pros/cons table), budget tiers, mistakes. If products are supplied, add "Our top picks" using PRODUCT CARDS.`,
+      "comparison": `COMPARISON (X vs Y): Verdict in the first 2-3 sentences. Then a scorecard table using <table class="comparison-scorecard"> with rows: Look & feel, Durability, Maintenance, Light control/comfort, Price, Best room, Winner. Then H2s for each criterion, "Choose X if… / Choose Y if…" lists, and picks for each side as PRODUCT CARDS if products are supplied.`,
+      "style-guide": `STYLE GUIDE (What is X?): Definition in the first 2 sentences, origins/history, the 6-8 defining elements, colour palette table, materials, key furniture pieces, how to get the look on a budget, X vs similar styles table, mistakes.`,
+      "diy": `DIY / TUTORIAL: Snapshot box at top (Time, Cost, Skill level, Renter-friendly yes/no). "What you'll need" list, numbered H2 steps with exact measurements, pro tips, troubleshooting, and variations for renters/small budgets.`,
+      "gift-guide": `GIFT GUIDE: Group by budget H2s (Under $25, Under $50, Under $100, Splurge) or by recipient type. Each gift as a PRODUCT CARD with a one-paragraph "why they'll love it". Add gifting tips + FAQ.`,
+      "mistakes": `MISTAKES / CHECKLIST: Numbered H2 mistakes, each with: why it happens, what to do instead (specific fix with numbers). End with a printable-style checklist <ul>.`,
+    };
+    const formatBlock = FORMAT_BLUEPRINTS[articleFormat] ? `\n\nARTICLE FORMAT FOR THIS POST (OVERRIDES the generic body order where they conflict; keep TOC, cheat sheet, FAQ):\n${FORMAT_BLUEPRINTS[articleFormat]}` : "";
+
+    const productBlock = isMoney ? `\n\nAFFILIATE PRODUCTS ARE ALLOWED IN THIS POST. ${productList.length ? `Feature EXACTLY these products, in a sensible order, using their exact URLs:\n${JSON.stringify(productList)}` : "No products supplied: recommend realistic product TYPES and link each to an Amazon search URL https://www.amazon.com/s?k=QUERY&tag=roomrefine-20."}
+PRODUCT CARD HTML (use for every product):
+<div class="product-pick-card"><span class="pick-badge">Best Overall</span>${"${IMG}"}<h3>Product name</h3><p class="pick-meta">≈ $price · ★ rating</p><ul class="pick-pros"><li>Pro</li><li>Pro</li></ul><p class="pick-cons"><strong>Keep in mind:</strong> con</p><a class="pick-button" href="URL" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a></div>
+Replace \${IMG} with <img src="IMAGE_URL" alt="descriptive alt" loading="lazy"> only when an image_url is supplied, otherwise omit it. Prices are approximate — say "check current price". Never invent star ratings when not supplied; omit the ★ part instead. Be honest: every product gets a real "Keep in mind".` : "";
+    const editorialRule = isMoney
+      ? "CONTENT FOCUS: This is a helpful, honest buying article. Product links are allowed ONLY in product cards/at-a-glance table as specified; the rest stays editorial. Internal links to our articles are encouraged."
+      : "${editorialRule}
+
     const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "Isabelle Hart Interiors", a premium home decor and interior design brand.
 
 BRAND VOICE (ALWAYS APPLY — DO NOT DEVIATE):
@@ -232,6 +266,8 @@ QUALITY BAR: never generic filler, no repeated sentences, every section must con
 
 LENGTH IS NON-NEGOTIABLE: the article MUST be at least ${wordCountTarget} words. Write 5-7 H2 chapters and EACH chapter body must be at least 250 words (multiple paragraphs, plus H3 sub-points where useful). Include real paint names (e.g. Farrow & Ball, Benjamin Moore shade names), exact measurements in inches and cm, bulb temperatures in Kelvin, and named materials. A short outline or 1-2 sentences per heading is a FAILED answer.
 
+${formatBlock}${productBlock}
+
 You MUST return structured data using the "generate_blog_post" tool.`;
 
     const expandBlock = existingContent
@@ -250,7 +286,7 @@ IMPORTANT REQUIREMENTS:
 3. Cover this topic more comprehensively than any competitor — add unique angles, specific tips, and expert insights
 4. Every image must have descriptive, keyword-rich alt text
 5. Maintain warm, conversational brand voice throughout (audience: women 25-45 who want beautiful affordable homes)
-6. Do NOT promote or link to any products — focus 100% on teaching and inspiring around the topic
+6. ${isMoney ? "Feature the products as specified with honest pros/cons" : "Do NOT promote or link to any products — focus 100% on teaching and inspiring around the topic"}
 7. The content should feel like advice from a trusted friend, not a corporate blog
 8. Each H2 chapter: at least 250 words with specific paint names, measurements and materials${expandBlock}`;
 

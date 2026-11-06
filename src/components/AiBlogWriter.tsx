@@ -69,13 +69,19 @@ const SECTIONS = [
 
 const ARTICLE_FORMATS = [
   { value: "auto", label: "✨ AI picks best format" },
-  { value: "listicle", label: "Listicle (e.g. 27 ideas)" },
-  { value: "how-to", label: "Step-by-step how-to" },
-  { value: "ultimate-guide", label: "Ultimate guide" },
-  { value: "style-explainer", label: "Style explainer (What is…)" },
-  { value: "comparison", label: "Comparison (X vs Y)" },
-  { value: "mistakes", label: "Mistakes to avoid" },
+  { value: "idea-roundup", label: "📌 Idea Roundup (25 ideas…)" },
+  { value: "product-roundup", label: "💰 Product Roundup (Best X under $Y)" },
+  { value: "room-guide", label: "🛋️ Room-by-Room Guide" },
+  { value: "seasonal", label: "🎄 Seasonal / Holiday Decor" },
+  { value: "buying-guide", label: "📐 Buying Guide (How to choose…)" },
+  { value: "comparison", label: "⚖️ Comparison (X vs Y)" },
+  { value: "style-guide", label: "🎨 Style Guide (What is…)" },
+  { value: "diy", label: "🔨 DIY / Tutorial / Renter-friendly" },
+  { value: "gift-guide", label: "🎁 Gift Guide" },
+  { value: "mistakes", label: "⚠️ Mistakes to Avoid / Checklist" },
 ];
+
+export interface RoundupProduct { name: string; price?: string; image_url?: string; affiliate_url?: string; rating?: number; reviews?: number; why?: string; search_query?: string }
 
 interface AiBlogWriterProps {
   isOpen: boolean;
@@ -233,6 +239,49 @@ const AiBlogWriter = ({
   const [styleChoice, setStyleChoice] = useState("auto");
   const [articleFormat, setArticleFormat] = useState("auto");
   const [targetWordCount, setTargetWordCount] = useState(1500);
+  const [roundupProducts, setRoundupProducts] = useState<RoundupProduct[]>([]);
+  const [pasteUrl, setPasteUrl] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
+
+  // One-click prefill from the Blog Topic Researcher
+  useEffect(() => {
+    if (!isOpen) return;
+    const raw = sessionStorage.getItem("ai_writer_prefill");
+    if (!raw) return;
+    sessionStorage.removeItem("ai_writer_prefill");
+    try {
+      const p = JSON.parse(raw);
+      if (p.topic) setTopic(p.topic);
+      if (p.keywords) setKeywords(p.keywords);
+      if (p.format) setArticleFormat(p.format);
+      if (p.section) setSection(p.section);
+      if (p.room) setRoom(p.room);
+      if (p.style) setStyleChoice(p.style);
+      if (p.category) {
+        const match = categories.find((c) => c.name.toLowerCase() === String(p.category).toLowerCase());
+        if (match) setCategory(match.name);
+      }
+      if (["idea-roundup", "room-guide", "style-guide", "buying-guide"].includes(p.format)) setTargetWordCount(2200);
+      if (Array.isArray(p.product_seeds)) setRoundupProducts(p.product_seeds.map((x: any) => ({ name: x.name, price: x.price_range, why: x.why, search_query: x.search_query })));
+      toast.success("Filled from researcher — review and generate");
+    } catch { /* ignore */ }
+  }, [isOpen, categories]);
+
+  const handleAddAmazon = async () => {
+    if (!pasteUrl.trim()) return;
+    setIsExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("extract-amazon-product", { body: { url: pasteUrl.trim() } });
+      if (error || data?.error) throw new Error(data?.error || error?.message);
+      setRoundupProducts((prev) => [...prev, { name: data.name, price: data.price, image_url: data.image_url, affiliate_url: data.affiliate_url, rating: data.rating, reviews: data.reviews }]);
+      setPasteUrl("");
+      toast.success(data.partial ? "Link added — Amazon hid some details, please check the name" : "Product added");
+    } catch (e: any) {
+      toast.error(e.message || "Could not read that Amazon link");
+    } finally {
+      setIsExtracting(false);
+    }
+  };
   const [step, setStep] = useState<Step>("input");
   const [progress, setProgress] = useState(0);
   const [generatedData, setGeneratedData] = useState<BlogPostData | null>(null);
@@ -296,6 +345,7 @@ const AiBlogWriter = ({
             room,
             style: styleChoice,
             articleFormat,
+            products: roundupProducts,
             availableCategories: categories.map((c) => c.name),
           },
         });
@@ -616,6 +666,31 @@ const AiBlogWriter = ({
                 />
               </div>
             </div>
+
+            {(["product-roundup", "buying-guide", "comparison", "gift-guide"].includes(articleFormat) || roundupProducts.length > 0) && (
+              <div className="space-y-2 rounded-xl border border-accent/30 p-3">
+                <Label className="text-sm font-medium">Products to feature ({roundupProducts.length})</Label>
+                <p className="text-xs text-muted-foreground">Paste your Amazon links — photo, price and rating fill in automatically. Suggestions without a link use an Amazon search link with your tag.</p>
+                <div className="flex gap-2">
+                  <Input value={pasteUrl} onChange={(e) => setPasteUrl(e.target.value)} placeholder="Paste Amazon link (amzn.to or amazon.com)" />
+                  <Button type="button" size="sm" onClick={handleAddAmazon} disabled={isExtracting}>
+                    {isExtracting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+                  </Button>
+                </div>
+                <div className="space-y-1.5">
+                  {roundupProducts.map((p, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs rounded-lg bg-muted/40 p-1.5">
+                      {p.image_url ? <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded object-cover" /> : <div className="w-10 h-10 rounded bg-muted" />}
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-1 font-medium">{p.name}</p>
+                        <p className="text-muted-foreground">{p.price || ""}{p.affiliate_url ? " · linked" : " · search link"}</p>
+                      </div>
+                      <button type="button" className="text-muted-foreground px-1" onClick={() => setRoundupProducts((prev) => prev.filter((_, j) => j !== i))}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Word Count Targeting */}
             <div className="space-y-3">

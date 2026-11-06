@@ -7,15 +7,52 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
-import { TrendingUp, RefreshCw, Loader2, Sparkles, PenSquare, CheckCircle2, ExternalLink } from 'lucide-react';
+import { TrendingUp, Loader2, Sparkles, PenSquare, CheckCircle2, ExternalLink, Search, CalendarClock, ShoppingBag } from 'lucide-react';
+import { FORMAT_LABELS } from '@/lib/blogFormats';
+
+export interface ProductSeed { name: string; price_range?: string; why?: string; search_query?: string }
 
 interface Trend {
   rank: number;
   trend: string;
   description: string;
+  why_trending?: string;
   suggested_title?: string;
+  pinterest_title?: string;
+  format?: string;
+  category?: string;
+  room?: string;
+  style?: string;
+  section?: string;
   keywords?: string[];
+  pinterest_score?: number;
+  google_score?: number;
+  affiliate_score?: number;
+  overall_score?: number;
+  competition?: string;
+  season_peak?: string;
+  publish_by?: string;
+  product_seeds?: ProductSeed[];
 }
+
+const FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'idea-roundup', label: '📌 Ideas' },
+  { value: 'product-roundup', label: '💰 Products' },
+  { value: 'room-guide', label: '🛋️ Rooms' },
+  { value: 'seasonal', label: '🎄 Seasonal' },
+  { value: 'buying-guide', label: '📐 Buying' },
+  { value: 'comparison', label: '⚖️ X vs Y' },
+  { value: 'gift-guide', label: '🎁 Gifts' },
+  { value: 'diy', label: '🔨 DIY' },
+];
+
+const Score = ({ label, v }: { label: string; v?: number }) =>
+  typeof v === 'number' ? (
+    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground">
+      {label} <b className="text-foreground">{v}</b>
+    </span>
+  ) : null;
 
 const WeeklyTrendsCard = () => {
   const navigate = useNavigate();
@@ -25,232 +62,174 @@ const WeeklyTrendsCard = () => {
   const [week, setWeek] = useState('');
   const [generatedAt, setGeneratedAt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [filter, setFilter] = useState('all');
 
-  // Fetch all blog posts to check which trends have been published
   const { data: blogPosts } = useQuery({
     queryKey: ['blog-posts-for-trends'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id, title, slug, published')
-        .eq('published', true);
+      const { data, error } = await supabase.from('blog_posts').select('id, title, slug, published').eq('published', true);
       if (error) throw error;
       return data;
     },
   });
 
   useEffect(() => {
-    if (settings) {
-      const trendSetting = settings.find(s => s.key === 'weekly_trends');
-      if (trendSetting?.value) {
-        const val = trendSetting.value as any;
-        setTrends(val.trends || []);
-        setWeek(val.week || '');
-        setGeneratedAt(val.generated_at || '');
-      }
+    const s = settings?.find((x) => x.key === 'weekly_trends');
+    if (s?.value) {
+      const val = s.value as any;
+      setTrends(val.trends || []);
+      setWeek(val.week || '');
+      setGeneratedAt(val.generated_at || '');
     }
   }, [settings]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('weekly-trend-report');
+      const { data, error } = await supabase.functions.invoke('weekly-trend-report', { body: { focus: filter } });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
       setTrends(data.trends || []);
       setWeek(data.week || '');
       setGeneratedAt(new Date().toISOString());
-      toast({ title: 'Trend report generated!', description: '10 trending topics have been identified for this week.' });
+      toast({ title: 'Deep trend scan complete', description: `${data.trends?.length || 0} scored blog opportunities found.` });
     } catch (err: any) {
-      toast({ title: 'Generation failed', description: err.message || 'Please try again.', variant: 'destructive' });
+      toast({ title: 'Scan failed', description: err.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // Check if a trend has already been published as a blog post
   const getPublishedPost = (trend: Trend) => {
     if (!blogPosts) return null;
-
-    const suggestedTitle = (trend.suggested_title || trend.trend || '').toLowerCase();
-    const trendWords = suggestedTitle.split(/\s+/).filter(w => w.length > 3);
-    const trendKeywords = Array.isArray(trend.keywords)
-      ? trend.keywords.map(k => String(k).toLowerCase())
-      : [];
-    
-    for (const post of blogPosts) {
-      const postTitle = post.title.toLowerCase();
-      
-      // Check if multiple keywords match
-      const keywordMatches = trendKeywords.filter(k => postTitle.includes(k)).length;
-      const wordMatches = trendWords.filter(w => postTitle.includes(w)).length;
-      
-      // Consider it a match if at least 2 keywords match OR 3+ significant words match
-      if (keywordMatches >= 2 || wordMatches >= 3) {
-        return post;
-      }
-    }
-    return null;
+    const words = (trend.suggested_title || trend.trend || '').toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+    const kws = (trend.keywords || []).map((k) => String(k).toLowerCase());
+    return blogPosts.find((p) => {
+      const t = p.title.toLowerCase();
+      return kws.filter((k) => t.includes(k)).length >= 2 || words.filter((w) => t.includes(w)).length >= 3;
+    }) || null;
   };
 
-  // Navigate to blog editor with pre-filled AI writer data
-  const handleWriteBlogPost = (trend: Trend) => {
-    const params = new URLSearchParams({
-      autoOpenAi: 'true',
+  const handleWrite = (trend: Trend) => {
+    sessionStorage.setItem('ai_writer_prefill', JSON.stringify({
       topic: trend.suggested_title || trend.trend,
-      keywords: (Array.isArray(trend.keywords) ? trend.keywords : []).join(', '),
-      trendRank: trend.rank.toString(),
-    });
-    
-    navigate(`/admin/blog/new?${params.toString()}`);
+      keywords: (trend.keywords || []).join(', '),
+      format: trend.format || 'auto',
+      category: trend.category || '',
+      room: trend.room || '',
+      style: trend.style || '',
+      section: trend.section || '',
+      pinterest_title: trend.pinterest_title || '',
+      product_seeds: trend.product_seeds || [],
+    }));
+    navigate(`/admin/blog/new?autoOpenAi=true&prefill=1`);
   };
+
+  const shown = trends.filter((t) => filter === 'all' || t.format === filter);
 
   return (
     <Card className="border-border/50 shadow-sm overflow-hidden">
-      <div className="bg-gradient-to-r from-accent/5 via-transparent to-accent/5">
-        <CardHeader className="p-5 pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-md">
-                <TrendingUp className="h-4 w-4 text-accent-foreground" />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-semibold">This Week's Trends</CardTitle>
-                {generatedAt && (
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
-                    {week} · Updated {new Date(generatedAt).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
+      <CardHeader className="p-5 pb-3">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-md">
+              <TrendingUp className="h-4 w-4 text-accent-foreground" />
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleGenerate}
-              disabled={isGenerating}
-              className="rounded-full text-xs h-8 px-3 border-border/50"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-1.5 h-3 w-3" />
-                  Generate Now
-                </>
+            <div>
+              <CardTitle className="text-sm font-semibold">Blog Topic Researcher</CardTitle>
+              {generatedAt && (
+                <p className="text-[10px] text-muted-foreground mt-0.5">{week} · Updated {new Date(generatedAt).toLocaleDateString()}</p>
               )}
-            </Button>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-5 pt-0">
-          {trends.length > 0 ? (
-            <div className="space-y-2.5 mt-3">
-              {trends.slice(0, 10).map((trend) => {
-                const publishedPost = getPublishedPost(trend);
-                
-                return (
-                  <div
-                    key={trend.rank}
-                    className={`p-3 rounded-xl bg-background/80 border transition-colors ${
-                      publishedPost 
-                        ? 'border-emerald-500/30 bg-emerald-500/5' 
-                        : 'border-border/50 hover:border-accent/30'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                        publishedPost ? 'bg-emerald-500/20' : 'bg-accent/10'
-                      }`}>
-                        {publishedPost ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                        ) : (
-                          <span className="text-xs font-bold text-accent">{trend.rank}</span>
-                        )}
+          <Button size="sm" onClick={handleGenerate} disabled={isGenerating} className="rounded-full text-xs h-8 px-3">
+            {isGenerating ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Researching…</> : <><Search className="mr-1.5 h-3 w-3" />Deep Scan</>}
+          </Button>
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto pt-3 -mx-1 px-1">
+          {FILTERS.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className={`shrink-0 text-[11px] px-2.5 py-1 rounded-full border ${filter === f.value ? 'bg-accent text-accent-foreground border-accent' : 'border-border/50 text-muted-foreground'}`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground pt-1">Pick a format, then Deep Scan to focus the research on it.</p>
+      </CardHeader>
+      <CardContent className="p-5 pt-0">
+        {shown.length > 0 ? (
+          <div className="space-y-3 mt-2">
+            {shown.map((trend) => {
+              const published = getPublishedPost(trend);
+              return (
+                <div key={trend.rank + trend.trend} className={`p-3 rounded-xl border ${published ? 'border-accent/40 bg-accent/5' : 'border-border/50 bg-background/80'}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-accent/10 flex flex-col items-center justify-center shrink-0">
+                      {published ? <CheckCircle2 className="h-4 w-4 text-accent" /> : (
+                        <span className="text-xs font-bold text-accent">{trend.overall_score ?? trend.rank}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {trend.format && <Badge variant="outline" className="text-[10px] px-1.5 py-0">{FORMAT_LABELS[trend.format] || trend.format}</Badge>}
+                        {trend.competition && <Badge variant="outline" className="text-[10px] px-1.5 py-0">Competition: {trend.competition}</Badge>}
+                        {published && <Badge className="text-[10px] px-1.5 py-0">Published</Badge>}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold line-clamp-1">{trend.trend}</p>
-                          {publishedPost && (
-                            <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] px-1.5 py-0 shrink-0">
-                              Published
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{trend.description}</p>
-                        <div className="mt-2 p-2 bg-muted/40 rounded-lg border-l-2 border-accent/50">
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Suggested Title</p>
-                          <p className="text-xs font-medium mt-0.5 line-clamp-1">{trend.suggested_title || trend.trend}</p>
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {(Array.isArray(trend.keywords) ? trend.keywords : []).map((kw) => (
-                            <Badge key={kw} variant="secondary" className="text-[10px] bg-accent/5 text-accent border-accent/20 px-1.5 py-0">
-                              {kw}
-                            </Badge>
+                      <p className="text-sm font-semibold">{trend.suggested_title || trend.trend}</p>
+                      {trend.pinterest_title && <p className="text-[11px] text-muted-foreground">📌 {trend.pinterest_title}</p>}
+                      <p className="text-xs text-muted-foreground">{trend.why_trending || trend.description}</p>
+                      <div className="flex gap-1 flex-wrap">
+                        <Score label="Pinterest" v={trend.pinterest_score} />
+                        <Score label="Google" v={trend.google_score} />
+                        <Score label="Affiliate" v={trend.affiliate_score} />
+                      </div>
+                      {trend.publish_by && (
+                        <p className="text-[11px] flex items-center gap-1 text-accent"><CalendarClock className="h-3 w-3" />Publish by {trend.publish_by} · peak {trend.season_peak}</p>
+                      )}
+                      {trend.product_seeds && trend.product_seeds.length > 0 && (
+                        <div className="rounded-lg bg-muted/40 p-2 space-y-1">
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1"><ShoppingBag className="h-3 w-3" />Suggested products</p>
+                          {trend.product_seeds.slice(0, 8).map((p, i) => (
+                            <a key={i} href={`https://www.amazon.com/s?k=${encodeURIComponent(p.search_query || p.name)}&tag=roomrefine-20`} target="_blank" rel="nofollow noopener noreferrer" className="flex justify-between gap-2 text-[11px] hover:text-accent">
+                              <span className="line-clamp-1">{p.name}</span>
+                              <span className="shrink-0 text-muted-foreground">{p.price_range}</span>
+                            </a>
                           ))}
                         </div>
-                        
-                        {/* Action Button */}
-                        <div className="mt-3">
-                          {publishedPost ? (
-                            <a
-                              href={`/blog/${publishedPost.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                              View Published Post
-                            </a>
-                          ) : (
-                            <Button
-                              size="sm"
-                              onClick={() => handleWriteBlogPost(trend)}
-                              className="h-7 text-xs px-3 rounded-full bg-accent text-accent-foreground hover:brightness-110"
-                            >
-                              <PenSquare className="h-3 w-3 mr-1.5" />
-                              Write Blog Post
-                            </Button>
-                          )}
-                        </div>
+                      )}
+                      <div className="flex gap-1 flex-wrap">
+                        {(trend.keywords || []).slice(0, 5).map((k) => (
+                          <Badge key={k} variant="outline" className="text-[10px] px-1.5 py-0 border-accent/30 text-accent">{k}</Badge>
+                        ))}
                       </div>
+                      {published ? (
+                        <Button size="sm" variant="outline" className="h-7 text-xs rounded-full" onClick={() => window.open(`/blog/${published.slug}`, '_blank')}>
+                          <ExternalLink className="mr-1 h-3 w-3" />View post
+                        </Button>
+                      ) : (
+                        <Button size="sm" className="h-7 text-xs rounded-full" onClick={() => handleWrite(trend)}>
+                          <PenSquare className="mr-1 h-3 w-3" />Write this post
+                        </Button>
+                      )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="py-8 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                <Sparkles className="h-5 w-5 opacity-30" />
-              </div>
-              <p className="text-sm text-muted-foreground mb-1">No trend report yet</p>
-              <p className="text-xs text-muted-foreground mb-4">Generate your first weekly trend report</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="rounded-full text-xs"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-1.5 h-3 w-3" />
-                    Generate Trend Report
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="py-8 text-center">
+            <Sparkles className="h-5 w-5 opacity-30 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground mb-4">{trends.length ? 'No ideas in this format yet — run a Deep Scan.' : 'No research yet'}</p>
+            <Button size="sm" onClick={handleGenerate} disabled={isGenerating} className="rounded-full text-xs">
+              {isGenerating ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <Search className="mr-1.5 h-3 w-3" />}Deep Scan
+            </Button>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 };
