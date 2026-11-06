@@ -83,7 +83,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
       const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: msgs }),
+        body: JSON.stringify({ model: "google/gemini-2.5-pro", messages: msgs }),
       });
       if (resp.status === 429) throw { status: 429, message: "Rate limit exceeded." };
       if (resp.status === 402) { console.log("Lovable credits exhausted"); return null; }
@@ -104,7 +104,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
         const resp = await fetch(url, {
           method: "POST",
           headers: { "x-api-key": customTextConfig.api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-          body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: [{ role: "user", content: userContent }] }),
+          body: JSON.stringify({ model, max_tokens: 8000, system: systemPrompt, messages: [{ role: "user", content: userContent }] }),
         });
         if (!resp.ok) return null;
         const d = await resp.json();
@@ -166,7 +166,8 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
     }
 
     content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-    const trends = JSON.parse(content);
+    const m = content.match(/\[[\s\S]*\]/);
+    const trends = JSON.parse(m ? m[0] : content);
 
     // Save to site_settings so the admin dashboard can display it
     await supabase.from("site_settings").upsert({
@@ -198,7 +199,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
                 <div style="font-size:13px;color:#333;font-weight:500;">${t.suggested_title}</div>
               </div>
               <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
-                ${t.keywords.map((kw: string) => `<span style="display:inline-block;padding:2px 8px;background:#f5f0e8;color:#8b7355;border-radius:12px;font-size:11px;">${kw}</span>`).join(' ')}
+                ${(t.keywords||[]).map((kw: string) => `<span style="display:inline-block;padding:2px 8px;background:#f5f0e8;color:#8b7355;border-radius:12px;font-size:11px;">${kw}</span>`).join(' ')}
               </div>
             </td>
           </tr>
