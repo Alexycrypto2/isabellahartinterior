@@ -63,6 +63,34 @@ const AdminProductEditor = () => {
   const [isActive, setIsActive] = useState(true);
   
   const [autoSlug, setAutoSlug] = useState(true);
+  const [amazonPaste, setAmazonPaste] = useState('');
+  const [isExtractingAmazon, setIsExtractingAmazon] = useState(false);
+
+  const handleAmazonAutofill = async () => {
+    if (!amazonPaste.trim()) return;
+    setIsExtractingAmazon(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-amazon-product', { body: { url: amazonPaste.trim() } });
+      if (error || data?.error) throw new Error(data?.error || error?.message);
+      if (data.name) setName(data.name);
+      if (data.description) setDescription(data.description);
+      if (data.price) setPrice(data.price);
+      if (data.image_url) setImageUrl(data.image_url);
+      if (data.rating) setRating(String(data.rating));
+      if (data.reviews) setReviews(String(data.reviews));
+      setAffiliateUrl(data.affiliate_url);
+      const cat = (categories as any[] | undefined)?.find((c) => String(c.name).toLowerCase() === String(data.category).toLowerCase());
+      if (cat) setCategory(cat.name);
+      toast({
+        title: data.partial ? 'Link added — some details hidden by Amazon' : 'Product details filled in',
+        description: data.partial ? 'Your tagged link is set. Please check the name, price and photo.' : 'Check the details, then save.',
+      });
+    } catch (e: any) {
+      toast({ title: 'Could not read that link', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsExtractingAmazon(false);
+    }
+  };
   
   // SEO fields
   const [metaTitle, setMetaTitle] = useState('');
@@ -274,6 +302,16 @@ const AdminProductEditor = () => {
         </div>
 
         <div className="space-y-6">
+          <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 space-y-2">
+            <Label>Paste Amazon link to auto-fill</Label>
+            <div className="flex gap-2">
+              <Input value={amazonPaste} onChange={(e) => setAmazonPaste(e.target.value)} placeholder="https://amzn.to/... or amazon.com/dp/..." />
+              <Button type="button" onClick={handleAmazonAutofill} disabled={isExtractingAmazon}>
+                {isExtractingAmazon ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Wand2 className="mr-2 h-4 w-4" />Auto-fill</>}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Fills name, price, photo, rating and adds your affiliate tag.</p>
+          </div>
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name">Product Name *</Label>
