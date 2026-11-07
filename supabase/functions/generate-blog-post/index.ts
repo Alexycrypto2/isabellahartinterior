@@ -161,7 +161,7 @@ PRODUCT CARD HTML (use for every product):
 Replace \${IMG} with <img src="IMAGE_URL" alt="descriptive alt" loading="lazy"> only when an image_url is supplied, otherwise omit it. Prices are approximate — say "check current price". Never invent star ratings when not supplied; omit the ★ part instead. Be honest: every product gets a real "Keep in mind".` : "";
     const editorialRule = isMoney
       ? "CONTENT FOCUS: This is a helpful, honest buying article. Product links are allowed ONLY in product cards/at-a-glance table as specified; the rest stays editorial. Internal links to our articles are encouraged."
-      : "${editorialRule}
+      : "CONTENT FOCUS (STRICT): This is an editorial article, not a sales page. Do NOT embed products, product cards, \"Shop\" buttons, Amazon or affiliate links. Do not push readers to buy. Mention generic item types (e.g. \"a linen throw\") only as styling advice. The only links allowed are internal links to our own articles.";
 
     const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "Isabelle Hart Interiors", a premium home decor and interior design brand.
 
@@ -249,7 +249,7 @@ Before writing, reason about the search intent and the top 10 Google results for
 - Address common misconceptions and provide nuanced answers
 - Give specific measurements and approximate price ranges as guidance only
 
-CONTENT FOCUS (STRICT): This is an editorial article, not a sales page. Do NOT embed products, product cards, "Shop" buttons, Amazon or affiliate links. Do not push readers to buy. Mention generic item types (e.g. "a linen throw") only as styling advice. The only links allowed are internal links to our own articles.
+${editorialRule}
 
 RANK #1 EDITORIAL BLUEPRINT (MANDATORY ORDER — match and beat the top-ranking home decor articles):
 1. Editorial hook (2-3 sentences) that answers the query directly in the first 50 words (featured-snippet ready) and contains the primary keyword.
@@ -302,7 +302,7 @@ IMPORTANT REQUIREMENTS:
               title: { type: "string", description: "Blog post title, under 60 chars" },
               slug: { type: "string", description: "URL-friendly slug derived from title, lowercase with hyphens" },
               excerpt: { type: "string", description: "1-2 sentence summary, plain text, no HTML" },
-              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Internal links to our articles (no product embeds or affiliate links), 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
+              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Internal links to our articles (product cards only when the format allows), 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
               meta_title: { type: "string", description: "SEO meta title, under 60 chars" },
               meta_description: { type: "string", description: "SEO meta description, under 160 chars" },
               read_time: { type: "string", description: 'Estimated read time, e.g. "5 min read"' },
@@ -473,7 +473,9 @@ IMPORTANT REQUIREMENTS:
     if (!ROOMS.includes(blogPost.room)) blogPost.room = "";
     if (!STYLES.includes(blogPost.style)) blogPost.style = "";
     // Strip any affiliate/Amazon links the model might still add
-    blogPost.content = String(blogPost.content || "")
+    blogPost.content = isMoney
+      ? String(blogPost.content || "").replace(/href="(https?:\/\/[^"]*amazon\.[^"]*)"/gi, (_m: string, u: string) => `href="${withTag(u.replace(/&amp;/g, "&"))}"`)
+      : String(blogPost.content || "")
       .replace(/<div class="product-embed"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g, "")
       .replace(/<a [^>]*href="[^"]*(amazon\.|amzn\.)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, "$2");
     blogPost.word_count = countWords(blogPost.content);

@@ -439,6 +439,25 @@
     font-family: 'Instrument Serif', serif; font-weight: 400 !important; font-size: 1.5rem; color: hsl(var(--accent));
   }
   .editorial-article .blog-cheatsheet ul { margin-bottom: 0; }
+  .editorial-article .product-pick-card {
+    position: relative; margin: 1.75rem 0; padding: 1.5rem; border-radius: 1rem;
+    border: 1px solid hsl(var(--accent) / 0.35); background: hsl(var(--card));
+  }
+  .editorial-article .product-pick-card img {
+    width: 100%; max-width: 360px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 0.75rem; margin: 0.5rem auto 1rem; display: block;
+  }
+  .editorial-article .product-pick-card h3 { margin-top: 0.5rem; }
+  .editorial-article .pick-badge {
+    display: inline-block; padding: 0.2rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase; background: hsl(var(--accent)); color: hsl(var(--accent-foreground));
+  }
+  .editorial-article .pick-meta { color: hsl(var(--muted-foreground)); font-size: 0.9rem; }
+  .editorial-article .pick-cons { font-size: 0.95rem; color: hsl(var(--muted-foreground)); }
+  .editorial-article .pick-button {
+    display: inline-block; margin-top: 0.5rem; padding: 0.7rem 1.4rem; border-radius: 999px; font-weight: 600;
+    background: hsl(var(--accent)); color: hsl(var(--accent-foreground)) !important; text-decoration: none !important;
+  }
+  .editorial-article .comparison-scorecard td:last-child { font-weight: 600; color: hsl(var(--accent)); }
   /* Designer's note blockquotes */
   .editorial-article blockquote {
     position: relative; margin: 2em 0; padding: 1.4em 1.4em 1.2em 1.6em;
