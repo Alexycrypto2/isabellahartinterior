@@ -302,7 +302,7 @@ IMPORTANT REQUIREMENTS:
               title: { type: "string", description: "Blog post title, under 60 chars" },
               slug: { type: "string", description: "URL-friendly slug derived from title, lowercase with hyphens" },
               excerpt: { type: "string", description: "1-2 sentence summary, plain text, no HTML" },
-              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Internal links to our articles (no product embeds or affiliate links), 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
+              content: { type: "string", description: `Full blog post in semantic HTML. Target ${wordCountTarget} words. MUST include: 1) Table of Contents after intro, 2) H2 headings with id attributes, 3) Internal links to our articles (product cards only when the format allows), 4) FAQ section at the end with 5-7 questions, 5) Descriptive alt text on ALL images, 6) Key Takeaways section, 7) CTA paragraph.` },
               meta_title: { type: "string", description: "SEO meta title, under 60 chars" },
               meta_description: { type: "string", description: "SEO meta description, under 160 chars" },
               read_time: { type: "string", description: 'Estimated read time, e.g. "5 min read"' },
@@ -473,7 +473,9 @@ IMPORTANT REQUIREMENTS:
     if (!ROOMS.includes(blogPost.room)) blogPost.room = "";
     if (!STYLES.includes(blogPost.style)) blogPost.style = "";
     // Strip any affiliate/Amazon links the model might still add
-    blogPost.content = String(blogPost.content || "")
+    blogPost.content = isMoney
+      ? String(blogPost.content || "").replace(/href="(https?:\/\/[^"]*amazon\.[^"]*)"/gi, (_m: string, u: string) => `href="${withTag(u.replace(/&amp;/g, "&"))}"`)
+      : String(blogPost.content || "")
       .replace(/<div class="product-embed"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g, "")
       .replace(/<a [^>]*href="[^"]*(amazon\.|amzn\.)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, "$2");
     blogPost.word_count = countWords(blogPost.content);
