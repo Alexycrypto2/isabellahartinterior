@@ -161,7 +161,7 @@ PRODUCT CARD HTML (use for every product):
 Replace \${IMG} with <img src="IMAGE_URL" alt="descriptive alt" loading="lazy"> only when an image_url is supplied, otherwise omit it. Prices are approximate — say "check current price". Never invent star ratings when not supplied; omit the ★ part instead. Be honest: every product gets a real "Keep in mind".` : "";
     const editorialRule = isMoney
       ? "CONTENT FOCUS: This is a helpful, honest buying article. Product links are allowed ONLY in product cards/at-a-glance table as specified; the rest stays editorial. Internal links to our articles are encouraged."
-      : "${editorialRule}
+      : "CONTENT FOCUS (STRICT): This is an editorial article, not a sales page. Do NOT embed products, product cards, \"Shop\" buttons, Amazon or affiliate links. Do not push readers to buy. Mention generic item types (e.g. \"a linen throw\") only as styling advice. The only links allowed are internal links to our own articles.";
 
     const systemPrompt = `You are an elite SEO content strategist and professional copywriter for "Isabelle Hart Interiors", a premium home decor and interior design brand.
 
@@ -249,7 +249,7 @@ Before writing, reason about the search intent and the top 10 Google results for
 - Address common misconceptions and provide nuanced answers
 - Give specific measurements and approximate price ranges as guidance only
 
-CONTENT FOCUS (STRICT): This is an editorial article, not a sales page. Do NOT embed products, product cards, "Shop" buttons, Amazon or affiliate links. Do not push readers to buy. Mention generic item types (e.g. "a linen throw") only as styling advice. The only links allowed are internal links to our own articles.
+${editorialRule}
 
 RANK #1 EDITORIAL BLUEPRINT (MANDATORY ORDER — match and beat the top-ranking home decor articles):
 1. Editorial hook (2-3 sentences) that answers the query directly in the first 50 words (featured-snippet ready) and contains the primary keyword.
