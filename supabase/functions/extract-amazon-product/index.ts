@@ -46,6 +46,28 @@ Deno.serve(async (req) => {
       html = await r.text();
     } catch { /* blocked */ }
 
+    // Firecrawl fallback/primary: bypasses Amazon bot blocking
+    try {
+      let fcKey = Deno.env.get("FIRECRAWL_API_KEY") || "";
+      if (!fcKey) {
+        const { createClient } = await import("npm:@supabase/supabase-js@2");
+        const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+        const { data } = await sb.from("site_settings").select("value").eq("key", "firecrawl").maybeSingle();
+        fcKey = (data?.value as any)?.api_key || "";
+      }
+      if (fcKey && (!html || !/id="productTitle"/.test(html))) {
+        const fr = await fetch("https://api.firecrawl.dev/v2/scrape", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${fcKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ url: finalUrl, formats: ["rawHtml"], onlyMainContent: false, proxy: "stealth" }),
+        });
+        const fd = await fr.json().catch(() => ({}));
+        if (!fr.ok) console.error("Firecrawl failed", fr.status, JSON.stringify(fd).slice(0, 300));
+        const raw = fd?.data?.rawHtml || fd?.rawHtml || "";
+        if (raw) { html = raw; finalUrl = fd?.data?.metadata?.url || fd?.data?.metadata?.sourceURL || finalUrl; }
+      }
+    } catch (e) { console.error("Firecrawl error", e); }
+
     const asin = (finalUrl.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i) || html.match(/data-asin="([A-Z0-9]{10})"/) || [])[1] || "";
     const host = (() => { try { return new URL(finalUrl).hostname.replace(/^smile\./, "www."); } catch { return "www.amazon.com"; } })();
     const base = /amazon\./.test(host) ? host : "www.amazon.com";
